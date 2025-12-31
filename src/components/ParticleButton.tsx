@@ -328,7 +328,10 @@ export default function ParticleButton() {
             <button
                 onClick={handleClick}
                 type="button"
-                class="cursor-pointer hover:opacity-75"
+                style={{
+                    all: "unset",
+                    cursor: "pointer",
+                }}
             >
                 click to see the effect? 🎉
             </button>
