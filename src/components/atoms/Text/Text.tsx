@@ -81,22 +81,28 @@ export function Text(props: TextProps) {
         "as",
     ]);
 
-    const tag = local.as || "p";
-    const className = text({
-        size: local.size,
-        weight: local.weight,
-        color: local.color,
-        font: local.font,
-        class: local.class,
-    });
+    return (
+        <>
+            {(() => {
+                const tag = local.as || "p";
+                const className = text({
+                    size: local.size,
+                    weight: local.weight,
+                    color: local.color,
+                    font: local.font,
+                    class: local.class,
+                });
 
-    return createTextElement(
-        tag,
-        {
-            class: className,
-            "aria-label": others["aria-label"],
-            ...others,
-        },
-        local.children
+                return createTextElement(
+                    tag,
+                    {
+                        class: className,
+                        "aria-label": others["aria-label"],
+                        ...others,
+                    },
+                    local.children
+                );
+            })()}
+        </>
     );
 }

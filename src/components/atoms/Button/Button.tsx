@@ -194,7 +194,7 @@ export function Button(props: ButtonProps) {
             })}
             type={others.type || "button"}
             disabled={local.disabled || local.loading}
-            onClick={local.onClick}
+            onClick={() => local.onClick?.()}
             onKeyDown={handleKeyDown}
             aria-label={local["aria-label"]}
             aria-disabled={local.disabled || local.loading}
