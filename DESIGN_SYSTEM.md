@@ -17,16 +17,19 @@ This document serves as a comprehensive guide for AI agents and developers to un
 ## Core Principles
 
 ### 1. **Theme-Aware Design**
+
 - All colors MUST use design system tokens, never hardcoded hex values
 - Colors automatically adapt to the active theme (nordfox, nightfox, carbonfox, dayfox)
 - Default theme is **nordfox**
 
 ### 2. **Utility-First Approach**
+
 - Use Tailwind utility classes that map to CSS variables
 - NEVER use arbitrary values like `bg-[var(--color-primary)]`
 - ALWAYS use semantic utility classes like `bg-primary`, `text-fg-main`, `border-ui-border`
 
 ### 3. **Consistency**
+
 - Follow established patterns for spacing, typography, and component structure
 - Maintain visual hierarchy using the defined type scale
 - Ensure accessibility with proper contrast ratios (handled by theme colors)
@@ -49,10 +52,11 @@ The application supports four themes that can be switched dynamically:
 Themes are applied via the `data-theme` attribute on the `<html>` element:
 
 ```html
-<html data-theme="nordfox">
+<html data-theme="nordfox"></html>
 ```
 
 **Important**: When generating code, you should NOT manually set `data-theme`. The theme system handles this automatically through:
+
 - `ThemeToggle` component for user switching
 - `Layout.astro` initialization script for persistence
 
@@ -62,49 +66,50 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 
 ### Primary Colors (Backgrounds)
 
-| Token | Utility Class | Usage |
-|-------|--------------|-------|
-| `--color-primary` | `bg-primary` | Main page background |
-| `--color-secondary` | `bg-secondary` | Elevated surfaces, cards, panels |
-| `--color-tertiary` | `bg-tertiary` | Code blocks, deep nested surfaces |
+| Token               | Utility Class  | Usage                             |
+| ------------------- | -------------- | --------------------------------- |
+| `--color-primary`   | `bg-primary`   | Main page background              |
+| `--color-secondary` | `bg-secondary` | Elevated surfaces, cards, panels  |
+| `--color-tertiary`  | `bg-tertiary`  | Code blocks, deep nested surfaces |
 
 ### Foreground Colors (Text)
 
-| Token | Utility Class | Usage |
-|-------|--------------|-------|
-| `--color-fg-main` | `text-fg-main` | Primary text content |
+| Token              | Utility Class   | Usage                         |
+| ------------------ | --------------- | ----------------------------- |
+| `--color-fg-main`  | `text-fg-main`  | Primary text content          |
 | `--color-fg-muted` | `text-fg-muted` | Secondary text, labels, hints |
 
 ### Accent Color
 
-| Token | Utility Class | Usage |
-|-------|--------------|-------|
+| Token            | Utility Class              | Usage                                         |
+| ---------------- | -------------------------- | --------------------------------------------- |
 | `--color-accent` | `bg-accent`, `text-accent` | Interactive elements, links, highlights, CTAs |
 
 ### Syntax Colors (Code Highlighting)
 
-| Token | Utility Class | Usage |
-|-------|--------------|-------|
-| `--color-syntax-keyword` | `bg-syntax-keyword`, `text-syntax-keyword` | Keywords in code |
-| `--color-syntax-string` | `bg-syntax-string`, `text-syntax-string` | Strings in code |
+| Token                     | Utility Class                                | Usage             |
+| ------------------------- | -------------------------------------------- | ----------------- |
+| `--color-syntax-keyword`  | `bg-syntax-keyword`, `text-syntax-keyword`   | Keywords in code  |
+| `--color-syntax-string`   | `bg-syntax-string`, `text-syntax-string`     | Strings in code   |
 | `--color-syntax-function` | `bg-syntax-function`, `text-syntax-function` | Functions in code |
-| `--color-syntax-number` | `bg-syntax-number`, `text-syntax-number` | Numbers in code |
-| `--color-syntax-comment` | `bg-syntax-comment`, `text-syntax-comment` | Comments in code |
+| `--color-syntax-number`   | `bg-syntax-number`, `text-syntax-number`     | Numbers in code   |
+| `--color-syntax-comment`  | `bg-syntax-comment`, `text-syntax-comment`   | Comments in code  |
 
 ### UI Colors (Borders & States)
 
-| Token | Utility Class | Usage |
-|-------|--------------|-------|
-| `--color-ui-border` | `border-ui-border` | Borders, dividers |
-| `--color-ui-active` | `bg-ui-active` | Active/hover states |
-| `--color-ui-gutter` | `bg-ui-gutter` | Sidebars, gutters |
+| Token               | Utility Class      | Usage               |
+| ------------------- | ------------------ | ------------------- |
+| `--color-ui-border` | `border-ui-border` | Borders, dividers   |
+| `--color-ui-active` | `bg-ui-active`     | Active/hover states |
+| `--color-ui-gutter` | `bg-ui-gutter`     | Sidebars, gutters   |
 
 ### ❌ WRONG - Never Do This
 
 ```html
 <!-- DON'T use arbitrary values -->
 <div class="bg-[var(--color-primary)] text-[var(--color-fg-main)]">
-<div style="background-color: #1d2021; color: #e5e9f0;">
+    <div style="background-color: #1d2021; color: #e5e9f0;"></div>
+</div>
 ```
 
 ### ✅ CORRECT - Always Do This
@@ -112,7 +117,8 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 ```html
 <!-- DO use utility classes -->
 <div class="bg-primary text-fg-main">
-<div class="bg-secondary border border-ui-border">
+    <div class="bg-secondary border border-ui-border"></div>
+</div>
 ```
 
 ---
@@ -122,12 +128,14 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 ### Font Families
 
 #### Sans Serif (Body Text)
+
 - **Font**: Google Sans
 - **Usage**: Body text, UI elements, headings
 - **Classes**: `font-sans` (default)
 - **CSS Variable**: `var(--font-sans)`
 
 #### Monospace (Code)
+
 - **Font**: DankMono
 - **Usage**: Code blocks, technical content, inline code
 - **Classes**: `font-mono`
@@ -135,17 +143,17 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 
 ### Type Scale
 
-| Element | Class | Usage |
-|---------|-------|-------|
-| Heading 1 | `text-5xl font-bold` | Page titles |
-| Heading 2 | `text-4xl font-bold` | Section titles |
-| Heading 3 | `text-3xl font-bold` | Subsection titles |
-| Heading 4 | `text-2xl font-semibold` | Card titles |
-| Heading 5 | `text-xl font-semibold` | Small section headers |
-| Heading 6 | `text-lg font-medium` | Minor headers |
-| Body | `text-base` | Default body text |
-| Small | `text-sm` | Captions, metadata |
-| Extra Small | `text-xs` | Fine print, labels |
+| Element     | Class                    | Usage                 |
+| ----------- | ------------------------ | --------------------- |
+| Heading 1   | `text-5xl font-bold`     | Page titles           |
+| Heading 2   | `text-4xl font-bold`     | Section titles        |
+| Heading 3   | `text-3xl font-bold`     | Subsection titles     |
+| Heading 4   | `text-2xl font-semibold` | Card titles           |
+| Heading 5   | `text-xl font-semibold`  | Small section headers |
+| Heading 6   | `text-lg font-medium`    | Minor headers         |
+| Body        | `text-base`              | Default body text     |
+| Small       | `text-sm`                | Captions, metadata    |
+| Extra Small | `text-xs`                | Fine print, labels    |
 
 ### Typography Examples
 
@@ -177,17 +185,23 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 
 ```html
 <!-- Primary Button -->
-<button class="px-4 py-2 rounded bg-accent text-primary font-medium hover:opacity-90 transition-opacity">
+<button
+    class="px-4 py-2 rounded bg-accent text-primary font-medium hover:opacity-90 transition-opacity"
+>
     Primary Action
 </button>
 
 <!-- Secondary Button -->
-<button class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary transition-colors">
+<button
+    class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary transition-colors"
+>
     Secondary Action
 </button>
 
 <!-- Text Button -->
-<button class="px-4 py-2 rounded text-accent hover:bg-tertiary transition-colors">
+<button
+    class="px-4 py-2 rounded text-accent hover:bg-tertiary transition-colors"
+>
     Text Action
 </button>
 ```
@@ -217,7 +231,9 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 ### Headers/Navigation
 
 ```html
-<header class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm">
+<header
+    class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm"
+>
     <div class="container mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold">Page Title</h1>
@@ -243,18 +259,21 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 ### 1. **Always Use Design Tokens**
 
 ✅ **DO:**
+
 ```html
-<div class="bg-secondary text-fg-main border border-ui-border">
+<div class="bg-secondary text-fg-main border border-ui-border"></div>
 ```
 
 ❌ **DON'T:**
+
 ```html
-<div class="bg-[var(--color-secondary)]" style="color: #e5e9f0;">
+<div class="bg-[var(--color-secondary)]" style="color: #e5e9f0;"></div>
 ```
 
 ### 2. **Maintain Spacing Consistency**
 
 Use Tailwind's spacing scale:
+
 - `p-4`, `p-6`, `p-8` for padding
 - `mb-4`, `mb-6`, `mb-8`, `mb-16` for margins
 - `gap-4`, `gap-6` for grid/flex gaps
@@ -262,23 +281,29 @@ Use Tailwind's spacing scale:
 ### 3. **Use Semantic Color Names**
 
 ✅ **DO:**
+
 ```html
 <div class="bg-secondary text-fg-main">
-<button class="bg-accent text-primary">
+    <button class="bg-accent text-primary"></button>
+</div>
 ```
 
 ❌ **DON'T:**
+
 ```html
 <div class="bg-gray-800 text-white">
-<button class="bg-blue-500 text-black">
+    <button class="bg-blue-500 text-black"></button>
+</div>
 ```
 
 ### 4. **Responsive Design**
 
 Always consider responsive breakpoints:
+
 ```html
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-<div class="text-sm md:text-base">
+    <div class="text-sm md:text-base"></div>
+</div>
 ```
 
 ### 5. **Accessibility**
@@ -291,6 +316,7 @@ Always consider responsive breakpoints:
 ### 6. **Theme Compatibility**
 
 All components MUST work across all themes. Test that:
+
 - Text remains readable in all themes
 - Borders and dividers are visible
 - Interactive states (hover, focus) are clear
@@ -301,35 +327,38 @@ All components MUST work across all themes. Test that:
 When mapping values or handling conditional logic, prefer dictionary object maps over switch statements for better maintainability and performance.
 
 ✅ **DO:**
+
 ```typescript
 const sizeMap = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg'
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2 text-base",
+    lg: "px-6 py-3 text-lg",
 } as const;
 
 const className = sizeMap[size] || sizeMap.md;
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 let className: string;
 switch (size) {
-  case 'sm':
-    className = 'px-3 py-1.5 text-sm';
-    break;
-  case 'md':
-    className = 'px-4 py-2 text-base';
-    break;
-  case 'lg':
-    className = 'px-6 py-3 text-lg';
-    break;
-  default:
-    className = 'px-4 py-2 text-base';
+    case "sm":
+        className = "px-3 py-1.5 text-sm";
+        break;
+    case "md":
+        className = "px-4 py-2 text-base";
+        break;
+    case "lg":
+        className = "px-6 py-3 text-lg";
+        break;
+    default:
+        className = "px-4 py-2 text-base";
 }
 ```
 
 **Benefits:**
+
 - More concise and readable
 - Easier to maintain and extend
 - Better TypeScript inference with `as const`
@@ -349,7 +378,9 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout>
     <div class="min-h-screen bg-primary text-fg-main">
-        <header class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm">
+        <header
+            class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm"
+        >
             <div class="container mx-auto px-6 py-4">
                 <h1 class="text-2xl font-bold">Page Title</h1>
             </div>
@@ -357,13 +388,19 @@ import Layout from "../layouts/Layout.astro";
 
         <main class="container mx-auto px-6 py-12 max-w-7xl">
             <section class="mb-16">
-                <h2 class="text-3xl font-bold mb-8 pb-4 border-b border-ui-border">
+                <h2
+                    class="text-3xl font-bold mb-8 pb-4 border-b border-ui-border"
+                >
                     Section Title
                 </h2>
-                
+
                 <div class="grid md:grid-cols-2 gap-6">
-                    <div class="p-6 rounded-lg bg-secondary border border-ui-border">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">Card Title</h3>
+                    <div
+                        class="p-6 rounded-lg bg-secondary border border-ui-border"
+                    >
+                        <h3 class="text-xl font-semibold mb-2 text-accent">
+                            Card Title
+                        </h3>
                         <p class="text-sm text-fg-muted">
                             Card content description
                         </p>
@@ -389,7 +426,7 @@ import Layout from "../layouts/Layout.astro";
             placeholder="your@email.com"
         />
     </div>
-    
+
     <button
         type="submit"
         class="w-full px-4 py-2 rounded bg-accent text-primary font-medium hover:opacity-90 transition-opacity"
@@ -422,27 +459,31 @@ import Layout from "../layouts/Layout.astro";
 ```html
 <!-- Container -->
 <div class="container mx-auto px-6 py-12">
+    <!-- Card -->
+    <div class="p-6 rounded-lg bg-secondary border border-ui-border">
+        <!-- Button Primary -->
+        <button class="px-4 py-2 rounded bg-accent text-primary font-medium">
+            <!-- Button Secondary -->
+            <button
+                class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary"
+            >
+                <!-- Heading -->
+                <h2 class="text-3xl font-bold mb-4">
+                    <!-- Body Text -->
+                    <p class="text-base text-fg-main">
+                        <!-- Muted Text -->
+                    </p>
 
-<!-- Card -->
-<div class="p-6 rounded-lg bg-secondary border border-ui-border">
+                    <p class="text-sm text-fg-muted">
+                        <!-- Section Divider -->
+                    </p>
 
-<!-- Button Primary -->
-<button class="px-4 py-2 rounded bg-accent text-primary font-medium">
-
-<!-- Button Secondary -->
-<button class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary">
-
-<!-- Heading -->
-<h2 class="text-3xl font-bold mb-4">
-
-<!-- Body Text -->
-<p class="text-base text-fg-main">
-
-<!-- Muted Text -->
-<p class="text-sm text-fg-muted">
-
-<!-- Section Divider -->
-<div class="border-b border-ui-border mb-8 pb-4">
+                    <div class="border-b border-ui-border mb-8 pb-4"></div>
+                </h2>
+            </button>
+        </button>
+    </div>
+</div>
 ```
 
 ---
@@ -473,6 +514,7 @@ import Layout from "../layouts/Layout.astro";
 ## Questions?
 
 If you're unsure about which color or utility to use:
+
 1. Check `src/pages/design-system.astro` for visual examples
 2. Review `src/assets/design/tokens.css` for available tokens
 3. Look at existing components for patterns

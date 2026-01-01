@@ -50,20 +50,20 @@ src/components/
 **Atomic Levels:**
 
 1. **Atoms** - Smallest, indivisible components
-   - Examples: `Button`, `Input`, `Label`, `Icon`, `Text`
-   - No dependencies on other components
-   - Highly reusable
-   - Single responsibility
+    - Examples: `Button`, `Input`, `Label`, `Icon`, `Text`
+    - No dependencies on other components
+    - Highly reusable
+    - Single responsibility
 
 2. **Molecules** - Simple combinations of atoms
-   - Examples: `FormField` (Label + Input), `Card` (Container + Content), `Badge` (Text + Background)
-   - Composed of 2-5 atoms
-   - Still reusable but more specific
+    - Examples: `FormField` (Label + Input), `Card` (Container + Content), `Badge` (Text + Background)
+    - Composed of 2-5 atoms
+    - Still reusable but more specific
 
 3. **Organisms** - Complex components combining molecules/atoms
-   - Examples: `Header` (Logo + Navigation + ThemeToggle), `Form` (multiple FormFields + Button)
-   - Business logic may be present
-   - Less reusable, more context-specific
+    - Examples: `Header` (Logo + Navigation + ThemeToggle), `Form` (multiple FormFields + Button)
+    - Business logic may be present
+    - Less reusable, more context-specific
 
 ### Compound Components Pattern
 
@@ -83,12 +83,14 @@ For complex, composable components, use the Compound Components pattern:
 ```
 
 **Benefits:**
+
 - Flexible composition
 - Better prop drilling control
 - Clearer component hierarchy
 - Easier to maintain
 
 **Implementation Pattern:**
+
 ```typescript
 // Card.tsx
 export function Card(props: CardProps) {
@@ -168,13 +170,14 @@ Always use barrel exports (`index.ts`) for cleaner imports:
 
 ```typescript
 // atoms/Button/index.ts
-export { Button } from './Button';
-export type { ButtonProps } from './Button';
+export { Button } from "./Button";
+export type { ButtonProps } from "./Button";
 ```
 
 Usage:
+
 ```typescript
-import { Button } from '@/components/atoms/Button';
+import { Button } from "@/components/atoms/Button";
 ```
 
 ---
@@ -184,12 +187,13 @@ import { Button } from '@/components/atoms/Button';
 ### 1. Signal Usage
 
 ✅ **DO:**
+
 ```typescript
 import { createSignal } from 'solid-js';
 
 function Counter() {
   const [count, setCount] = createSignal(0);
-  
+
   return (
     <button onClick={() => setCount(count() + 1)}>
       Count: {count()}
@@ -199,9 +203,10 @@ function Counter() {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Don't use signals for static values
-const [staticValue] = createSignal('never changes');
+const [staticValue] = createSignal("never changes");
 
 // Don't create signals unnecessarily
 const [computed] = createSignal(props.value * 2); // Use createMemo instead
@@ -210,20 +215,21 @@ const [computed] = createSignal(props.value * 2); // Use createMemo instead
 ### 2. Memos and Effects
 
 ✅ **DO:**
+
 ```typescript
 import { createMemo, createEffect, onCleanup } from 'solid-js';
 
 function ExpensiveComponent(props: { items: Item[] }) {
   // Memoize expensive computations
-  const sortedItems = createMemo(() => 
+  const sortedItems = createMemo(() =>
     props.items.sort((a, b) => a.name.localeCompare(b.name))
   );
-  
+
   // Use effects for side effects
   createEffect(() => {
     console.log('Items changed:', sortedItems());
   });
-  
+
   return <div>{/* render */}</div>;
 }
 ```
@@ -231,6 +237,7 @@ function ExpensiveComponent(props: { items: Item[] }) {
 ### 3. Component Props
 
 ✅ **DO:**
+
 ```typescript
 interface ButtonProps {
   children: JSX.Element;
@@ -259,22 +266,23 @@ export function Button(props: ButtonProps) {
 ### 4. Lifecycle Management
 
 ✅ **DO:**
+
 ```typescript
 import { onMount, onCleanup } from 'solid-js';
 
 function ComponentWithCleanup() {
   let intervalId: number;
-  
+
   onMount(() => {
     intervalId = setInterval(() => {
       // Do something
     }, 1000);
   });
-  
+
   onCleanup(() => {
     if (intervalId) clearInterval(intervalId);
   });
-  
+
   return <div>Component</div>;
 }
 ```
@@ -284,17 +292,18 @@ function ComponentWithCleanup() {
 For performance-critical operations (like animations), use direct DOM manipulation:
 
 ✅ **DO:**
+
 ```typescript
 function AnimatedComponent() {
   let elementRef: HTMLDivElement | undefined;
-  
+
   const animate = () => {
     if (elementRef) {
       // Direct DOM manipulation for performance
       elementRef.style.transform = 'translateX(100px)';
     }
   };
-  
+
   return <div ref={elementRef}>Content</div>;
 }
 ```
@@ -302,13 +311,14 @@ function AnimatedComponent() {
 ### 6. Avoid Unnecessary Re-renders
 
 ✅ **DO:**
+
 ```typescript
 // Use splitProps to separate reactive and non-reactive props
 import { splitProps } from 'solid-js';
 
 function Component(props: ComponentProps) {
   const [local, others] = splitProps(props, ['children', 'class']);
-  
+
   // local props are reactive
   // others are non-reactive and can be spread
   return <div class={local.class} {...others}>{local.children}</div>;
@@ -328,6 +338,7 @@ function Component(props: ComponentProps) {
 - **`state`** - Separate prop for **interactive states** (e.g., `default`, `hover`, `active`, `disabled`, `loading`)
 
 ✅ **DO:**
+
 ```typescript
 interface ButtonProps {
   children: JSX.Element;
@@ -344,10 +355,11 @@ interface ButtonProps {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Don't mix shape and color in variant
 interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'success'; // ❌ Mixing shape and color
+    variant?: "primary" | "secondary" | "success"; // ❌ Mixing shape and color
 }
 ```
 
@@ -446,6 +458,7 @@ export function Button(props: ButtonProps) {
 **Prefer controlled components** for better predictability:
 
 ✅ **DO:**
+
 ```typescript
 interface InputProps {
   value: string;
@@ -465,6 +478,7 @@ function Input(props: InputProps) {
 ### 4. Composition over Configuration
 
 ✅ **DO:**
+
 ```typescript
 // Flexible composition
 <Card>
@@ -476,6 +490,7 @@ function Input(props: InputProps) {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Rigid configuration
 <Card title="Title" content="Content" showHeader={true} />
@@ -493,7 +508,7 @@ interface ButtonProps {
 
 export function Button(props: ButtonProps) {
   const Component = props.as || 'button';
-  
+
   return (
     <Component class="btn">
       {props.children}
@@ -509,17 +524,18 @@ export function Button(props: ButtonProps) {
 ### 1. Interface Definitions
 
 ✅ **DO:**
+
 ```typescript
 // Use interfaces for component props
 interface ButtonProps {
-  children: JSX.Element;
-  variant?: 'primary' | 'secondary';
-  onClick?: () => void;
+    children: JSX.Element;
+    variant?: "primary" | "secondary";
+    onClick?: () => void;
 }
 
 // Use types for unions, intersections, and computed types
-type ButtonVariant = 'primary' | 'secondary' | 'text';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonVariant = "primary" | "secondary" | "text";
+type ButtonSize = "sm" | "md" | "lg";
 ```
 
 ### 2. Type Exports
@@ -528,26 +544,27 @@ Always export prop types for consumers:
 
 ```typescript
 export interface ButtonProps {
-  // ...
+    // ...
 }
 
 export function Button(props: ButtonProps) {
-  // ...
+    // ...
 }
 ```
 
 ### 3. Strict Type Safety
 
 ✅ **DO:**
+
 ```typescript
 // Use const assertions for literal types
-const themes = ['nordfox', 'nightfox', 'carbonfox', 'dayfox'] as const;
-type Theme = typeof themes[number];
+const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"] as const;
+type Theme = (typeof themes)[number];
 
 // Use satisfies for type checking without widening
 const config = {
-  theme: 'nordfox',
-  colors: ['primary', 'secondary']
+    theme: "nordfox",
+    colors: ["primary", "secondary"],
 } satisfies Config;
 ```
 
@@ -558,6 +575,7 @@ const config = {
 ### 1. Semantic HTML
 
 ✅ **DO:**
+
 ```typescript
 // Use semantic elements
 <nav aria-label="Main navigation">
@@ -575,6 +593,7 @@ const config = {
 ### 2. ARIA Attributes
 
 ✅ **DO:**
+
 ```typescript
 <button
   aria-label="Close dialog"
@@ -588,6 +607,7 @@ const config = {
 ### 3. Keyboard Navigation
 
 ✅ **DO:**
+
 ```typescript
 function Button(props: ButtonProps) {
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -596,7 +616,7 @@ function Button(props: ButtonProps) {
       props.onClick?.();
     }
   };
-  
+
   return (
     <button
       onClick={props.onClick}
@@ -612,17 +632,18 @@ function Button(props: ButtonProps) {
 ### 4. Focus Management
 
 ✅ **DO:**
+
 ```typescript
 function Modal(props: ModalProps) {
   let dialogRef: HTMLDialogElement | undefined;
-  
+
   createEffect(() => {
     if (props.isOpen && dialogRef) {
       dialogRef.showModal();
       dialogRef.focus();
     }
   });
-  
+
   return (
     <dialog ref={dialogRef} aria-labelledby="modal-title">
       {/* content */}
@@ -642,6 +663,7 @@ function Modal(props: ModalProps) {
 ### Import Pattern
 
 ✅ **DO:**
+
 ```typescript
 // In Astro files (.astro)
 import { Salad, ChevronDown, X, Check } from "@lucide/astro";
@@ -703,7 +725,7 @@ export function Icon(props: IconProps) {
     'aria-label',
     'aria-hidden'
   ]);
-  
+
   return (
     <span
       class={icon({
@@ -732,17 +754,20 @@ import { Icon } from "@/components/atoms/Icon";
 ---
 
 <button class="flex items-center gap-2">
-  <Icon size="sm" color="accent">
-    <Salad />
-  </Icon>
-  <span>Menu</span>
+    <Icon size="sm" color="accent">
+        <Salad />
+    </Icon>
+    <span>Menu</span>
 </button>
 
 <select class="appearance-none pr-8">
-  <option>Select option</option>
+    <option>Select option</option>
 </select>
-<Icon size="sm" class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-  <ChevronDown />
+<Icon
+    size="sm"
+    class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
+>
+    <ChevronDown />
 </Icon>
 ```
 
@@ -790,6 +815,7 @@ const iconMap = {
 ### Accessibility with Icons
 
 ✅ **DO:**
+
 ```typescript
 // Decorative icon (hidden from screen readers)
 <button>
@@ -815,6 +841,7 @@ const iconMap = {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Don't use custom SVG icons
 <svg>...</svg>
@@ -869,6 +896,7 @@ import { Icon } from 'some-other-library';
 #### Native Popover API
 
 ✅ **DO:**
+
 ```typescript
 // Use native <popover> element for tooltips and poppers
 function Tooltip(props: { children: JSX.Element; content: string }) {
@@ -897,6 +925,7 @@ function Tooltip(props: { children: JSX.Element; content: string }) {
 #### Native Select Styling
 
 ✅ **DO:**
+
 ```typescript
 // Use native <select> with modern styling capabilities
 function Select(props: SelectProps) {
@@ -941,14 +970,15 @@ function Select(props: SelectProps) {
 #### Native Dialog API
 
 ✅ **DO:**
+
 ```typescript
 // Use native <dialog> element
 function Modal(props: ModalProps) {
   let dialogRef: HTMLDialogElement | undefined;
-  
+
   const open = () => dialogRef?.showModal();
   const close = () => dialogRef?.close();
-  
+
   return (
     <>
       <button onClick={open}>Open Modal</button>
@@ -984,6 +1014,7 @@ function Modal(props: ModalProps) {
 #### Native Details/Summary
 
 ✅ **DO:**
+
 ```typescript
 // Use native <details> element for accordions
 function Accordion(props: AccordionProps) {
@@ -1008,6 +1039,7 @@ function Accordion(props: AccordionProps) {
 #### Native Form Validation
 
 ✅ **DO:**
+
 ```typescript
 // Use native HTML5 validation
 function FormField(props: FormFieldProps) {
@@ -1034,6 +1066,7 @@ function FormField(props: FormFieldProps) {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Don't recreate native functionality with JS
 <div onClick={toggle} data-open={isOpen()}>
@@ -1074,10 +1107,10 @@ Memoize expensive computations:
 
 ```typescript
 const expensiveValue = createMemo(() => {
-  return props.items.reduce((acc, item) => {
-    // Expensive computation
-    return acc + processItem(item);
-  }, 0);
+    return props.items.reduce((acc, item) => {
+        // Expensive computation
+        return acc + processItem(item);
+    }, 0);
 });
 ```
 
@@ -1094,7 +1127,7 @@ function ItemList(props: { items: Item[] }) {
       // Handle click
     }
   };
-  
+
   return (
     <ul onClick={handleClick}>
       <For each={props.items}>
@@ -1115,10 +1148,10 @@ Don't create signals for values that don't need reactivity:
 
 ```typescript
 // ❌ DON'T
-const [staticConfig] = createSignal({ theme: 'nordfox' });
+const [staticConfig] = createSignal({ theme: "nordfox" });
 
 // ✅ DO
-const staticConfig = { theme: 'nordfox' as const };
+const staticConfig = { theme: "nordfox" as const };
 ```
 
 ---
@@ -1154,6 +1187,7 @@ Tests should cover:
 ### Testing Best Practices
 
 ✅ **DO:**
+
 ```typescript
 import { render, screen } from '@solidjs/testing-library';
 import { describe, it, expect } from 'vitest';
@@ -1188,6 +1222,7 @@ describe('Button', () => {
 ```
 
 ❌ **DON'T:**
+
 ```typescript
 // Don't skip tests for "simple" components
 // Don't test implementation details (internal state, private methods)
@@ -1239,7 +1274,7 @@ it('supports keyboard navigation', () => {
   const handleClick = vi.fn();
   render(() => <Button onClick={handleClick}>Submit</Button>);
   const button = screen.getByText('Submit');
-  
+
   button.focus();
   fireEvent.keyDown(button, { key: 'Enter' });
   expect(handleClick).toHaveBeenCalled();
@@ -1264,7 +1299,7 @@ describe('Card compound components', () => {
         </Card.Footer>
       </Card>
     ));
-    
+
     expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.getByText('Content')).toBeInTheDocument();
     expect(screen.getByText('Action')).toBeInTheDocument();
@@ -1277,26 +1312,42 @@ describe('Card compound components', () => {
 Organize tests using `describe` blocks:
 
 ```typescript
-describe('Button', () => {
-  describe('Rendering', () => {
-    it('renders with text', () => { /* ... */ });
-    it('renders with icon', () => { /* ... */ });
-  });
+describe("Button", () => {
+    describe("Rendering", () => {
+        it("renders with text", () => {
+            /* ... */
+        });
+        it("renders with icon", () => {
+            /* ... */
+        });
+    });
 
-  describe('Variants', () => {
-    it('applies solid variant', () => { /* ... */ });
-    it('applies outline variant', () => { /* ... */ });
-  });
+    describe("Variants", () => {
+        it("applies solid variant", () => {
+            /* ... */
+        });
+        it("applies outline variant", () => {
+            /* ... */
+        });
+    });
 
-  describe('Interactions', () => {
-    it('handles clicks', () => { /* ... */ });
-    it('handles keyboard events', () => { /* ... */ });
-  });
+    describe("Interactions", () => {
+        it("handles clicks", () => {
+            /* ... */
+        });
+        it("handles keyboard events", () => {
+            /* ... */
+        });
+    });
 
-  describe('Accessibility', () => {
-    it('has proper ARIA attributes', () => { /* ... */ });
-    it('supports keyboard navigation', () => { /* ... */ });
-  });
+    describe("Accessibility", () => {
+        it("has proper ARIA attributes", () => {
+            /* ... */
+        });
+        it("supports keyboard navigation", () => {
+            /* ... */
+        });
+    });
 });
 ```
 
@@ -1480,20 +1531,20 @@ export function Button(props: ButtonProps) {
     'class',
     'aria-label'
   ]);
-  
+
   const buttonState = () => {
     if (local.disabled) return 'disabled';
     if (local.loading) return 'loading';
     return 'default';
   };
-  
+
   const handleKeyDown = (e: KeyboardEvent) => {
     if ((e.key === 'Enter' || e.key === ' ') && !local.disabled && !local.loading) {
       e.preventDefault();
       local.onClick?.();
     }
   };
-  
+
   // Icon size mapping based on button size
   const iconSize = () => {
     switch (local.size) {
@@ -1502,7 +1553,7 @@ export function Button(props: ButtonProps) {
       default: return 'md';
     }
   };
-  
+
   return (
     <button
       class={button({
@@ -1565,26 +1616,26 @@ import { Button } from "@/components/atoms/Button";
 <Button client:load>Click me</Button>
 
 <!-- Button with icon on left -->
-<Button client:load icon={<Plus />}>Add Item</Button>
+<Button client:load icon={(<Plus />)}>Add Item</Button>
 
 <!-- Button with icon on right -->
-<Button client:load icon={<Check />} iconPosition="right">Confirm</Button>
+<Button client:load icon={(<Check />)} iconPosition="right">Confirm</Button>
 
 <!-- Subtle success button with icon -->
-<Button client:load variant="subtle" color="success" icon={<Check />}>
-  Success
+<Button client:load variant="subtle" color="success" icon={(<Check />)}>
+    Success
 </Button>
 
 <!-- Text error button with icon -->
-<Button client:load variant="text" color="error" icon={<Trash2 />}>
-  Delete
+<Button client:load variant="text" color="error" icon={(<Trash2 />)}>
+    Delete
 </Button>
 
 <!-- Loading state with Loader2 icon -->
-<Button client:load loading icon={<Loader2 />}>Processing...</Button>
+<Button client:load loading icon={(<Loader2 />)}>Processing...</Button>
 
 <!-- Icon-only button (must provide aria-label) -->
-<Button client:load icon={<X />} aria-label="Close" />
+<Button client:load icon={(<X />)} aria-label="Close" />
 ```
 
 **Note:** For SolidJS components, icons from `@lucide/astro` should be passed as props from the Astro parent component, or you can use `@lucide/solid-js` if available for direct imports in SolidJS files.
@@ -1657,7 +1708,7 @@ function FormFieldInput(props: FormFieldInputProps) {
     'onInput',
     'class'
   ]);
-  
+
   return (
     <input
       id={local.id}
@@ -1738,7 +1789,7 @@ export interface TooltipProps {
 export function Tooltip(props: TooltipProps) {
   const [local, others] = splitProps(props, ['children', 'content', 'placement', 'class']);
   const tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   return (
     <>
       <button
@@ -1772,7 +1823,7 @@ import { createSignal } from 'solid-js';
 function MyForm() {
   const [email, setEmail] = createSignal('');
   const [error, setError] = createSignal('');
-  
+
   return (
     <FormField>
       <FormField.Label for="email" required>

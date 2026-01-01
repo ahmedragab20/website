@@ -1,56 +1,55 @@
 name: Quality Checks
 
 on:
-  push:
-    branches: ['**']
-  pull_request:
-    branches: ['**']
+    push:
+        branches: ["**"]
+    pull_request:
+        branches: ["**"]
 
 jobs:
-  quality:
-    name: ${{ matrix.check }}
-    runs-on: ubuntu-slim
-    strategy:
-      matrix:
-        check:
-          - format
-          - lint
-          - type-check
-          - test
-      fail-fast: false
+    quality:
+        name: ${{ matrix.check }}
+        runs-on: ubuntu-slim
+        strategy:
+            matrix:
+                check:
+                    - format
+                    - lint
+                    - type-check
+                    - test
+            fail-fast: false
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Run ${{ matrix.check }}
-        run: |
-          case "${{ matrix.check }}" in
-            format)
-              pnpm format:check
-              ;;
-            lint)
-              pnpm lint
-              ;;
-            type-check)
-              pnpm type-check
-              ;;
-            test)
-              pnpm test
-              ;;
-          esac
-
+            - name: Run ${{ matrix.check }}
+              run: |
+                  case "${{ matrix.check }}" in
+                    format)
+                      pnpm format:check
+                      ;;
+                    lint)
+                      pnpm lint
+                      ;;
+                    type-check)
+                      pnpm type-check
+                      ;;
+                    test)
+                      pnpm test
+                      ;;
+                  esac
