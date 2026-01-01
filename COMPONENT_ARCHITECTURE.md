@@ -13,7 +13,8 @@ This document complements `DESIGN_SYSTEM.md` and provides architectural patterns
 7. [Icon Usage](#icon-usage)
 8. [Native HTML Elements](#native-html-elements-with-modern-apis)
 9. [Performance Guidelines](#performance-guidelines)
-10. [Code Examples](#code-examples)
+10. [Testing Requirements](#testing-requirements)
+11. [Code Examples](#code-examples)
 
 ---
 
@@ -126,24 +127,29 @@ src/components/
 ├── atoms/
 │   ├── Button/
 │   │   ├── Button.tsx          # Main component
-│   │   ├── Button.test.tsx     # Tests (if applicable)
+│   │   ├── Button.test.tsx      # Unit tests (REQUIRED)
 │   │   └── index.ts            # Barrel export
 │   └── Input/
 │       ├── Input.tsx
+│       ├── Input.test.tsx      # Unit tests (REQUIRED)
 │       └── index.ts
 ├── molecules/
 │   ├── FormField/
 │   │   ├── FormField.tsx
+│   │   ├── FormField.test.tsx  # Unit tests (REQUIRED)
 │   │   └── index.ts
 │   └── Card/
 │       ├── Card.tsx
+│       ├── Card.test.tsx       # Unit tests (REQUIRED)
 │       └── index.ts
 └── organisms/
     ├── Header/
     │   ├── Header.tsx
+    │   ├── Header.test.tsx     # Unit tests (REQUIRED)
     │   └── index.ts
     └── Navigation/
         ├── Navigation.tsx
+        ├── Navigation.test.tsx # Unit tests (REQUIRED)
         └── index.ts
 ```
 
@@ -1117,6 +1123,195 @@ const staticConfig = { theme: 'nordfox' as const };
 
 ---
 
+## Testing Requirements
+
+### Mandatory Unit Tests
+
+**Every new component MUST include unit tests.** Tests should be written alongside the component implementation, not as an afterthought.
+
+### Test File Naming
+
+Test files should follow the pattern: `ComponentName.test.tsx` (or `.test.ts` for non-component files).
+
+```
+Button/
+├── Button.tsx
+├── Button.test.tsx  # Test file
+└── index.ts
+```
+
+### Test Coverage Requirements
+
+Tests should cover:
+
+1. **Rendering** - Component renders without errors
+2. **Props** - All props are properly applied and affect the component correctly
+3. **Variants** - All variant combinations (variant, color, size, state) work as expected
+4. **Interactions** - User interactions (clicks, keyboard events, form inputs) work correctly
+5. **Accessibility** - ARIA attributes, keyboard navigation, and semantic HTML are correct
+6. **Edge Cases** - Default values, missing props, disabled states, loading states
+
+### Testing Best Practices
+
+✅ **DO:**
+```typescript
+import { render, screen } from '@solidjs/testing-library';
+import { describe, it, expect } from 'vitest';
+import { Button } from './Button';
+
+describe('Button', () => {
+  it('renders with children', () => {
+    render(() => <Button>Click me</Button>);
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  it('applies variant classes correctly', () => {
+    const { container } = render(() => <Button variant="outline">Test</Button>);
+    const button = container.querySelector('button');
+    expect(button).toHaveClass('border-2');
+  });
+
+  it('handles click events', () => {
+    const handleClick = vi.fn();
+    render(() => <Button onClick={handleClick}>Click</Button>);
+    screen.getByText('Click').click();
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('is disabled when disabled prop is true', () => {
+    render(() => <Button disabled>Disabled</Button>);
+    const button = screen.getByText('Disabled');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+  });
+});
+```
+
+❌ **DON'T:**
+```typescript
+// Don't skip tests for "simple" components
+// Don't test implementation details (internal state, private methods)
+// Don't write tests that are too coupled to specific class names
+// Don't forget to test accessibility features
+```
+
+### Testing Variants
+
+When testing components with variants, use a dictionary map to test all combinations:
+
+```typescript
+const variantMap = {
+  solid: 'bg-accent',
+  subtle: 'bg-accent/20',
+  text: 'bg-transparent',
+  outline: 'border-2'
+} as const;
+
+describe('Button variants', () => {
+  Object.entries(variantMap).forEach(([variant, expectedClass]) => {
+    it(`applies correct classes for ${variant} variant`, () => {
+      const { container } = render(() => (
+        <Button variant={variant as any}>Test</Button>
+      ));
+      const button = container.querySelector('button');
+      expect(button?.className).toContain(expectedClass);
+    });
+  });
+});
+```
+
+### Testing Accessibility
+
+Always test accessibility features:
+
+```typescript
+it('has proper ARIA attributes', () => {
+  render(() => (
+    <Button aria-label="Close dialog" disabled>
+      Close
+    </Button>
+  ));
+  const button = screen.getByLabelText('Close dialog');
+  expect(button).toHaveAttribute('aria-disabled', 'true');
+});
+
+it('supports keyboard navigation', () => {
+  const handleClick = vi.fn();
+  render(() => <Button onClick={handleClick}>Submit</Button>);
+  const button = screen.getByText('Submit');
+  
+  button.focus();
+  fireEvent.keyDown(button, { key: 'Enter' });
+  expect(handleClick).toHaveBeenCalled();
+});
+```
+
+### Testing Compound Components
+
+For compound components, test each part:
+
+```typescript
+describe('Card compound components', () => {
+  it('renders Card with all parts', () => {
+    render(() => (
+      <Card>
+        <Card.Header>
+          <Card.Title>Title</Card.Title>
+        </Card.Header>
+        <Card.Body>Content</Card.Body>
+        <Card.Footer>
+          <Card.Action>Action</Card.Action>
+        </Card.Footer>
+      </Card>
+    ));
+    
+    expect(screen.getByText('Title')).toBeInTheDocument();
+    expect(screen.getByText('Content')).toBeInTheDocument();
+    expect(screen.getByText('Action')).toBeInTheDocument();
+  });
+});
+```
+
+### Test Organization
+
+Organize tests using `describe` blocks:
+
+```typescript
+describe('Button', () => {
+  describe('Rendering', () => {
+    it('renders with text', () => { /* ... */ });
+    it('renders with icon', () => { /* ... */ });
+  });
+
+  describe('Variants', () => {
+    it('applies solid variant', () => { /* ... */ });
+    it('applies outline variant', () => { /* ... */ });
+  });
+
+  describe('Interactions', () => {
+    it('handles clicks', () => { /* ... */ });
+    it('handles keyboard events', () => { /* ... */ });
+  });
+
+  describe('Accessibility', () => {
+    it('has proper ARIA attributes', () => { /* ... */ });
+    it('supports keyboard navigation', () => { /* ... */ });
+  });
+});
+```
+
+### Running Tests
+
+Tests should be runnable with your test runner (e.g., Vitest, Jest). Ensure tests pass before committing:
+
+```bash
+pnpm test
+pnpm test:watch
+pnpm test:coverage
+```
+
+---
+
 ## Code Examples
 
 ### Complete Atom Example: Button (with tailwind-variants)
@@ -1640,6 +1835,8 @@ When creating a new component, ensure:
 - [ ] Includes barrel exports (index.ts)
 - [ ] Handles cleanup in onCleanup when needed
 - [ ] Optimizes for performance (memos, lazy loading when appropriate)
+- [ ] **Includes unit tests (ComponentName.test.tsx) with comprehensive coverage**
+- [ ] Tests cover rendering, props, variants, interactions, accessibility, and edge cases
 
 ---
 

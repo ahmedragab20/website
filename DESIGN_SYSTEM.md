@@ -150,15 +150,12 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
 ### Typography Examples
 
 ```html
-<!-- Headings -->
 <h1 class="text-5xl font-bold">Main Title</h1>
 <h2 class="text-3xl font-bold mb-4">Section Title</h2>
 
-<!-- Body text -->
 <p class="text-base text-fg-main">Regular paragraph text</p>
 <p class="text-sm text-fg-muted">Secondary information</p>
 
-<!-- Code -->
 <code class="font-mono text-sm">inline code</code>
 <pre class="font-mono text-sm"><code>code block</code></pre>
 ```
@@ -224,7 +221,6 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
     <div class="container mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold">Page Title</h1>
-            <!-- Navigation items -->
         </div>
     </div>
 </header>
@@ -237,7 +233,6 @@ Themes are applied via the `data-theme` attribute on the `<html>` element:
     <h2 class="text-3xl font-bold mb-8 pb-4 border-b border-ui-border">
         Section Title
     </h2>
-    <!-- Section content -->
 </section>
 ```
 
@@ -301,6 +296,46 @@ All components MUST work across all themes. Test that:
 - Interactive states (hover, focus) are clear
 - Color combinations maintain proper contrast
 
+### 7. **Prefer Dictionary Maps Over Switch Statements**
+
+When mapping values or handling conditional logic, prefer dictionary object maps over switch statements for better maintainability and performance.
+
+✅ **DO:**
+```typescript
+const sizeMap = {
+  sm: 'px-3 py-1.5 text-sm',
+  md: 'px-4 py-2 text-base',
+  lg: 'px-6 py-3 text-lg'
+} as const;
+
+const className = sizeMap[size] || sizeMap.md;
+```
+
+❌ **DON'T:**
+```typescript
+let className: string;
+switch (size) {
+  case 'sm':
+    className = 'px-3 py-1.5 text-sm';
+    break;
+  case 'md':
+    className = 'px-4 py-2 text-base';
+    break;
+  case 'lg':
+    className = 'px-6 py-3 text-lg';
+    break;
+  default:
+    className = 'px-4 py-2 text-base';
+}
+```
+
+**Benefits:**
+- More concise and readable
+- Easier to maintain and extend
+- Better TypeScript inference with `as const`
+- Can be used directly in expressions
+- No fall-through bugs
+
 ---
 
 ## Code Examples
@@ -314,14 +349,12 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout>
     <div class="min-h-screen bg-primary text-fg-main">
-        <!-- Header -->
         <header class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm">
             <div class="container mx-auto px-6 py-4">
                 <h1 class="text-2xl font-bold">Page Title</h1>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="container mx-auto px-6 py-12 max-w-7xl">
             <section class="mb-16">
                 <h2 class="text-3xl font-bold mb-8 pb-4 border-b border-ui-border">
@@ -432,6 +465,8 @@ import Layout from "../layouts/Layout.astro";
 5. **ALWAYS** follow the typography scale
 6. **ALWAYS** maintain consistent spacing using Tailwind utilities
 7. **ALWAYS** test that text is readable in all themes
+8. **ALWAYS** prefer dictionary object maps over switch statements for value mapping
+9. **NEVER** write useless comments that just describe what the code already shows (e.g., `// icon` above an `<Icon>` component)
 
 ---
 
