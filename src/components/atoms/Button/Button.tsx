@@ -44,17 +44,17 @@ const button = tv({
         {
             variant: "solid",
             color: "success",
-            class: "bg-green-600 text-white hover:bg-green-700",
+            class: "bg-success text-primary hover:opacity-90",
         },
         {
             variant: "solid",
             color: "warning",
-            class: "bg-yellow-600 text-white hover:bg-yellow-700",
+            class: "bg-warning text-primary hover:opacity-90",
         },
         {
             variant: "solid",
             color: "error",
-            class: "bg-red-600 text-white hover:bg-red-700",
+            class: "bg-error text-primary hover:opacity-90",
         },
         // Subtle variant with colors
         {
@@ -65,17 +65,17 @@ const button = tv({
         {
             variant: "subtle",
             color: "success",
-            class: "bg-green-600/20 text-green-600 hover:bg-green-600/30",
+            class: "bg-success/20 text-success hover:bg-success/30",
         },
         {
             variant: "subtle",
             color: "warning",
-            class: "bg-yellow-600/20 text-yellow-600 hover:bg-yellow-600/30",
+            class: "bg-warning/20 text-warning hover:bg-warning/30",
         },
         {
             variant: "subtle",
             color: "error",
-            class: "bg-red-600/20 text-red-600 hover:bg-red-600/30",
+            class: "bg-error/20 text-error hover:bg-error/30",
         },
         // Text variant with colors
         {
@@ -86,17 +86,17 @@ const button = tv({
         {
             variant: "text",
             color: "success",
-            class: "text-green-600 hover:bg-green-600/10",
+            class: "text-success hover:bg-success/10",
         },
         {
             variant: "text",
             color: "warning",
-            class: "text-yellow-600 hover:bg-yellow-600/10",
+            class: "text-warning hover:bg-warning/10",
         },
         {
             variant: "text",
             color: "error",
-            class: "text-red-600 hover:bg-red-600/10",
+            class: "text-error hover:bg-error/10",
         },
         // Outline variant with colors
         {
@@ -107,17 +107,17 @@ const button = tv({
         {
             variant: "outline",
             color: "success",
-            class: "border-green-600 text-green-600 hover:bg-green-600/10",
+            class: "border-success text-success hover:bg-success/10",
         },
         {
             variant: "outline",
             color: "warning",
-            class: "border-yellow-600 text-yellow-600 hover:bg-yellow-600/10",
+            class: "border-warning text-warning hover:bg-warning/10",
         },
         {
             variant: "outline",
             color: "error",
-            class: "border-red-600 text-red-600 hover:bg-red-600/10",
+            class: "border-error text-error hover:bg-error/10",
         },
     ],
     defaultVariants: {

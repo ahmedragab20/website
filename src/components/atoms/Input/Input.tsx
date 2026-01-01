@@ -11,7 +11,7 @@ const input = tv({
         },
         state: {
             default: "",
-            error: "border-red-600 focus:ring-red-600",
+            error: "border-error focus:ring-error",
             disabled: "opacity-50 cursor-not-allowed bg-tertiary",
         },
     },

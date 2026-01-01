@@ -25,3 +25,8 @@ pnpm-debug.log*
 
 # test coverage
 coverage/
+
+*storybook.log
+storybook-static
+
+.wrangler

@@ -15,9 +15,9 @@ const icon = tv({
             default: "text-fg-main",
             muted: "text-fg-muted",
             accent: "text-accent",
-            success: "text-green-600",
-            warning: "text-yellow-600",
-            error: "text-red-600",
+            success: "text-success",
+            warning: "text-warning",
+            error: "text-error",
         },
     },
     defaultVariants: {

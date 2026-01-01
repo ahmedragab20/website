@@ -45,6 +45,9 @@
     --color-fg-main: #e5e9f0;
     --color-fg-muted: #60728a;
     --color-accent: #81a1c1;
+    --color-success: #a3be8c;
+    --color-warning: #ebcb8b;
+    --color-error: #bf616a;
     --color-syntax-keyword: #b48ead;
     --color-syntax-string: #a3be8c;
     --color-syntax-function: #88c0d0;
@@ -64,6 +67,9 @@
     --color-fg-main: #e5e9f0;
     --color-fg-muted: #60728a;
     --color-accent: #81a1c1;
+    --color-success: #a3be8c;
+    --color-warning: #ebcb8b;
+    --color-error: #bf616a;
     --color-syntax-keyword: #b48ead;
     --color-syntax-string: #a3be8c;
     --color-syntax-function: #88c0d0;
@@ -81,6 +87,9 @@
     --color-fg-main: #cdcecf;
     --color-fg-muted: #71839b;
     --color-accent: #719cd6;
+    --color-success: #81b29a;
+    --color-warning: #f4a261;
+    --color-error: #c94f6d;
     --color-syntax-keyword: #9d79d3;
     --color-syntax-string: #81b29a;
     --color-syntax-function: #719cd6;
@@ -97,6 +106,9 @@
     --color-fg-main: #f2f4f8;
     --color-fg-muted: #929292;
     --color-accent: #78a9ff;
+    --color-success: #42be65;
+    --color-warning: #ffab00;
+    --color-error: #ee5396;
     --color-syntax-keyword: #be95ff;
     --color-syntax-string: #42be65;
     --color-syntax-function: #78a9ff;
@@ -113,6 +125,9 @@
     --color-fg-main: #3d2b26;
     --color-fg-muted: #837a72;
     --color-accent: #2848a9;
+    --color-success: #396847;
+    --color-warning: #b05c30;
+    --color-error: #955f5f;
     --color-syntax-keyword: #955f5f;
     --color-syntax-string: #396847;
     --color-syntax-function: #2848a9;
@@ -167,6 +182,100 @@
     .bg-accent {
         background-color: var(--color-accent);
     }
+    .bg-success {
+        background-color: var(--color-success);
+    }
+    .bg-warning {
+        background-color: var(--color-warning);
+    }
+    .bg-error {
+        background-color: var(--color-error);
+    }
+    /* Opacity variants for background colors */
+    .bg-accent\/10 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 10%,
+            transparent
+        );
+    }
+    .bg-accent\/20 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 20%,
+            transparent
+        );
+    }
+    .bg-accent\/30 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 30%,
+            transparent
+        );
+    }
+    .bg-success\/10 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 10%,
+            transparent
+        );
+    }
+    .bg-success\/20 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 20%,
+            transparent
+        );
+    }
+    .bg-success\/30 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 30%,
+            transparent
+        );
+    }
+    .bg-warning\/10 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 10%,
+            transparent
+        );
+    }
+    .bg-warning\/20 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 20%,
+            transparent
+        );
+    }
+    .bg-warning\/30 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 30%,
+            transparent
+        );
+    }
+    .bg-error\/10 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 10%,
+            transparent
+        );
+    }
+    .bg-error\/20 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 20%,
+            transparent
+        );
+    }
+    .bg-error\/30 {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 30%,
+            transparent
+        );
+    }
     .bg-syntax-keyword {
         background-color: var(--color-syntax-keyword);
     }
@@ -209,6 +318,15 @@
     }
     .text-accent {
         color: var(--color-accent);
+    }
+    .text-success {
+        color: var(--color-success);
+    }
+    .text-warning {
+        color: var(--color-warning);
+    }
+    .text-error {
+        color: var(--color-error);
     }
     .text-syntax-keyword {
         color: var(--color-syntax-keyword);
@@ -253,6 +371,15 @@
     .border-accent {
         border-color: var(--color-accent);
     }
+    .border-success {
+        border-color: var(--color-success);
+    }
+    .border-warning {
+        border-color: var(--color-warning);
+    }
+    .border-error {
+        border-color: var(--color-error);
+    }
     .border-ui-border {
         border-color: var(--color-ui-border);
     }
@@ -269,8 +396,113 @@
     .focus\:ring-accent:focus {
         --tw-ring-color: var(--color-accent);
     }
+    .focus\:ring-success:focus {
+        --tw-ring-color: var(--color-success);
+    }
+    .focus\:ring-warning:focus {
+        --tw-ring-color: var(--color-warning);
+    }
+    .focus\:ring-error:focus {
+        --tw-ring-color: var(--color-error);
+    }
     .hover\:bg-tertiary:hover {
         background-color: var(--color-tertiary);
+    }
+    .hover\:bg-success:hover {
+        background-color: var(--color-success);
+    }
+    .hover\:bg-warning:hover {
+        background-color: var(--color-warning);
+    }
+    .hover\:bg-error:hover {
+        background-color: var(--color-error);
+    }
+    .hover\:bg-accent\/10:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 10%,
+            transparent
+        );
+    }
+    .hover\:bg-success\/10:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 10%,
+            transparent
+        );
+    }
+    .hover\:bg-warning\/10:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 10%,
+            transparent
+        );
+    }
+    .hover\:bg-error\/10:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 10%,
+            transparent
+        );
+    }
+    .hover\:bg-accent\/20:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 20%,
+            transparent
+        );
+    }
+    .hover\:bg-success\/20:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 20%,
+            transparent
+        );
+    }
+    .hover\:bg-warning\/20:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 20%,
+            transparent
+        );
+    }
+    .hover\:bg-error\/20:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 20%,
+            transparent
+        );
+    }
+    .hover\:bg-accent\/30:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-accent) 30%,
+            transparent
+        );
+    }
+    .hover\:bg-success\/30:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-success) 30%,
+            transparent
+        );
+    }
+    .hover\:bg-warning\/30:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-warning) 30%,
+            transparent
+        );
+    }
+    .hover\:bg-error\/30:hover {
+        background-color: color-mix(
+            in srgb,
+            var(--color-error) 30%,
+            transparent
+        );
+    }
+    .hover\:opacity-90:hover {
+        opacity: 0.9;
     }
     .placeholder\:text-fg-muted::placeholder {
         color: var(--color-fg-muted);
