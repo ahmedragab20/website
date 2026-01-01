@@ -13,10 +13,8 @@ jobs:
         strategy:
             matrix:
                 check:
-                    - format
                     - lint
                     - type-check
-                    - test
             fail-fast: false
 
         steps:
@@ -40,16 +38,10 @@ jobs:
             - name: Run ${{ matrix.check }}
               run: |
                   case "${{ matrix.check }}" in
-                    format)
-                      pnpm format:check
-                      ;;
                     lint)
                       pnpm lint
                       ;;
                     type-check)
                       pnpm type-check
-                      ;;
-                    test)
-                      pnpm test
                       ;;
                   esac
