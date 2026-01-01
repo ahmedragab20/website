@@ -10,9 +10,10 @@ This document complements `DESIGN_SYSTEM.md` and provides architectural patterns
 4. [Component Patterns](#component-patterns)
 5. [TypeScript Conventions](#typescript-conventions)
 6. [Accessibility Standards](#accessibility-standards)
-7. [Native HTML Elements](#native-html-elements-with-modern-apis)
-8. [Performance Guidelines](#performance-guidelines)
-9. [Code Examples](#code-examples)
+7. [Icon Usage](#icon-usage)
+8. [Native HTML Elements](#native-html-elements-with-modern-apis)
+9. [Performance Guidelines](#performance-guidelines)
+10. [Code Examples](#code-examples)
 
 ---
 
@@ -20,13 +21,14 @@ This document complements `DESIGN_SYSTEM.md` and provides architectural patterns
 
 ### Required Dependencies
 
-Make sure `tailwind-variants` is installed:
+Make sure the following packages are installed:
 
 ```bash
-pnpm add tailwind-variants
+pnpm add tailwind-variants @lucide/astro
 ```
 
-This library provides better type-safe variant management for Tailwind CSS classes.
+- **`tailwind-variants`**: Provides better type-safe variant management for Tailwind CSS classes
+- **`@lucide/astro`**: Icon library for Astro projects (always use Lucide icons, never custom SVG or other icon libraries)
 
 ---
 
@@ -623,7 +625,238 @@ function Modal(props: ModalProps) {
 }
 ```
 
-### 5. Native HTML Elements with Modern APIs
+---
+
+## Icon Usage
+
+### Always Use Lucide Icons
+
+**Always use Lucide icons from `@lucide/astro`**. Never use custom SVG icons or other icon libraries.
+
+### Import Pattern
+
+✅ **DO:**
+```typescript
+// In Astro files (.astro)
+import { Salad, ChevronDown, X, Check } from "@lucide/astro";
+
+// In SolidJS components (.tsx)
+// Note: For SolidJS components, you may need to use @lucide/solid-js
+// or import icons in the Astro parent and pass them as props
+```
+
+### Icon Component Pattern
+
+Create a reusable Icon wrapper component for consistent sizing and styling:
+
+```typescript
+// atoms/Icon/Icon.tsx
+import { splitProps } from 'solid-js';
+import { tv } from 'tailwind-variants';
+
+const icon = tv({
+  base: 'flex-shrink-0',
+  variants: {
+    size: {
+      xs: 'w-3 h-3',
+      sm: 'w-4 h-4',
+      md: 'w-5 h-5',
+      lg: 'w-6 h-6',
+      xl: 'w-8 h-8'
+    },
+    color: {
+      default: 'text-fg-main',
+      muted: 'text-fg-muted',
+      accent: 'text-accent',
+      success: 'text-green-600',
+      warning: 'text-yellow-600',
+      error: 'text-red-600'
+    }
+  },
+  defaultVariants: {
+    size: 'md',
+    color: 'default'
+  }
+});
+
+export interface IconProps {
+  children: JSX.Element; // Lucide icon component
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  color?: 'default' | 'muted' | 'accent' | 'success' | 'warning' | 'error';
+  class?: string;
+  'aria-label'?: string;
+  'aria-hidden'?: boolean;
+}
+
+export function Icon(props: IconProps) {
+  const [local, others] = splitProps(props, [
+    'children',
+    'size',
+    'color',
+    'class',
+    'aria-label',
+    'aria-hidden'
+  ]);
+  
+  return (
+    <span
+      class={icon({
+        size: local.size,
+        color: local.color,
+        class: local.class
+      })}
+      aria-label={local['aria-label']}
+      aria-hidden={local['aria-hidden'] ?? (local['aria-label'] ? false : true)}
+      {...others}
+    >
+      {local.children}
+    </span>
+  );
+}
+```
+
+### Usage Examples
+
+#### In Astro Files
+
+```astro
+---
+import { Salad, ChevronDown, X } from "@lucide/astro";
+import { Icon } from "@/components/atoms/Icon";
+---
+
+<button class="flex items-center gap-2">
+  <Icon size="sm" color="accent">
+    <Salad />
+  </Icon>
+  <span>Menu</span>
+</button>
+
+<select class="appearance-none pr-8">
+  <option>Select option</option>
+</select>
+<Icon size="sm" class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+  <ChevronDown />
+</Icon>
+```
+
+#### In SolidJS Components
+
+```typescript
+// For SolidJS components, pass icons as props or use a mapping
+import { createMemo } from 'solid-js';
+
+interface ButtonWithIconProps {
+  icon?: string; // Icon name
+  children: JSX.Element;
+}
+
+// Option 1: Pass icon component from Astro parent
+function ButtonWithIcon(props: ButtonWithIconProps & { iconComponent?: JSX.Element }) {
+  return (
+    <button class="flex items-center gap-2">
+      {props.iconComponent && (
+        <Icon size="sm">
+          {props.iconComponent}
+        </Icon>
+      )}
+      {props.children}
+    </button>
+  );
+}
+
+// Option 2: Use icon mapping (if needed)
+const iconMap = {
+  salad: Salad,
+  chevronDown: ChevronDown,
+  x: X
+};
+```
+
+### Icon Sizing Guidelines
+
+- **xs (12px)**: Inline with small text, badges
+- **sm (16px)**: Buttons, form inputs, inline with body text
+- **md (20px)**: Default size, most common use case
+- **lg (24px)**: Headings, prominent buttons
+- **xl (32px)**: Hero sections, large CTAs
+
+### Accessibility with Icons
+
+✅ **DO:**
+```typescript
+// Decorative icon (hidden from screen readers)
+<button>
+  <Icon aria-hidden="true">
+    <X />
+  </Icon>
+  <span class="sr-only">Close</span>
+</button>
+
+// Icon with meaning (provide label)
+<button aria-label="Delete item">
+  <Icon aria-hidden="true">
+    <Trash2 />
+  </Icon>
+</button>
+
+// Icon-only button (must have aria-label)
+<button aria-label="Close dialog">
+  <Icon>
+    <X />
+  </Icon>
+</button>
+```
+
+❌ **DON'T:**
+```typescript
+// Don't use custom SVG icons
+<svg>...</svg>
+
+// Don't use other icon libraries
+import { Icon } from 'some-other-library';
+
+// Don't forget accessibility for icon-only buttons
+<button>
+  <Icon><X /></Icon>
+</button>
+```
+
+### Common Icon Patterns
+
+```typescript
+// Button with icon
+<button class="flex items-center gap-2">
+  <Icon size="sm" color="accent">
+    <Plus />
+  </Icon>
+  Add Item
+</button>
+
+// Icon-only button
+<button aria-label="Delete" class="p-2 rounded hover:bg-tertiary">
+  <Icon size="sm" color="error">
+    <Trash2 />
+  </Icon>
+</button>
+
+// Loading spinner (using Lucide Loader2)
+<Icon size="md" class="animate-spin">
+  <Loader2 />
+</Icon>
+
+// Status indicators
+<div class="flex items-center gap-2">
+  <Icon size="sm" color="success">
+    <CheckCircle />
+  </Icon>
+  <span>Success</span>
+</div>
+```
+
+---
+
+## Native HTML Elements with Modern APIs
 
 **Always prefer native HTML elements with modern APIs** over custom implementations:
 
@@ -892,6 +1125,10 @@ const staticConfig = { theme: 'nordfox' as const };
 // atoms/Button/Button.tsx
 import { splitProps } from 'solid-js';
 import { tv } from 'tailwind-variants';
+import { Icon } from '../Icon/Icon';
+
+// Note: For SolidJS components, icons should be passed as props from Astro parent
+// or use @lucide/solid-js if available. For this example, we'll accept icon as prop.
 
 const button = tv({
   base: 'px-4 py-2 rounded font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent',
@@ -1026,6 +1263,8 @@ export interface ButtonProps {
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
+  icon?: JSX.Element; // Lucide icon component (from @lucide/astro)
+  iconPosition?: 'left' | 'right';
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   class?: string;
@@ -1040,6 +1279,8 @@ export function Button(props: ButtonProps) {
     'size',
     'disabled',
     'loading',
+    'icon',
+    'iconPosition',
     'onClick',
     'class',
     'aria-label'
@@ -1058,6 +1299,15 @@ export function Button(props: ButtonProps) {
     }
   };
   
+  // Icon size mapping based on button size
+  const iconSize = () => {
+    switch (local.size) {
+      case 'sm': return 'sm';
+      case 'lg': return 'lg';
+      default: return 'md';
+    }
+  };
+  
   return (
     <button
       class={button({
@@ -1065,7 +1315,7 @@ export function Button(props: ButtonProps) {
         color: local.color,
         size: local.size,
         state: buttonState(),
-        class: local.class
+        class: `inline-flex items-center gap-2 ${local.class || ''}`
       })}
       type={others.type || 'button'}
       disabled={local.disabled || local.loading}
@@ -1076,15 +1326,31 @@ export function Button(props: ButtonProps) {
       {...others}
     >
       {local.loading ? (
-        <span class="inline-flex items-center gap-2">
-          <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
+        <>
+          {/* Loading icon - pass Loader2 from parent or use icon prop */}
+          {local.icon ? (
+            <Icon size={iconSize()} class="animate-spin" aria-hidden="true">
+              {local.icon}
+            </Icon>
+          ) : (
+            <span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+          )}
           {local.children}
-        </span>
+        </>
       ) : (
-        local.children
+        <>
+          {local.icon && local.iconPosition !== 'right' && (
+            <Icon size={iconSize()} aria-hidden="true">
+              {local.icon}
+            </Icon>
+          )}
+          {local.children}
+          {local.icon && local.iconPosition === 'right' && (
+            <Icon size={iconSize()} aria-hidden="true">
+              {local.icon}
+            </Icon>
+          )}
+        </>
       )}
     </button>
   );
@@ -1092,25 +1358,41 @@ export function Button(props: ButtonProps) {
 ```
 
 **Usage Examples:**
-```typescript
-// Solid accent button (default)
-<Button>Click me</Button>
 
-// Subtle success button
-<Button variant="subtle" color="success">Success</Button>
+```astro
+---
+// In Astro files, import icons from @lucide/astro
+import { Plus, Trash2, Loader2, Check, X } from "@lucide/astro";
+import { Button } from "@/components/atoms/Button";
+---
 
-// Text error button
-<Button variant="text" color="error">Delete</Button>
+<!-- Solid accent button (default) -->
+<Button client:load>Click me</Button>
 
-// Outline warning button
-<Button variant="outline" color="warning">Warning</Button>
+<!-- Button with icon on left -->
+<Button client:load icon={<Plus />}>Add Item</Button>
 
-// Loading state
-<Button loading>Processing...</Button>
+<!-- Button with icon on right -->
+<Button client:load icon={<Check />} iconPosition="right">Confirm</Button>
 
-// Disabled state
-<Button disabled>Disabled</Button>
+<!-- Subtle success button with icon -->
+<Button client:load variant="subtle" color="success" icon={<Check />}>
+  Success
+</Button>
+
+<!-- Text error button with icon -->
+<Button client:load variant="text" color="error" icon={<Trash2 />}>
+  Delete
+</Button>
+
+<!-- Loading state with Loader2 icon -->
+<Button client:load loading icon={<Loader2 />}>Processing...</Button>
+
+<!-- Icon-only button (must provide aria-label) -->
+<Button client:load icon={<X />} aria-label="Close" />
 ```
+
+**Note:** For SolidJS components, icons from `@lucide/astro` should be passed as props from the Astro parent component, or you can use `@lucide/solid-js` if available for direct imports in SolidJS files.
 
 ### Complete Molecule Example: FormField (Compound Component)
 
@@ -1348,6 +1630,7 @@ When creating a new component, ensure:
 - [ ] Uses Compound Components pattern if composable
 - [ ] **Uses consistent API: `variant` for shape, `color` for color scheme, `state` for interactive states**
 - [ ] **Uses `tailwind-variants` for variant management**
+- [ ] **Always uses Lucide icons from `@lucide/astro` (never custom SVG or other icon libraries)**
 - [ ] Implements proper TypeScript types and exports them
 - [ ] Uses SolidJS best practices (signals, memos, effects)
 - [ ] Follows design system tokens (no hardcoded colors)
