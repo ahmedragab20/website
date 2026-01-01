@@ -26,18 +26,20 @@ export default function ThemeToggle() {
         <div class="flex items-center gap-2 p-2 rounded-lg bg-secondary border border-(--color-ui-border)">
             <span class="text-sm text-fg-mute px-2">Theme:</span>
             <div class="flex gap-1">
-                <For each={themes}>{(theme) => (
-                    <button
-                        onClick={() => switchTheme(theme)}
-                        class={`px-3 py-1.5 text-sm font-medium rounded transition-all ${
-                            currentTheme() === theme
-                                ? "bg-accent text-primary"
-                                : "text-fg-mute hover:text-fg-main hover:bg-(--color-tertiary)"
-                        }`}
-                    >
-                        {theme.charAt(0).toUpperCase() + theme.slice(1)}
-                    </button>
-                )}</For>
+                <For each={themes}>
+                    {(theme) => (
+                        <button
+                            onClick={() => switchTheme(theme)}
+                            class={`px-3 py-1.5 text-sm font-medium rounded transition-all ${
+                                currentTheme() === theme
+                                    ? "bg-accent text-primary"
+                                    : "text-fg-mute hover:text-fg-main hover:bg-(--color-tertiary)"
+                            }`}
+                        >
+                            {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                        </button>
+                    )}
+                </For>
             </div>
         </div>
     );
