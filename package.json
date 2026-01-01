@@ -13,6 +13,7 @@
         "@tailwindcss/vite": "^4.1.18",
         "astro": "^5.16.6",
         "solid-js": "^1.9.10",
+        "tailwind-variants": "^3.2.2",
         "tailwindcss": "^4.1.18"
     },
     "devDependencies": {

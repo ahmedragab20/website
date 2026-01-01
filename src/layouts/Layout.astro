@@ -4,12 +4,27 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <style>
-            @import "tailwindcss";
-        </style>
+        <link rel="stylesheet" href="/src/assets/design/tokens.css" />
         <title>Ahmed Ragab - Software Engineer</title>
+        <script is:inline>
+            (function () {
+                const savedTheme = localStorage.getItem("theme");
+                const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"];
+                if (savedTheme && themes.includes(savedTheme)) {
+                    document.documentElement.setAttribute(
+                        "data-theme",
+                        savedTheme,
+                    );
+                } else {
+                    document.documentElement.setAttribute(
+                        "data-theme",
+                        "nordfox",
+                    );
+                }
+            })();
+        </script>
     </head>
-    <body class="bg-white dark:bg-zinc-950 dark:text-white">
+    <body>
         <slot />
     </body>
 </html>

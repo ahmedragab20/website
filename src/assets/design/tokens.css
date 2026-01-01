@@ -1,0 +1,277 @@
+@import "tailwindcss";
+
+/* --- FONT FACE DECLARATIONS --- */
+@font-face {
+    font-family: "DankMono";
+    src: url("../fonts/DankMono-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DankMono";
+    src: url("../fonts/DankMono-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DankMono";
+    src: url("../fonts/DankMono-Italic.otf") format("opentype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Google Sans";
+    src: url("../fonts/GoogleSansFlex.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    --font-sans: "Google Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+    --font-mono: "DankMono", "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+
+    /* Color definitions - these will be overridden by theme selectors */
+    --color-primary: #1d2021;
+    --color-secondary: #2e3440;
+    --color-tertiary: #3b4252;
+    --color-fg-main: #e5e9f0;
+    --color-fg-muted: #60728a;
+    --color-accent: #81a1c1;
+    --color-syntax-keyword: #b48ead;
+    --color-syntax-string: #a3be8c;
+    --color-syntax-function: #88c0d0;
+    --color-syntax-number: #d08770;
+    --color-syntax-comment: #4c566a;
+    --color-ui-border: #3b4252;
+    --color-ui-active: #434c5e;
+    --color-ui-gutter: #242933;
+}
+
+/* --- 4. THEME OVERRIDES --- */
+
+[data-theme="nordfox"] {
+    --color-primary: #1d2021;
+    --color-secondary: #2e3440;
+    --color-tertiary: #3b4252;
+    --color-fg-main: #e5e9f0;
+    --color-fg-muted: #60728a;
+    --color-accent: #81a1c1;
+    --color-syntax-keyword: #b48ead;
+    --color-syntax-string: #a3be8c;
+    --color-syntax-function: #88c0d0;
+    --color-syntax-number: #d08770;
+    --color-syntax-comment: #4c566a;
+    --color-ui-border: #3b4252;
+    --color-ui-active: #434c5e;
+    --color-ui-gutter: #242933;
+}
+
+[data-theme="nightfox"] {
+    --color-primary: #192330;
+    --color-secondary: #233347;
+    --color-tertiary: #2d3f56;
+    --color-fg-main: #cdcecf;
+    --color-fg-muted: #71839b;
+    --color-accent: #719cd6;
+    --color-syntax-keyword: #9d79d3;
+    --color-syntax-string: #81b29a;
+    --color-syntax-function: #719cd6;
+    --color-syntax-number: #f4a261;
+    --color-syntax-comment: #738091;
+    --color-ui-border: #2b3b51;
+    --color-ui-active: #394b64;
+}
+
+[data-theme="carbonfox"] {
+    --color-primary: #161616;
+    --color-secondary: #262626;
+    --color-tertiary: #393939;
+    --color-fg-main: #f2f4f8;
+    --color-fg-muted: #929292;
+    --color-accent: #78a9ff;
+    --color-syntax-keyword: #be95ff;
+    --color-syntax-string: #42be65;
+    --color-syntax-function: #78a9ff;
+    --color-syntax-number: #ee5396;
+    --color-syntax-comment: #525252;
+    --color-ui-border: #393939;
+    --color-ui-active: #4d4d4d;
+}
+
+[data-theme="dayfox"] {
+    --color-primary: #f6f2ee;
+    --color-secondary: #ebe5df;
+    --color-tertiary: #e4dcd4;
+    --color-fg-main: #3d2b26;
+    --color-fg-muted: #837a72;
+    --color-accent: #2848a9;
+    --color-syntax-keyword: #955f5f;
+    --color-syntax-string: #396847;
+    --color-syntax-function: #2848a9;
+    --color-syntax-number: #b05c30;
+    --color-syntax-comment: #a89f94;
+    --color-ui-border: #d9d1c7;
+    --color-ui-active: #e4dcd4;
+}
+
+/* --- 5. GLOBAL BASE STYLES --- */
+@layer base {
+    *,
+    ::after,
+    ::before {
+        border-color: var(--color-ui-border);
+    }
+
+    body {
+        background-color: var(--color-primary);
+        color: var(--color-fg-main);
+        font-family: var(--font-sans);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    code,
+    pre {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-variant-ligatures: contextual;
+    }
+}
+
+/* --- 6. TAILWIND UTILITIES MAPPING --- */
+/* Map Tailwind utilities to CSS variables for theme support */
+@layer utilities {
+    .bg-primary {
+        background-color: var(--color-primary);
+    }
+    .bg-secondary {
+        background-color: var(--color-secondary);
+    }
+    .bg-tertiary {
+        background-color: var(--color-tertiary);
+    }
+    .bg-fg-main {
+        background-color: var(--color-fg-main);
+    }
+    .bg-fg-muted {
+        background-color: var(--color-fg-muted);
+    }
+    .bg-accent {
+        background-color: var(--color-accent);
+    }
+    .bg-syntax-keyword {
+        background-color: var(--color-syntax-keyword);
+    }
+    .bg-syntax-string {
+        background-color: var(--color-syntax-string);
+    }
+    .bg-syntax-function {
+        background-color: var(--color-syntax-function);
+    }
+    .bg-syntax-number {
+        background-color: var(--color-syntax-number);
+    }
+    .bg-syntax-comment {
+        background-color: var(--color-syntax-comment);
+    }
+    .bg-ui-border {
+        background-color: var(--color-ui-border);
+    }
+    .bg-ui-active {
+        background-color: var(--color-ui-active);
+    }
+    .bg-ui-gutter {
+        background-color: var(--color-ui-gutter);
+    }
+
+    .text-primary {
+        color: var(--color-primary);
+    }
+    .text-secondary {
+        color: var(--color-secondary);
+    }
+    .text-tertiary {
+        color: var(--color-tertiary);
+    }
+    .text-fg-main {
+        color: var(--color-fg-main);
+    }
+    .text-fg-muted {
+        color: var(--color-fg-muted);
+    }
+    .text-accent {
+        color: var(--color-accent);
+    }
+    .text-syntax-keyword {
+        color: var(--color-syntax-keyword);
+    }
+    .text-syntax-string {
+        color: var(--color-syntax-string);
+    }
+    .text-syntax-function {
+        color: var(--color-syntax-function);
+    }
+    .text-syntax-number {
+        color: var(--color-syntax-number);
+    }
+    .text-syntax-comment {
+        color: var(--color-syntax-comment);
+    }
+    .text-ui-border {
+        color: var(--color-ui-border);
+    }
+    .text-ui-active {
+        color: var(--color-ui-active);
+    }
+    .text-ui-gutter {
+        color: var(--color-ui-gutter);
+    }
+
+    .border-primary {
+        border-color: var(--color-primary);
+    }
+    .border-secondary {
+        border-color: var(--color-secondary);
+    }
+    .border-tertiary {
+        border-color: var(--color-tertiary);
+    }
+    .border-fg-main {
+        border-color: var(--color-fg-main);
+    }
+    .border-fg-muted {
+        border-color: var(--color-fg-muted);
+    }
+    .border-accent {
+        border-color: var(--color-accent);
+    }
+    .border-ui-border {
+        border-color: var(--color-ui-border);
+    }
+    .border-ui-active {
+        border-color: var(--color-ui-active);
+    }
+    .border-ui-gutter {
+        border-color: var(--color-ui-gutter);
+    }
+
+    .ring-accent {
+        --tw-ring-color: var(--color-accent);
+    }
+    .focus\:ring-accent:focus {
+        --tw-ring-color: var(--color-accent);
+    }
+    .hover\:bg-tertiary:hover {
+        background-color: var(--color-tertiary);
+    }
+    .placeholder\:text-fg-muted::placeholder {
+        color: var(--color-fg-muted);
+    }
+}
