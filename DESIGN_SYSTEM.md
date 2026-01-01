@@ -479,4 +479,3 @@ If you're unsure about which color or utility to use:
 4. When in doubt, use `bg-secondary` for containers and `text-fg-main` for text
 
 **Remember**: The design system is theme-aware. Your code should automatically adapt to theme changes without modification.
-

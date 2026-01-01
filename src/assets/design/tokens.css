@@ -35,7 +35,8 @@
 
 @theme {
     --font-sans: "Google Sans", "Segoe UI", Roboto, system-ui, sans-serif;
-    --font-mono: "DankMono", "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    --font-mono:
+        "DankMono", "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
 
     /* Color definitions - these will be overridden by theme selectors */
     --color-primary: #1d2021;

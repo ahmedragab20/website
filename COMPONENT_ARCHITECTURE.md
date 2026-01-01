@@ -1850,4 +1850,3 @@ If you're unsure about component architecture:
 4. When in doubt, prefer simplicity and native solutions
 
 **Remember**: The goal is to create maintainable, performant, accessible components that follow web standards and SolidJS best practices.
-

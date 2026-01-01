@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal, onMount, For } from "solid-js";
 
 const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"] as const;
 type Theme = (typeof themes)[number];
@@ -26,17 +26,18 @@ export default function ThemeToggle() {
         <div class="flex items-center gap-2 p-2 rounded-lg bg-secondary border border-(--color-ui-border)">
             <span class="text-sm text-fg-mute px-2">Theme:</span>
             <div class="flex gap-1">
-                {themes.map((theme) => (
+                <For each={themes}>{(theme) => (
                     <button
                         onClick={() => switchTheme(theme)}
-                        class={`px-3 py-1.5 text-sm font-medium rounded transition-all ${currentTheme() === theme
-                            ? "bg-accent text-primary"
-                            : "text-fg-mute hover:text-fg-main hover:bg-(--color-tertiary)"
-                            }`}
+                        class={`px-3 py-1.5 text-sm font-medium rounded transition-all ${
+                            currentTheme() === theme
+                                ? "bg-accent text-primary"
+                                : "text-fg-mute hover:text-fg-main hover:bg-(--color-tertiary)"
+                        }`}
                     >
                         {theme.charAt(0).toUpperCase() + theme.slice(1)}
                     </button>
-                ))}
+                )}</For>
             </div>
         </div>
     );
