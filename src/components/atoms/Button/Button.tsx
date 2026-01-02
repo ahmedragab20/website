@@ -2,11 +2,11 @@ import { splitProps, type JSX } from "solid-js";
 import { tv } from "tailwind-variants";
 
 const button = tv({
-    base: "px-4 py-2 rounded font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent",
+    base: "px-4 py-2 rounded font-medium transition-all focus:outline-none border-transparent focus:ring-2 focus:ring-accent",
     variants: {
         variant: {
-            solid: "",
-            subtle: "",
+            solid: "border-2",
+            subtle: "border-2",
             text: "bg-transparent",
             outline: "border-2 bg-transparent",
         },

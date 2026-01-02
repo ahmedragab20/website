@@ -12,3 +12,9 @@ export type { TextProps } from "./Text";
 
 export { Card } from "./Card";
 export type { CardProps } from "./Card";
+
+export { Dropdown, DropdownItem } from "./Dropdown";
+export type { DropdownProps, DropdownItemProps } from "./Dropdown";
+
+export { Tooltip } from "./Tooltip";
+export type { TooltipProps } from "./Tooltip";
