@@ -19,23 +19,27 @@ This guide provides comprehensive instructions for creating new components in th
 ## Core Principles
 
 ### 1. **Design System First**
+
 - **ALWAYS** prioritize design system tokens from `DESIGN_SYSTEM.md`
 - **NEVER** use hardcoded colors, sizes, or spacing values
 - **ALWAYS** use Tailwind utility classes that map to design tokens
 - **ALWAYS** ensure components work across all themes (nordfox, nightfox, carbonfox, dayfox)
 
 ### 2. **Consistency**
+
 - Follow established patterns for rounding, sizes, spacing, and component structure
 - Maintain visual consistency with existing components
 - Use the same naming conventions and file structure
 
 ### 3. **Quality Standards**
+
 - Every component MUST have unit tests
 - Every component MUST have Storybook documentation
 - Every component MUST be accessible (WCAG 2.1 AA)
 - Every component MUST follow TypeScript best practices
 
 ### 4. **Documentation**
+
 - Stories document component behavior and visual states
 - Tests verify component functionality and edge cases
 - JSDoc comments explain component purpose and usage
@@ -70,6 +74,7 @@ src/components/atoms/ComponentName/
 ### Color Usage
 
 **✅ ALWAYS DO:**
+
 ```tsx
 // Use design system utility classes
 <div class="bg-secondary text-fg-main border border-ui-border">
@@ -77,6 +82,7 @@ src/components/atoms/ComponentName/
 ```
 
 **❌ NEVER DO:**
+
 ```tsx
 // Don't use arbitrary values or hardcoded colors
 <div class="bg-[var(--color-secondary)]" style="color: #e5e9f0;">
@@ -88,17 +94,20 @@ src/components/atoms/ComponentName/
 All components should follow these size conventions:
 
 #### Component Sizes
+
 - **Small (`sm`)**: `px-3 py-1.5 text-sm`
 - **Medium (`md`)**: `px-4 py-2 text-base` (default)
 - **Large (`lg`)**: `px-6 py-3 text-lg`
 
 #### Spacing Scale
+
 - **None**: `p-0` or no padding
 - **Small**: `p-4` (16px)
 - **Medium**: `p-6` (24px) - default for cards
 - **Large**: `p-8` (32px)
 
 #### Border Radius
+
 - **Default**: `rounded` (4px)
 - **Cards/Containers**: `rounded-lg` (8px)
 - **Buttons/Inputs**: `rounded` (4px)
@@ -106,6 +115,7 @@ All components should follow these size conventions:
 ### Typography
 
 Use the type scale from `DESIGN_SYSTEM.md`:
+
 - Headings: `text-3xl font-bold`, `text-2xl font-semibold`, etc.
 - Body: `text-base` (default)
 - Small: `text-sm`
@@ -114,6 +124,7 @@ Use the type scale from `DESIGN_SYSTEM.md`:
 ### Spacing Patterns
 
 Use Tailwind spacing utilities consistently:
+
 - Gaps: `gap-2`, `gap-4`, `gap-6`
 - Margins: `mb-4`, `mb-6`, `mb-8`, `mb-16`
 - Padding: `p-4`, `p-6`, `p-8`
@@ -272,36 +283,36 @@ const handleKeyDown = (e: KeyboardEvent) => {
 Every component MUST have comprehensive unit tests covering:
 
 1. **Rendering**
-   - Renders with children
-   - Renders with custom class
-   - Renders with all props
+    - Renders with children
+    - Renders with custom class
+    - Renders with all props
 
 2. **Variants**
-   - All variant options apply correct classes
-   - Use dictionary maps to test variants
+    - All variant options apply correct classes
+    - Use dictionary maps to test variants
 
 3. **Sizes**
-   - All size options apply correct classes
-   - Default size works correctly
+    - All size options apply correct classes
+    - Default size works correctly
 
 4. **States**
-   - Disabled state
-   - Error state (if applicable)
-   - Loading state (if applicable)
+    - Disabled state
+    - Error state (if applicable)
+    - Loading state (if applicable)
 
 5. **Interactions**
-   - Click handlers
-   - Keyboard events
-   - Form submission (if applicable)
+    - Click handlers
+    - Keyboard events
+    - Form submission (if applicable)
 
 6. **Accessibility**
-   - ARIA attributes
-   - Keyboard navigation
-   - Screen reader support
+    - ARIA attributes
+    - Keyboard navigation
+    - Screen reader support
 
 7. **Default Values**
-   - Default props work correctly
-   - Default variants apply
+    - Default props work correctly
+    - Default variants apply
 
 ### Test Pattern Example
 
@@ -418,7 +429,7 @@ describe("Component", () => {
 
 Every component MUST have Storybook stories following this pattern:
 
-```tsx
+````tsx
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { Component } from "./Component";
@@ -543,7 +554,7 @@ export const InContext: Story = {
         },
     },
 };
-```
+````
 
 ### Story Requirements
 
@@ -779,7 +790,7 @@ describe("Component", () => {
 
 ### Story File Example
 
-```tsx
+````tsx
 // ComponentName.stories.tsx
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
@@ -862,7 +873,7 @@ export const Disabled: Story = {
         },
     },
 };
-```
+````
 
 ---
 
@@ -871,6 +882,7 @@ export const Disabled: Story = {
 Before considering a component complete, verify:
 
 ### Design System
+
 - [ ] All colors use design system tokens (no hardcoded values)
 - [ ] All sizes follow standard conventions (sm, md, lg)
 - [ ] All spacing uses Tailwind utilities
@@ -879,6 +891,7 @@ Before considering a component complete, verify:
 - [ ] Typography follows type scale
 
 ### Implementation
+
 - [ ] Uses `tailwind-variants` (tv) for styling
 - [ ] Uses `splitProps` for prop separation
 - [ ] Uses dictionary maps instead of switch statements
@@ -887,6 +900,7 @@ Before considering a component complete, verify:
 - [ ] Accessibility features are implemented (ARIA, keyboard)
 
 ### Testing
+
 - [ ] Unit tests cover rendering
 - [ ] Unit tests cover all variants
 - [ ] Unit tests cover all sizes
@@ -897,6 +911,7 @@ Before considering a component complete, verify:
 - [ ] All tests pass
 
 ### Storybook
+
 - [ ] Story file includes JSDoc comments
 - [ ] Autodocs is enabled
 - [ ] All props are documented in argTypes
@@ -909,6 +924,7 @@ Before considering a component complete, verify:
 - [ ] Uses Tailwind classes (no inline styles)
 
 ### File Organization
+
 - [ ] Component file follows naming convention
 - [ ] Test file follows naming convention
 - [ ] Story file follows naming convention
@@ -916,6 +932,7 @@ Before considering a component complete, verify:
 - [ ] Main index file is updated
 
 ### Code Quality
+
 - [ ] No linter errors
 - [ ] Code is formatted with Prettier
 - [ ] TypeScript types are correct
@@ -927,48 +944,55 @@ Before considering a component complete, verify:
 ## Quick Reference
 
 ### Standard Sizes
+
 ```tsx
-sm: "px-3 py-1.5 text-sm"
-md: "px-4 py-2 text-base"  // default
-lg: "px-6 py-3 text-lg"
+sm: "px-3 py-1.5 text-sm";
+md: "px-4 py-2 text-base"; // default
+lg: "px-6 py-3 text-lg";
 ```
 
 ### Standard Spacing
+
 ```tsx
-none: "p-0"
-sm: "p-4"
-md: "p-6"  // default for cards
-lg: "p-8"
+none: "p-0";
+sm: "p-4";
+md: "p-6"; // default for cards
+lg: "p-8";
 ```
 
 ### Standard Border Radius
+
 ```tsx
-rounded      // 4px - buttons, inputs
-rounded-lg   // 8px - cards, containers
+rounded; // 4px - buttons, inputs
+rounded - lg; // 8px - cards, containers
 ```
 
 ### Standard Colors
+
 ```tsx
-bg-primary, bg-secondary, bg-tertiary
-text-fg-main, text-fg-muted
-bg-accent, text-accent
-border-ui-border
-bg-ui-active, bg-ui-gutter
+(bg - primary, bg - secondary, bg - tertiary);
+(text - fg - main, text - fg - muted);
+(bg - accent, text - accent);
+border - ui - border;
+(bg - ui - active, bg - ui - gutter);
 ```
 
 ### Required Imports
+
 ```tsx
 import { splitProps, type JSX } from "solid-js";
 import { tv } from "tailwind-variants";
 ```
 
 ### Required Test Imports
+
 ```tsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@solidjs/testing-library";
 ```
 
 ### Required Story Imports
+
 ```tsx
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
