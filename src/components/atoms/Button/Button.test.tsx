@@ -37,6 +37,7 @@ describe("Button", () => {
             subtle: "bg-accent/20",
             text: "bg-transparent",
             outline: "border-2",
+            link: "bg-transparent",
         } as const;
 
         Object.entries(variantMap).forEach(([variant, expectedClass]) => {
@@ -44,8 +45,8 @@ describe("Button", () => {
                 const { container } = render(() => (
                     <Button variant={variant as any}>Test</Button>
                 ));
-                const button = container.querySelector("button");
-                expect(button?.className).toContain(expectedClass);
+                const element = container.querySelector("button");
+                expect(element?.className).toContain(expectedClass);
             });
         });
     });
@@ -175,6 +176,70 @@ describe("Button", () => {
             ));
             const button = container.querySelector("button");
             expect(button).toHaveAttribute("type", "submit");
+        });
+    });
+
+    describe("Link Rendering", () => {
+        it("renders as anchor tag when href is provided", () => {
+            const { container } = render(() => (
+                <Button href="/test">Link Button</Button>
+            ));
+            const anchor = container.querySelector("a");
+            const button = container.querySelector("button");
+            expect(anchor).toBeInTheDocument();
+            expect(button).not.toBeInTheDocument();
+            expect(anchor).toHaveAttribute("href", "/test");
+        });
+
+        it("renders as button when href is not provided", () => {
+            const { container } = render(() => <Button>Button</Button>);
+            const anchor = container.querySelector("a");
+            const button = container.querySelector("button");
+            expect(button).toBeInTheDocument();
+            expect(anchor).not.toBeInTheDocument();
+        });
+
+        it("applies target attribute when provided", () => {
+            const { container } = render(() => (
+                <Button href="/test" target="_blank">
+                    External Link
+                </Button>
+            ));
+            const anchor = container.querySelector("a");
+            expect(anchor).toHaveAttribute("target", "_blank");
+        });
+
+        it("applies rel attribute for external links", () => {
+            const { container } = render(() => (
+                <Button href="/test" target="_blank">
+                    External Link
+                </Button>
+            ));
+            const anchor = container.querySelector("a");
+            expect(anchor).toHaveAttribute("rel", "noopener noreferrer");
+        });
+
+        it("prevents navigation when disabled and href is provided", () => {
+            const handleClick = vi.fn();
+            const { container } = render(() => (
+                <Button href="/test" disabled onClick={handleClick}>
+                    Disabled Link
+                </Button>
+            ));
+            const anchor = container.querySelector("a");
+            expect(anchor).toBeInTheDocument();
+            expect(anchor?.className).toContain("opacity-50");
+        });
+
+        it("applies link variant classes when variant is link", () => {
+            const { container } = render(() => (
+                <Button variant="link" color="accent">
+                    Link Text
+                </Button>
+            ));
+            const button = container.querySelector("button");
+            expect(button?.className).toContain("text-accent");
+            expect(button?.className).toContain("hover:underline");
         });
     });
 

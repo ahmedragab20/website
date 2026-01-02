@@ -2,13 +2,14 @@ import { splitProps, type JSX } from "solid-js";
 import { tv } from "tailwind-variants";
 
 const button = tv({
-    base: "px-4 py-2 rounded font-medium transition-all focus:outline-none border-transparent focus:ring-2 focus:ring-accent",
+    base: "px-4 py-2 rounded font-medium transition-all focus:outline-none border-transparent focus:ring-2 focus:ring-accent inline-flex items-center gap-2",
     variants: {
         variant: {
             solid: "border-2",
             subtle: "border-2",
             text: "bg-transparent",
             outline: "border-2 bg-transparent",
+            link: "bg-transparent underline-offset-4",
         },
         color: {
             primary: "",
@@ -117,6 +118,32 @@ const button = tv({
             color: "error",
             class: "border-error text-error hover:bg-error/10",
         },
+        // Link variant with colors
+        {
+            variant: "link",
+            color: "accent",
+            class: "text-accent hover:underline",
+        },
+        {
+            variant: "link",
+            color: "success",
+            class: "text-success hover:underline",
+        },
+        {
+            variant: "link",
+            color: "warning",
+            class: "text-warning hover:underline",
+        },
+        {
+            variant: "link",
+            color: "error",
+            class: "text-error hover:underline",
+        },
+        {
+            variant: "link",
+            color: "primary",
+            class: "text-fg-main hover:underline",
+        },
     ],
     defaultVariants: {
         variant: "solid",
@@ -128,12 +155,15 @@ const button = tv({
 
 export interface ButtonProps {
     children: JSX.Element;
-    variant?: "solid" | "subtle" | "text" | "outline";
+    variant?: "solid" | "subtle" | "text" | "outline" | "link";
     color?: "primary" | "accent" | "success" | "warning" | "error";
     size?: "sm" | "md" | "lg";
     disabled?: boolean;
     onClick?: () => void;
     type?: "button" | "submit" | "reset";
+    href?: string;
+    target?: "_blank" | "_self" | "_parent" | "_top";
+    rel?: string;
     class?: string;
     "aria-label"?: string;
 }
@@ -146,10 +176,14 @@ export function Button(props: ButtonProps) {
         "size",
         "disabled",
         "onClick",
+        "href",
+        "target",
+        "rel",
         "class",
         "aria-label",
     ]);
 
+    const isLink = () => !!local.href;
     const buttonState = () => {
         if (local.disabled) return "disabled";
         return "default";
@@ -162,15 +196,46 @@ export function Button(props: ButtonProps) {
         }
     };
 
+    const buttonClasses = () =>
+        button({
+            variant: local.variant,
+            color: local.color,
+            size: local.size,
+            state: buttonState(),
+            class: local.class,
+        });
+
+    if (isLink()) {
+        return (
+            <a
+                class={buttonClasses()}
+                href={local.href}
+                target={local.target}
+                rel={
+                    local.rel ||
+                    (local.target === "_blank"
+                        ? "noopener noreferrer"
+                        : undefined)
+                }
+                onClick={(e) => {
+                    if (local.disabled) {
+                        e.preventDefault();
+                        return;
+                    }
+                    local.onClick?.();
+                }}
+                aria-label={local["aria-label"]}
+                aria-disabled={local.disabled}
+                {...others}
+            >
+                {local.children}
+            </a>
+        );
+    }
+
     return (
         <button
-            class={button({
-                variant: local.variant,
-                color: local.color,
-                size: local.size,
-                state: buttonState(),
-                class: `inline-flex items-center gap-2 ${local.class || ""}`,
-            })}
+            class={buttonClasses()}
             type={others.type || "button"}
             disabled={local.disabled}
             onClick={() => local.onClick?.()}

@@ -23,7 +23,7 @@ const meta = {
     argTypes: {
         variant: {
             control: "select",
-            options: ["solid", "subtle", "text", "outline"],
+            options: ["solid", "subtle", "text", "outline", "link"],
             description: "Visual style variant of the button",
             table: {
                 type: { summary: "string" },
@@ -59,6 +59,16 @@ const meta = {
         "aria-label": {
             control: "text",
             description: "Accessible label for screen readers",
+        },
+        href: {
+            control: "text",
+            description:
+                "URL to navigate to. When provided, renders as an anchor tag instead of a button.",
+        },
+        target: {
+            control: "select",
+            options: ["_blank", "_self", "_parent", "_top"],
+            description: "Target attribute for links",
         },
     },
     args: {
@@ -208,6 +218,55 @@ export const Disabled: Story = {
         docs: {
             description: {
                 story: "Disabled state prevents interaction and reduces opacity. The button is not clickable.",
+            },
+        },
+    },
+};
+
+export const Link: Story = {
+    args: {
+        variant: "link",
+        color: "accent",
+        children: "Link Button",
+        href: "#",
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Link variant styled as a text link with underline on hover. Use for navigation actions.",
+            },
+        },
+    },
+};
+
+export const LinkAsAnchor: Story = {
+    args: {
+        variant: "solid",
+        color: "accent",
+        children: "Button as Link",
+        href: "/example",
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Any button variant can be rendered as a link by providing an href prop. The component automatically renders as an anchor tag.",
+            },
+        },
+    },
+};
+
+export const ExternalLink: Story = {
+    args: {
+        variant: "link",
+        color: "accent",
+        children: "External Link",
+        href: "https://example.com",
+        target: "_blank",
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "External link with target='_blank' automatically includes rel='noopener noreferrer' for security.",
             },
         },
     },
