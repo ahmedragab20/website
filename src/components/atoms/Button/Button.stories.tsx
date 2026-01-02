@@ -6,8 +6,7 @@ import { Button } from "./Button";
  * Button component with multiple variants and sizes.
  *
  * Supports solid, subtle, text, and outline variants.
- * Includes built-in loading and disabled states.
- * Can display icons on the left or right side.
+ * Includes built-in disabled state.
  *
  * @example
  * ```tsx
@@ -53,15 +52,6 @@ const meta = {
             control: "boolean",
             description: "Whether the button is disabled",
         },
-        loading: {
-            control: "boolean",
-            description: "Shows loading spinner and disables interaction",
-        },
-        iconPosition: {
-            control: "select",
-            options: ["left", "right"],
-            description: "Position of the icon relative to text",
-        },
         children: {
             control: "text",
             description: "Button label text",
@@ -79,7 +69,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Primary use cases
 export const Primary: Story = {
     args: {
         variant: "solid",
@@ -125,7 +114,6 @@ export const Destructive: Story = {
     },
 };
 
-// Variants
 export const Solid: Story = {
     args: {
         variant: "solid",
@@ -158,7 +146,6 @@ export const Outline: Story = {
     },
 };
 
-// Colors
 export const Accent: Story = {
     args: {
         variant: "solid",
@@ -191,7 +178,6 @@ export const Error: Story = {
     },
 };
 
-// Sizes
 export const Small: Story = {
     args: {
         size: "sm",
@@ -213,7 +199,6 @@ export const Large: Story = {
     },
 };
 
-// States
 export const Disabled: Story = {
     args: {
         children: "Disabled",
@@ -223,84 +208,6 @@ export const Disabled: Story = {
         docs: {
             description: {
                 story: "Disabled state prevents interaction and reduces opacity. The button is not clickable.",
-            },
-        },
-    },
-};
-
-export const Loading: Story = {
-    args: {
-        children: "Loading",
-        loading: true,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Loading state shows a spinner and disables the button. Use during async operations.",
-            },
-        },
-    },
-};
-
-// With icons (using simple placeholder for Storybook)
-export const WithIconLeft: Story = {
-    args: {
-        children: "Download",
-        icon: (<span>⬇</span>) as any,
-        iconPosition: "left",
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Button with icon on the left side. Icons should be passed as JSX elements from Lucide.",
-            },
-        },
-    },
-};
-
-export const WithIconRight: Story = {
-    args: {
-        children: "Next",
-        icon: (<span>→</span>) as any,
-        iconPosition: "right",
-    },
-};
-
-// Edge cases
-export const LongText: Story = {
-    args: {
-        children:
-            "This is a very long button label that might wrap to multiple lines",
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Button with long text to test wrapping behavior.",
-            },
-        },
-    },
-};
-
-export const IconOnly: Story = {
-    args: {
-        icon: (<span>✕</span>) as any,
-        "aria-label": "Close dialog",
-        children: undefined,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Icon-only button requires an aria-label for accessibility. The icon should be descriptive.",
-            },
-        },
-        a11y: {
-            config: {
-                rules: [
-                    {
-                        id: "button-name",
-                        enabled: true,
-                    },
-                ],
             },
         },
     },

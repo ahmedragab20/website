@@ -19,16 +19,11 @@ describe("Button", () => {
             expect(button?.className).toContain("custom-class");
         });
 
-        it("renders with icon on left by default", () => {
-            render(() => <Button icon={<MockIcon />}>With Icon</Button>);
-            expect(screen.getByTestId("mock-icon")).toBeInTheDocument();
-            expect(screen.getByText("With Icon")).toBeInTheDocument();
-        });
-
-        it("renders with icon on right when specified", () => {
+        it("renders with icon as part of children", () => {
             render(() => (
-                <Button icon={<MockIcon />} iconPosition="right">
-                    With Icon
+                <Button>
+                    <MockIcon />
+                    <span>With Icon</span>
                 </Button>
             ));
             expect(screen.getByTestId("mock-icon")).toBeInTheDocument();
@@ -104,30 +99,6 @@ describe("Button", () => {
             expect(button).toHaveAttribute("aria-disabled", "true");
             expect(button.className).toContain("opacity-50");
         });
-
-        it("is disabled when loading prop is true", () => {
-            render(() => <Button loading>Loading</Button>);
-            const button = screen.getByText("Loading");
-            expect(button).toBeDisabled();
-            expect(button.className).toContain("opacity-75");
-        });
-
-        it("shows loading spinner when loading", () => {
-            const { container } = render(() => (
-                <Button loading>Loading</Button>
-            ));
-            const spinner = container.querySelector(".animate-spin");
-            expect(spinner).toBeInTheDocument();
-        });
-
-        it("shows loading icon when loading and icon provided", () => {
-            render(() => (
-                <Button loading icon={<MockIcon />}>
-                    Loading
-                </Button>
-            ));
-            expect(screen.getByTestId("mock-icon")).toBeInTheDocument();
-        });
     });
 
     describe("Interactions", () => {
@@ -146,17 +117,6 @@ describe("Button", () => {
                 </Button>
             ));
             screen.getByText("Disabled").click();
-            expect(handleClick).not.toHaveBeenCalled();
-        });
-
-        it("does not call onClick when loading", () => {
-            const handleClick = vi.fn();
-            render(() => (
-                <Button onClick={handleClick} loading>
-                    Loading
-                </Button>
-            ));
-            screen.getByText("Loading").click();
             expect(handleClick).not.toHaveBeenCalled();
         });
 

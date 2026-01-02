@@ -1,6 +1,5 @@
 import { splitProps, type JSX } from "solid-js";
 import { tv } from "tailwind-variants";
-import { Icon } from "../Icon/Icon";
 
 const button = tv({
     base: "px-4 py-2 rounded font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent",
@@ -25,8 +24,7 @@ const button = tv({
         },
         state: {
             default: "",
-            disabled: "opacity-50 cursor-not-allowed",
-            loading: "opacity-75 cursor-wait",
+            disabled: "!opacity-50 cursor-not-allowed",
         },
     },
     compoundVariants: [
@@ -134,9 +132,6 @@ export interface ButtonProps {
     color?: "primary" | "accent" | "success" | "warning" | "error";
     size?: "sm" | "md" | "lg";
     disabled?: boolean;
-    loading?: boolean;
-    icon?: JSX.Element; // Lucide icon component (from @lucide/astro)
-    iconPosition?: "left" | "right";
     onClick?: () => void;
     type?: "button" | "submit" | "reset";
     class?: string;
@@ -150,9 +145,6 @@ export function Button(props: ButtonProps) {
         "color",
         "size",
         "disabled",
-        "loading",
-        "icon",
-        "iconPosition",
         "onClick",
         "class",
         "aria-label",
@@ -160,28 +152,15 @@ export function Button(props: ButtonProps) {
 
     const buttonState = () => {
         if (local.disabled) return "disabled";
-        if (local.loading) return "loading";
         return "default";
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (
-            (e.key === "Enter" || e.key === " ") &&
-            !local.disabled &&
-            !local.loading
-        ) {
+        if ((e.key === "Enter" || e.key === " ") && !local.disabled) {
             e.preventDefault();
             local.onClick?.();
         }
     };
-
-    const iconSizeMap = {
-        sm: "sm",
-        md: "md",
-        lg: "lg",
-    } as const;
-
-    const iconSize = () => iconSizeMap[local.size || "md"];
 
     return (
         <button
@@ -193,46 +172,14 @@ export function Button(props: ButtonProps) {
                 class: `inline-flex items-center gap-2 ${local.class || ""}`,
             })}
             type={others.type || "button"}
-            disabled={local.disabled || local.loading}
+            disabled={local.disabled}
             onClick={() => local.onClick?.()}
             onKeyDown={handleKeyDown}
             aria-label={local["aria-label"]}
-            aria-disabled={local.disabled || local.loading}
+            aria-disabled={local.disabled}
             {...others}
         >
-            {local.loading ? (
-                <>
-                    {local.icon ? (
-                        <Icon
-                            size={iconSize()}
-                            class="animate-spin"
-                            aria-hidden={true}
-                        >
-                            {local.icon}
-                        </Icon>
-                    ) : (
-                        <span
-                            class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
-                            aria-hidden="true"
-                        />
-                    )}
-                    {local.children}
-                </>
-            ) : (
-                <>
-                    {local.icon && local.iconPosition !== "right" && (
-                        <Icon size={iconSize()} aria-hidden={true}>
-                            {local.icon}
-                        </Icon>
-                    )}
-                    {local.children}
-                    {local.icon && local.iconPosition === "right" && (
-                        <Icon size={iconSize()} aria-hidden={true}>
-                            {local.icon}
-                        </Icon>
-                    )}
-                </>
-            )}
+            {local.children}
         </button>
     );
 }

@@ -50,7 +50,7 @@ export function Label(props: LabelProps) {
         >
             {local.children}
             {local.required && (
-                <span class="text-accent ml-1" aria-label="required">
+                <span class="text-error ml-1" aria-label="required">
                     *
                 </span>
             )}

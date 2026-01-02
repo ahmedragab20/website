@@ -147,7 +147,7 @@ Use JSDoc comments or MDX files for detailed documentation:
  * Button component with multiple variants and sizes.
  *
  * Supports solid, subtle, text, and outline variants.
- * Includes built-in loading and disabled states.
+ * Includes built-in disabled state.
  *
  * @example
  * ```tsx
@@ -181,7 +181,6 @@ Buttons should be used for primary actions in your interface.
 ## Accessibility
 
 - Buttons are keyboard accessible
-- Loading states are announced to screen readers
 - Disabled buttons prevent interaction
 ```
 
@@ -353,10 +352,6 @@ const meta = {
             control: "boolean",
             description: "Whether the button is disabled",
         },
-        loading: {
-            control: "boolean",
-            description: "Shows loading spinner and disables interaction",
-        },
     },
 } satisfies Meta<typeof Button>;
 ```
@@ -445,7 +440,6 @@ argTypes: {
 
   // Group: State
   disabled: { /* ... */ },
-  loading: { /* ... */ },
 
   // Group: Content
   children: { /* ... */ },
@@ -516,12 +510,6 @@ export const Disabled: Story = {
   },
 };
 
-export const Loading: Story = {
-  args: {
-    children: "Loading",
-    loading: true,
-  },
-};
 
 export const WithIcon: Story = {
   args: {
@@ -837,25 +825,6 @@ export const Destructive: Story = {
 };
 ```
 
-### Pattern 2: Component with Loading States
-
-**File: `Button.stories.tsx`**
-
-```tsx
-export const Loading: Story = {
-    args: {
-        loading: true,
-        children: "Processing...",
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Loading state disables the button and shows a spinner. The button is not clickable during loading.",
-            },
-        },
-    },
-};
-```
 
 ### Pattern 3: Component in Context
 
@@ -991,7 +960,6 @@ When writing stories, ensure you cover:
 - [ ] **Semantic HTML** - Ensure proper HTML elements are used
 - [ ] **ARIA Attributes** - Document required ARIA attributes
 - [ ] **Disabled States** - Show how disabled components behave
-- [ ] **Loading States** - Document loading announcements
 - [ ] **Error States** - Show error messaging and validation
 
 ---

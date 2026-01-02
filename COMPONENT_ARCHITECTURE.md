@@ -335,7 +335,7 @@ function Component(props: ComponentProps) {
 
 - **`variant`** - Refers to the **shape/style** of the component (e.g., `solid`, `subtle`, `text`, `outline`, `ghost`)
 - **`color`** - Separate prop for **color scheme** (e.g., `primary`, `accent`, `success`, `warning`, `error`)
-- **`state`** - Separate prop for **interactive states** (e.g., `default`, `hover`, `active`, `disabled`, `loading`)
+- **`state`** - Separate prop for **interactive states** (e.g., `default`, `hover`, `active`, `disabled`)
 
 ✅ **DO:**
 
@@ -344,7 +344,7 @@ interface ButtonProps {
   children: JSX.Element;
   variant?: 'solid' | 'subtle' | 'text' | 'outline';
   color?: 'primary' | 'accent' | 'success' | 'warning' | 'error';
-  state?: 'default' | 'hover' | 'active' | 'disabled' | 'loading';
+  state?: 'default' | 'hover' | 'active' | 'disabled';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -394,7 +394,6 @@ const button = tv({
     state: {
       default: '',
       disabled: 'opacity-50 cursor-not-allowed',
-      loading: 'opacity-75 cursor-wait'
     }
   },
   compoundVariants: [
@@ -667,176 +666,109 @@ function Modal(props: ModalProps) {
 ```typescript
 // In Astro files (.astro)
 import { Salad, ChevronDown, X, Check } from "@lucide/astro";
-
-// In SolidJS components (.tsx)
-// Note: For SolidJS components, you may need to use @lucide/solid-js
-// or import icons in the Astro parent and pass them as props
-```
-
-### Icon Component Pattern
-
-Create a reusable Icon wrapper component for consistent sizing and styling:
-
-```typescript
-// atoms/Icon/Icon.tsx
-import { splitProps } from 'solid-js';
-import { tv } from 'tailwind-variants';
-
-const icon = tv({
-  base: 'flex-shrink-0',
-  variants: {
-    size: {
-      xs: 'w-3 h-3',
-      sm: 'w-4 h-4',
-      md: 'w-5 h-5',
-      lg: 'w-6 h-6',
-      xl: 'w-8 h-8'
-    },
-    color: {
-      default: 'text-fg-main',
-      muted: 'text-fg-muted',
-      accent: 'text-accent',
-      success: 'text-green-600',
-      warning: 'text-yellow-600',
-      error: 'text-red-600'
-    }
-  },
-  defaultVariants: {
-    size: 'md',
-    color: 'default'
-  }
-});
-
-export interface IconProps {
-  children: JSX.Element; // Lucide icon component
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'default' | 'muted' | 'accent' | 'success' | 'warning' | 'error';
-  class?: string;
-  'aria-label'?: string;
-  'aria-hidden'?: boolean;
-}
-
-export function Icon(props: IconProps) {
-  const [local, others] = splitProps(props, [
-    'children',
-    'size',
-    'color',
-    'class',
-    'aria-label',
-    'aria-hidden'
-  ]);
-
-  return (
-    <span
-      class={icon({
-        size: local.size,
-        color: local.color,
-        class: local.class
-      })}
-      aria-label={local['aria-label']}
-      aria-hidden={local['aria-hidden'] ?? (local['aria-label'] ? false : true)}
-      {...others}
-    >
-      {local.children}
-    </span>
-  );
-}
 ```
 
 ### Usage Examples
 
 #### In Astro Files
 
+Lucide icons are used directly as components. They accept standard SVG props including `size`, `class`, `color`, `stroke-width`, and all standard HTML attributes.
+
 ```astro
 ---
-import { Salad, ChevronDown, X } from "@lucide/astro";
-import { Icon } from "@/components/atoms/Icon";
+import { Salad } from "@lucide/astro";
 ---
 
+<!-- Direct usage with Tailwind classes -->
+<Salad class="w-30 h-30" />
+
+<!-- With size prop (number in pixels) -->
+<Salad size={24} class="text-accent" />
+
+<!-- In buttons - icons are part of children -->
 <button class="flex items-center gap-2">
-    <Icon size="sm" color="accent">
-        <Salad />
-    </Icon>
+    <Salad size={16} class="text-accent" />
     <span>Menu</span>
 </button>
 
-<select class="appearance-none pr-8">
-    <option>Select option</option>
-</select>
-<Icon
-    size="sm"
-    class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
->
-    <ChevronDown />
-</Icon>
+<!-- Icon-only button (must have aria-label) -->
+<button aria-label="Close" class="p-2 rounded hover:bg-tertiary">
+    <X size={16} />
+</button>
 ```
 
 #### In SolidJS Components
 
-```typescript
-// For SolidJS components, pass icons as props or use a mapping
-import { createMemo } from 'solid-js';
+For SolidJS components, icons should be passed as part of the `children` prop from the Astro parent. Components should accept `children` without special handling for icons.
 
-interface ButtonWithIconProps {
-  icon?: string; // Icon name
-  children: JSX.Element;
+```astro
+---
+import { Plus, X } from "@lucide/astro";
+import { Button } from "@/components/atoms/Button";
+---
+
+<!-- Icons are part of children -->
+<Button client:load>
+    <Plus size={16} class="mr-2" />
+    Add Item
+</Button>
+
+<!-- Icon-only button -->
+<Button client:load aria-label="Close">
+    <X size={16} />
+</Button>
+```
+
+```typescript
+// Button component accepts any children
+export interface ButtonProps {
+  children: JSX.Element; // Can include icons, text, or any content
+  // ... other props
 }
 
-// Option 1: Pass icon component from Astro parent
-function ButtonWithIcon(props: ButtonWithIconProps & { iconComponent?: JSX.Element }) {
+export function Button(props: ButtonProps) {
   return (
-    <button class="flex items-center gap-2">
-      {props.iconComponent && (
-        <Icon size="sm">
-          {props.iconComponent}
-        </Icon>
-      )}
-      {props.children}
+    <button class="inline-flex items-center gap-2">
+      {props.children} {/* Icons are rendered as part of children */}
     </button>
   );
 }
-
-// Option 2: Use icon mapping (if needed)
-const iconMap = {
-  salad: Salad,
-  chevronDown: ChevronDown,
-  x: X
-};
 ```
 
 ### Icon Sizing Guidelines
 
-- **xs (12px)**: Inline with small text, badges
-- **sm (16px)**: Buttons, form inputs, inline with body text
-- **md (20px)**: Default size, most common use case
-- **lg (24px)**: Headings, prominent buttons
-- **xl (32px)**: Hero sections, large CTAs
+Lucide icons accept a `size` prop (number in pixels). Common sizes:
+- **12px**: Inline with small text, badges
+- **16px**: Buttons, form inputs, inline with body text
+- **20px**: Default size, most common use case
+- **24px**: Headings, prominent buttons
+- **32px**: Hero sections, large CTAs
+
+You can also use Tailwind classes for sizing:
+```astro
+<Salad class="w-5 h-5" />  <!-- 20px -->
+<Salad class="w-6 h-6" />  <!-- 24px -->
+```
 
 ### Accessibility with Icons
 
 ✅ **DO:**
 
-```typescript
-// Decorative icon (hidden from screen readers)
+```astro
+<!-- Decorative icon (hidden from screen readers) -->
 <button>
-  <Icon aria-hidden="true">
-    <X />
-  </Icon>
+  <X size={16} aria-hidden="true" />
   <span class="sr-only">Close</span>
 </button>
 
-// Icon with meaning (provide label)
+<!-- Icon with meaning (provide label) -->
 <button aria-label="Delete item">
-  <Icon aria-hidden="true">
-    <Trash2 />
-  </Icon>
+  <Trash2 size={16} aria-hidden="true" />
 </button>
 
-// Icon-only button (must have aria-label)
+<!-- Icon-only button (must have aria-label) -->
 <button aria-label="Close dialog">
-  <Icon>
-    <X />
-  </Icon>
+  <X size={16} />
 </button>
 ```
 
@@ -851,34 +783,42 @@ import { Icon } from 'some-other-library';
 
 // Don't forget accessibility for icon-only buttons
 <button>
-  <Icon><X /></Icon>
+  <X size={16} />
 </button>
+
+// Don't create wrapper components for icons
+// Use Lucide icons directly
 ```
 
 ### Common Icon Patterns
 
-```typescript
-// Button with icon
-<button class="flex items-center gap-2">
-  <Icon size="sm" color="accent">
-    <Plus />
-  </Icon>
-  Add Item
-</button>
+```astro
+---
+import { Plus, Trash2, Loader2, X, Check } from "@lucide/astro";
+import { Button } from "@/components/atoms/Button";
+---
 
-// Icon-only button
-<button aria-label="Delete" class="p-2 rounded hover:bg-tertiary">
-  <Icon size="sm" color="error">
-    <Trash2 />
-  </Icon>
-</button>
+<!-- Button with icon on left -->
+<Button client:load>
+    <Plus size={16} class="mr-2" />
+    Add Item
+</Button>
 
-// Loading spinner (using Lucide Loader2)
-<Icon size="md" class="animate-spin">
-  <Loader2 />
-</Icon>
+<!-- Button with icon on right -->
+<Button client:load>
+    Confirm
+    <Check size={16} class="ml-2" />
+</Button>
 
-// Status indicators
+<!-- Icon-only button -->
+<Button client:load aria-label="Delete">
+    <Trash2 size={16} />
+</Button>
+
+<!-- Loading spinner -->
+<Loader2 size={20} class="animate-spin" />
+
+<!-- Status indicators -->
 <div class="flex items-center gap-2">
   <Icon size="sm" color="success">
     <CheckCircle />
@@ -1371,10 +1311,9 @@ pnpm test:coverage
 // atoms/Button/Button.tsx
 import { splitProps } from 'solid-js';
 import { tv } from 'tailwind-variants';
-import { Icon } from '../Icon/Icon';
 
 // Note: For SolidJS components, icons should be passed as props from Astro parent
-// or use @lucide/solid-js if available. For this example, we'll accept icon as prop.
+// or use @lucide/solid-js if available. Icons are passed directly without a wrapper.
 
 const button = tv({
   base: 'px-4 py-2 rounded font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent',
@@ -1400,7 +1339,6 @@ const button = tv({
     state: {
       default: '',
       disabled: 'opacity-50 cursor-not-allowed',
-      loading: 'opacity-75 cursor-wait'
     }
   },
   compoundVariants: [
@@ -1508,7 +1446,6 @@ export interface ButtonProps {
   color?: 'primary' | 'accent' | 'success' | 'warning' | 'error';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
-  loading?: boolean;
   icon?: JSX.Element; // Lucide icon component (from @lucide/astro)
   iconPosition?: 'left' | 'right';
   onClick?: () => void;
@@ -1524,7 +1461,6 @@ export function Button(props: ButtonProps) {
     'color',
     'size',
     'disabled',
-    'loading',
     'icon',
     'iconPosition',
     'onClick',
@@ -1534,23 +1470,13 @@ export function Button(props: ButtonProps) {
 
   const buttonState = () => {
     if (local.disabled) return 'disabled';
-    if (local.loading) return 'loading';
     return 'default';
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !local.disabled && !local.loading) {
+    if ((e.key === 'Enter' || e.key === ' ') && !local.disabled) {
       e.preventDefault();
       local.onClick?.();
-    }
-  };
-
-  // Icon size mapping based on button size
-  const iconSize = () => {
-    switch (local.size) {
-      case 'sm': return 'sm';
-      case 'lg': return 'lg';
-      default: return 'md';
     }
   };
 
@@ -1564,40 +1490,14 @@ export function Button(props: ButtonProps) {
         class: `inline-flex items-center gap-2 ${local.class || ''}`
       })}
       type={others.type || 'button'}
-      disabled={local.disabled || local.loading}
+      disabled={local.disabled}
       onClick={local.onClick}
       onKeyDown={handleKeyDown}
       aria-label={local['aria-label']}
-      aria-disabled={local.disabled || local.loading}
+      aria-disabled={local.disabled}
       {...others}
     >
-      {local.loading ? (
-        <>
-          {/* Loading icon - pass Loader2 from parent or use icon prop */}
-          {local.icon ? (
-            <Icon size={iconSize()} class="animate-spin" aria-hidden="true">
-              {local.icon}
-            </Icon>
-          ) : (
-            <span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-          )}
-          {local.children}
-        </>
-      ) : (
-        <>
-          {local.icon && local.iconPosition !== 'right' && (
-            <Icon size={iconSize()} aria-hidden="true">
-              {local.icon}
-            </Icon>
-          )}
-          {local.children}
-          {local.icon && local.iconPosition === 'right' && (
-            <Icon size={iconSize()} aria-hidden="true">
-              {local.icon}
-            </Icon>
-          )}
-        </>
-      )}
+      {local.children}
     </button>
   );
 }
@@ -1615,30 +1515,38 @@ import { Button } from "@/components/atoms/Button";
 <!-- Solid accent button (default) -->
 <Button client:load>Click me</Button>
 
-<!-- Button with icon on left -->
-<Button client:load icon={(<Plus />)}>Add Item</Button>
+<!-- Button with icon on left - icons are part of children -->
+<Button client:load>
+    <Plus size={16} class="mr-2" />
+    Add Item
+</Button>
 
 <!-- Button with icon on right -->
-<Button client:load icon={(<Check />)} iconPosition="right">Confirm</Button>
+<Button client:load>
+    Confirm
+    <Check size={16} class="ml-2" />
+</Button>
 
 <!-- Subtle success button with icon -->
-<Button client:load variant="subtle" color="success" icon={(<Check />)}>
+<Button client:load variant="subtle" color="success">
+    <Check size={16} class="mr-2" />
     Success
 </Button>
 
 <!-- Text error button with icon -->
-<Button client:load variant="text" color="error" icon={(<Trash2 />)}>
+<Button client:load variant="text" color="error">
+    <Trash2 size={16} class="mr-2" />
     Delete
 </Button>
 
-<!-- Loading state with Loader2 icon -->
-<Button client:load loading icon={(<Loader2 />)}>Processing...</Button>
 
 <!-- Icon-only button (must provide aria-label) -->
-<Button client:load icon={(<X />)} aria-label="Close" />
+<Button client:load aria-label="Close">
+    <X size={16} />
+</Button>
 ```
 
-**Note:** For SolidJS components, icons from `@lucide/astro` should be passed as props from the Astro parent component, or you can use `@lucide/solid-js` if available for direct imports in SolidJS files.
+**Note:** Components accept `children` without special handling. Icons from `@lucide/astro` are passed as part of the children prop, allowing flexible composition.
 
 ### Complete Molecule Example: FormField (Compound Component)
 

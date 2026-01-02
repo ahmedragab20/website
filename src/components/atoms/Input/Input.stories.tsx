@@ -108,7 +108,7 @@ export const WithLabel: Story = {
     render: (args: Story["args"]) => {
         const [value, setValue] = createSignal(args?.value || "");
         return (
-            <div class="flex flex-col gap-2 w-[300px]">
+            <div class="flex flex-col gap-2 w-75">
                 <Label for="input-1">Email Address</Label>
                 <Input
                     {...args}
@@ -235,7 +235,7 @@ export const Required: Story = {
     render: (args: Story["args"]) => {
         const [value, setValue] = createSignal(args?.value || "");
         return (
-            <div class="flex flex-col gap-2 w-[300px]">
+            <div class="flex flex-col gap-2 w-75">
                 <Label for="required-input" required>
                     Required Field
                 </Label>
@@ -258,7 +258,7 @@ export const Error: Story = {
     render: (args: Story["args"]) => {
         const [value, setValue] = createSignal(args?.value || "");
         return (
-            <div class="flex flex-col gap-2 w-[300px]">
+            <div class="flex flex-col gap-2 w-75">
                 <Label for="error-input">Email Address</Label>
                 <Input
                     {...args}
@@ -295,7 +295,7 @@ export const InForm: Story = {
         const [password, setPassword] = createSignal("");
         return (
             <form
-                class="flex flex-col gap-4 w-[300px]"
+                class="flex flex-col gap-4 w-75"
                 onSubmit={(e) => {
                     e.preventDefault();
                     alert("Form submitted!");
