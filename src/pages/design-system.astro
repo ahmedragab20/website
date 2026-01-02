@@ -1,6 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ThemeToggle from "../components/ThemeToggle.tsx";
+import { Button } from "../components/atoms/Button";
+import { Input } from "../components/atoms/Input";
+import { Card } from "../components/atoms/Card";
+import { Tooltip } from "../components/atoms/Tooltip";
 ---
 
 <Layout>
@@ -589,24 +593,265 @@ import ThemeToggle from "../components/ThemeToggle.tsx";
                         <h3 class="text-xl font-semibold mb-4 text-accent">
                             Buttons
                         </h3>
-                        <div
-                            class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
-                        >
-                            <button
-                                class="px-4 py-2 rounded bg-accent text-primary font-medium hover:opacity-90 transition-opacity"
+
+                        <!-- Solid Variant -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Solid</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
                             >
-                                Primary Button
-                            </button>
-                            <button
-                                class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary transition-colors"
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="accent"
+                                >
+                                    Accent
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="primary"
+                                >
+                                    Primary
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="success"
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="warning"
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="error"
+                                >
+                                    Error
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Subtle Variant -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Subtle</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
                             >
-                                Secondary Button
-                            </button>
-                            <button
-                                class="px-4 py-2 rounded text-accent hover:bg-tertiary transition-colors"
+                                <Button
+                                    client:load
+                                    variant="subtle"
+                                    color="accent"
+                                >
+                                    Accent
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="subtle"
+                                    color="success"
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="subtle"
+                                    color="warning"
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="subtle"
+                                    color="error"
+                                >
+                                    Error
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Outline Variant -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Outline</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
                             >
-                                Text Button
-                            </button>
+                                <Button
+                                    client:load
+                                    variant="outline"
+                                    color="accent"
+                                >
+                                    Accent
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="outline"
+                                    color="success"
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="outline"
+                                    color="warning"
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="outline"
+                                    color="error"
+                                >
+                                    Error
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Text Variant -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Text</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
+                            >
+                                <Button
+                                    client:load
+                                    variant="text"
+                                    color="accent"
+                                >
+                                    Accent
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="text"
+                                    color="success"
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="text"
+                                    color="warning"
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="text"
+                                    color="error"
+                                >
+                                    Error
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Link Variant -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Link</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
+                            >
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="accent"
+                                >
+                                    Accent
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="primary"
+                                >
+                                    Primary
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="success"
+                                >
+                                    Success
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="warning"
+                                >
+                                    Warning
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="error"
+                                >
+                                    Error
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Sizes -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Sizes</h4>
+                            <div
+                                class="flex flex-wrap items-center gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
+                            >
+                                <Button client:load size="sm">Small</Button>
+                                <Button client:load size="md">Medium</Button>
+                                <Button client:load size="lg">Large</Button>
+                            </div>
+                        </div>
+
+                        <!-- Disabled State -->
+                        <div>
+                            <h4 class="text-lg font-medium mb-3">Disabled</h4>
+                            <div
+                                class="flex flex-wrap gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
+                            >
+                                <Button
+                                    client:load
+                                    variant="solid"
+                                    color="accent"
+                                    disabled
+                                >
+                                    Solid
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="subtle"
+                                    color="accent"
+                                    disabled
+                                >
+                                    Subtle
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="outline"
+                                    color="accent"
+                                    disabled
+                                >
+                                    Outline
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="text"
+                                    color="accent"
+                                    disabled
+                                >
+                                    Text
+                                </Button>
+                                <Button
+                                    client:load
+                                    variant="link"
+                                    color="accent"
+                                    disabled
+                                >
+                                    Link
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
@@ -615,32 +860,58 @@ import ThemeToggle from "../components/ThemeToggle.tsx";
                         <h3 class="text-xl font-semibold mb-4 text-accent">
                             Cards
                         </h3>
-                        <div class="grid md:grid-cols-3 gap-4">
-                            <div
-                                class="p-6 rounded-lg bg-secondary border border-ui-border"
-                            >
-                                <h4 class="font-semibold mb-2">Card Title</h4>
-                                <p class="text-sm text-fg-muted">
-                                    This is an example card component using the
-                                    design system tokens.
-                                </p>
+
+                        <!-- Padding Variants -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Padding</h4>
+                            <div class="grid md:grid-cols-4 gap-4">
+                                <Card client:load padding="none">
+                                    <div class="p-4">
+                                        <h4 class="font-semibold mb-2">
+                                            No Padding
+                                        </h4>
+                                        <p class="text-sm text-fg-muted">
+                                            padding="none"
+                                        </p>
+                                    </div>
+                                </Card>
+                                <Card client:load padding="sm">
+                                    <h4 class="font-semibold mb-2">Small</h4>
+                                    <p class="text-sm text-fg-muted">
+                                        padding="sm"
+                                    </p>
+                                </Card>
+                                <Card client:load padding="md">
+                                    <h4 class="font-semibold mb-2">Medium</h4>
+                                    <p class="text-sm text-fg-muted">
+                                        padding="md" (default)
+                                    </p>
+                                </Card>
+                                <Card client:load padding="lg">
+                                    <h4 class="font-semibold mb-2">Large</h4>
+                                    <p class="text-sm text-fg-muted">
+                                        padding="lg"
+                                    </p>
+                                </Card>
                             </div>
-                            <div
-                                class="p-6 rounded-lg bg-secondary border border-ui-border"
-                            >
-                                <h4 class="font-semibold mb-2">Card Title</h4>
-                                <p class="text-sm text-fg-muted">
-                                    Cards automatically adapt to the current
-                                    theme.
-                                </p>
-                            </div>
-                            <div
-                                class="p-6 rounded-lg bg-secondary border border-ui-border"
-                            >
-                                <h4 class="font-semibold mb-2">Card Title</h4>
-                                <p class="text-sm text-fg-muted">
-                                    All colors update when switching themes.
-                                </p>
+                        </div>
+
+                        <!-- Elevation Variants -->
+                        <div>
+                            <h4 class="text-lg font-medium mb-3">Elevation</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <Card client:load elevation="flat">
+                                    <h4 class="font-semibold mb-2">Flat</h4>
+                                    <p class="text-sm text-fg-muted">
+                                        elevation="flat" (default)
+                                    </p>
+                                </Card>
+                                <Card client:load elevation="raised">
+                                    <h4 class="font-semibold mb-2">Raised</h4>
+                                    <p class="text-sm text-fg-muted">
+                                        elevation="raised"
+                                    </p>
+                                </Card>
                             </div>
                         </div>
                     </div>
@@ -648,30 +919,265 @@ import ThemeToggle from "../components/ThemeToggle.tsx";
                     <!-- Inputs -->
                     <div>
                         <h3 class="text-xl font-semibold mb-4 text-accent">
-                            Form Inputs
+                            Inputs
                         </h3>
-                        <div
-                            class="p-6 rounded-lg bg-secondary border border-ui-border space-y-4 max-w-md"
-                        >
-                            <div>
-                                <label class="block text-sm font-medium mb-2"
-                                    >Input Label</label
-                                >
-                                <input
-                                    type="text"
-                                    placeholder="Enter text..."
-                                    class="w-full px-4 py-2 rounded bg-primary border border-ui-border text-fg-main placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-accent"
-                                />
+
+                        <!-- Sizes -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Sizes</h4>
+                            <div
+                                class="p-6 rounded-lg bg-secondary border border-ui-border space-y-4 max-w-md"
+                            >
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Small</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        size="sm"
+                                        placeholder="Small input..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Medium (default)</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        size="md"
+                                        placeholder="Medium input..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Large</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        size="lg"
+                                        placeholder="Large input..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-2"
-                                    >Textarea</label
+                        </div>
+
+                        <!-- States -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">States</h4>
+                            <div
+                                class="p-6 rounded-lg bg-secondary border border-ui-border space-y-4 max-w-md"
+                            >
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Default</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        placeholder="Default state..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Error</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        placeholder="Error state..."
+                                        aria-invalid={true}
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Disabled</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        placeholder="Disabled input..."
+                                        disabled={true}
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Types -->
+                        <div>
+                            <h4 class="text-lg font-medium mb-3">
+                                Input Types
+                            </h4>
+                            <div
+                                class="p-6 rounded-lg bg-secondary border border-ui-border space-y-4 max-w-md"
+                            >
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Text</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        type="text"
+                                        placeholder="Text input..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Email</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        type="email"
+                                        placeholder="email@example.com"
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Password</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        type="password"
+                                        placeholder="Password..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium mb-2"
+                                        >Number</label
+                                    >
+                                    <Input
+                                        client:load
+                                        value=""
+                                        type="number"
+                                        placeholder="Enter number..."
+                                        onInput={() => {}}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tooltips -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-accent">
+                            Tooltips
+                        </h3>
+
+                        <!-- Placements -->
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium mb-3">Placements</h4>
+                            <div
+                                class="flex flex-wrap items-center gap-8 p-6 rounded-lg bg-secondary border border-ui-border justify-center"
+                            >
+                                <Tooltip
+                                    client:load
+                                    content="Top tooltip"
+                                    placement="top"
                                 >
-                                <textarea
-                                    placeholder="Enter text..."
-                                    rows="3"
-                                    class="w-full px-4 py-2 rounded bg-primary border border-ui-border text-fg-main placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-accent resize-none"
-                                ></textarea>
+                                    <button
+                                        class="px-4 py-2 rounded bg-accent text-primary font-medium"
+                                    >
+                                        Top
+                                    </button>
+                                </Tooltip>
+                                <Tooltip
+                                    client:load
+                                    content="Right tooltip"
+                                    placement="right"
+                                >
+                                    <button
+                                        class="px-4 py-2 rounded bg-accent text-primary font-medium"
+                                    >
+                                        Right
+                                    </button>
+                                </Tooltip>
+                                <Tooltip
+                                    client:load
+                                    content="Bottom tooltip"
+                                    placement="bottom"
+                                >
+                                    <button
+                                        class="px-4 py-2 rounded bg-accent text-primary font-medium"
+                                    >
+                                        Bottom
+                                    </button>
+                                </Tooltip>
+                                <Tooltip
+                                    client:load
+                                    content="Left tooltip"
+                                    placement="left"
+                                >
+                                    <button
+                                        class="px-4 py-2 rounded bg-accent text-primary font-medium"
+                                    >
+                                        Left
+                                    </button>
+                                </Tooltip>
+                            </div>
+                        </div>
+
+                        <!-- Tooltip Examples -->
+                        <div>
+                            <h4 class="text-lg font-medium mb-3">Examples</h4>
+                            <div
+                                class="flex flex-wrap items-center gap-4 p-6 rounded-lg bg-secondary border border-ui-border"
+                            >
+                                <Tooltip
+                                    client:load
+                                    content="This is a helpful tooltip"
+                                >
+                                    <button
+                                        class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary transition-colors"
+                                    >
+                                        Hover me
+                                    </button>
+                                </Tooltip>
+                                <Tooltip
+                                    client:load
+                                    content="Tooltip with longer content that wraps to multiple lines when needed"
+                                >
+                                    <button
+                                        class="px-4 py-2 rounded border border-ui-border hover:bg-tertiary transition-colors"
+                                    >
+                                        Long tooltip
+                                    </button>
+                                </Tooltip>
+                                <Tooltip
+                                    client:load
+                                    content="Tooltip on icon button"
+                                    placement="top"
+                                >
+                                    <button
+                                        class="p-2 rounded border border-ui-border hover:bg-tertiary transition-colors"
+                                        aria-label="Settings"
+                                    >
+                                        ⚙️
+                                    </button>
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
