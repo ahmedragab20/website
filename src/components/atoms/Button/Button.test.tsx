@@ -54,9 +54,9 @@ describe("Button", () => {
     describe("Colors", () => {
         const colorMap = {
             accent: "bg-accent",
-            success: "bg-green-600",
-            warning: "bg-yellow-600",
-            error: "bg-red-600",
+            success: "bg-success",
+            warning: "bg-warning",
+            error: "bg-error",
         } as const;
 
         Object.entries(colorMap).forEach(([color, expectedClass]) => {

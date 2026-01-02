@@ -68,7 +68,7 @@ describe("Input", () => {
                 <Input value="" aria-invalid={true} />
             ));
             const input = container.querySelector("input");
-            expect(input?.className).toContain("border-red-600");
+            expect(input?.className).toContain("border-error");
         });
 
         it("applies error state classes correctly", () => {
@@ -76,7 +76,7 @@ describe("Input", () => {
                 <Input value="" aria-invalid={true} />
             ));
             const input = container.querySelector("input");
-            expect(input?.className).toContain("focus:ring-red-600");
+            expect(input?.className).toContain("focus:ring-error");
         });
     });
 

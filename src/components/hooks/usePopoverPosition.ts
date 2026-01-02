@@ -1,4 +1,10 @@
-import { onMount, onCleanup, createEffect, type Accessor } from "solid-js";
+import {
+    onMount,
+    onCleanup,
+    createEffect,
+    untrack,
+    type Accessor,
+} from "solid-js";
 
 export type Placement =
     | "bottom-start"
@@ -18,242 +24,485 @@ export interface UsePopoverPositionOptions {
     spacing?: number;
 }
 
+type Position = {
+    top?: string;
+    bottom?: string;
+    left?: string;
+    right?: string;
+    transform?: string;
+};
+
+type Rect = {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+    width: number;
+    height: number;
+};
+
+type ViewportDimensions = {
+    width: number;
+    height: number;
+};
+
+type PositionContext = {
+    triggerRect: Rect;
+    popoverRect: Rect;
+    viewport: ViewportDimensions;
+    spacing: number;
+};
+
+const getViewportDimensions = (): ViewportDimensions => {
+    if (typeof window === "undefined") {
+        return { width: 0, height: 0 };
+    }
+    return {
+        width: window.innerWidth,
+        height: window.innerHeight,
+    };
+};
+
+const isDropdownPlacement = (placement: Placement): boolean => {
+    return (
+        placement === "bottom-start" ||
+        placement === "bottom-end" ||
+        placement === "top-start" ||
+        placement === "top-end"
+    );
+};
+
+const isBottomPlacement = (placement: Placement): boolean => {
+    return placement.startsWith("bottom");
+};
+
+const isStartPlacement = (placement: Placement): boolean => {
+    return placement.endsWith("start");
+};
+
+const calculateDropdownPosition = (
+    placement: Placement,
+    context: PositionContext
+): Position => {
+    const { triggerRect, viewport, spacing } = context;
+    const pos: Position = {};
+    const isBottom = isBottomPlacement(placement);
+    const isStart = isStartPlacement(placement);
+
+    if (isBottom) {
+        pos.top = `${triggerRect.bottom + spacing}px`;
+        if (isStart) {
+            pos.left = `${triggerRect.left}px`;
+        } else {
+            pos.right = `${viewport.width - triggerRect.right}px`;
+        }
+    } else {
+        pos.bottom = `${viewport.height - triggerRect.top + spacing}px`;
+        if (isStart) {
+            pos.left = `${triggerRect.left}px`;
+        } else {
+            pos.right = `${viewport.width - triggerRect.right}px`;
+        }
+    }
+
+    return pos;
+};
+
+const adjustDropdownHorizontal = (
+    placement: Placement,
+    pos: Position,
+    context: PositionContext
+): Position => {
+    const { triggerRect, popoverRect, viewport, spacing } = context;
+    const isStart = isStartPlacement(placement);
+    const computedLeft = isStart
+        ? triggerRect.left
+        : viewport.width - triggerRect.right;
+
+    if (computedLeft + popoverRect.width > viewport.width - spacing) {
+        return {
+            ...pos,
+            left: `${viewport.width - popoverRect.width - spacing}px`,
+            right: undefined,
+        };
+    }
+
+    if (computedLeft < spacing) {
+        return {
+            ...pos,
+            left: `${spacing}px`,
+            right: undefined,
+        };
+    }
+
+    return pos;
+};
+
+const adjustDropdownVertical = (
+    placement: Placement,
+    pos: Position,
+    context: PositionContext
+): Position => {
+    const { triggerRect, popoverRect, viewport, spacing } = context;
+    const isBottom = isBottomPlacement(placement);
+
+    if (isBottom) {
+        const top = triggerRect.bottom + spacing;
+        if (top + popoverRect.height > viewport.height - spacing) {
+            const newTop = triggerRect.top - popoverRect.height - spacing;
+            if (newTop >= spacing) {
+                return {
+                    ...pos,
+                    top: `${newTop}px`,
+                    bottom: undefined,
+                };
+            }
+            return {
+                ...pos,
+                top: `${spacing}px`,
+                bottom: undefined,
+            };
+        }
+    } else {
+        const bottom = viewport.height - triggerRect.top + spacing;
+        if (bottom + popoverRect.height > viewport.height - spacing) {
+            const newBottom =
+                viewport.height -
+                triggerRect.bottom -
+                popoverRect.height -
+                spacing;
+            if (newBottom >= spacing) {
+                return {
+                    ...pos,
+                    bottom: `${newBottom}px`,
+                    top: undefined,
+                };
+            }
+            return {
+                ...pos,
+                bottom: `${spacing}px`,
+                top: undefined,
+            };
+        }
+    }
+
+    return pos;
+};
+
+const calculateDropdownPositionComplete = (
+    placement: Placement,
+    context: PositionContext
+): Position => {
+    const initialPos = calculateDropdownPosition(placement, context);
+    const horizontalAdjusted = adjustDropdownHorizontal(
+        placement,
+        initialPos,
+        context
+    );
+    return adjustDropdownVertical(placement, horizontalAdjusted, context);
+};
+
+const checkTooltipFit = (
+    placement: "top" | "bottom" | "left" | "right",
+    context: PositionContext
+): boolean => {
+    const { triggerRect, popoverRect, viewport, spacing } = context;
+    const triggerCenterX = triggerRect.left + triggerRect.width / 2;
+    const triggerCenterY = triggerRect.top + triggerRect.height / 2;
+
+    switch (placement) {
+        case "top": {
+            const halfWidth = popoverRect.width / 2;
+            return (
+                triggerCenterX - halfWidth >= 0 &&
+                triggerCenterX + halfWidth <= viewport.width &&
+                triggerRect.top - popoverRect.height - spacing >= 0
+            );
+        }
+        case "bottom": {
+            const halfWidth = popoverRect.width / 2;
+            return (
+                triggerCenterX - halfWidth >= 0 &&
+                triggerCenterX + halfWidth <= viewport.width &&
+                triggerRect.bottom + popoverRect.height + spacing <=
+                    viewport.height
+            );
+        }
+        case "left": {
+            const halfHeight = popoverRect.height / 2;
+            return (
+                triggerCenterY - halfHeight >= 0 &&
+                triggerCenterY + halfHeight <= viewport.height &&
+                triggerRect.left - popoverRect.width - spacing >= 0
+            );
+        }
+        case "right": {
+            const halfHeight = popoverRect.height / 2;
+            return (
+                triggerCenterY - halfHeight >= 0 &&
+                triggerCenterY + halfHeight <= viewport.height &&
+                triggerRect.right + popoverRect.width + spacing <=
+                    viewport.width
+            );
+        }
+    }
+};
+
+const calculateTooltipPosition = (
+    placement: "top" | "bottom" | "left" | "right",
+    context: PositionContext
+): Position => {
+    const { triggerRect, viewport, spacing } = context;
+    const triggerCenterX = triggerRect.left + triggerRect.width / 2;
+    const triggerCenterY = triggerRect.top + triggerRect.height / 2;
+
+    switch (placement) {
+        case "top":
+            return {
+                bottom: `${viewport.height - triggerRect.top + spacing}px`,
+                left: `${triggerCenterX}px`,
+                transform: "translateX(-50%)",
+            };
+        case "bottom":
+            return {
+                top: `${triggerRect.bottom + spacing}px`,
+                left: `${triggerCenterX}px`,
+                transform: "translateX(-50%)",
+            };
+        case "left":
+            return {
+                top: `${triggerCenterY}px`,
+                right: `${viewport.width - triggerRect.left + spacing}px`,
+                transform: "translateY(-50%)",
+            };
+        case "right":
+            return {
+                top: `${triggerCenterY}px`,
+                left: `${triggerRect.right + spacing}px`,
+                transform: "translateY(-50%)",
+            };
+    }
+};
+
+const findBestTooltipPlacement = (
+    preferredPlacement: "top" | "bottom" | "left" | "right",
+    context: PositionContext
+): {
+    placement: "top" | "bottom" | "left" | "right";
+    position: Position;
+} => {
+    const tooltipPlacements: readonly ("top" | "bottom" | "left" | "right")[] =
+        ["top", "bottom", "left", "right"];
+
+    const placementOrder = [
+        preferredPlacement,
+        ...tooltipPlacements.filter((pl) => pl !== preferredPlacement),
+    ];
+
+    for (const placement of placementOrder) {
+        if (checkTooltipFit(placement, context)) {
+            return {
+                placement,
+                position: calculateTooltipPosition(placement, context),
+            };
+        }
+    }
+
+    return {
+        placement: preferredPlacement,
+        position: calculateTooltipPosition(preferredPlacement, context),
+    };
+};
+
+const adjustTooltipBoundaries = (
+    placement: "top" | "bottom" | "left" | "right",
+    pos: Position,
+    context: PositionContext
+): Position => {
+    const { triggerRect, popoverRect, viewport, spacing } = context;
+    const triggerCenterX = triggerRect.left + triggerRect.width / 2;
+    const triggerCenterY = triggerRect.top + triggerRect.height / 2;
+
+    if (placement === "top" || placement === "bottom") {
+        const halfWidth = popoverRect.width / 2;
+
+        if (triggerCenterX - halfWidth < spacing) {
+            return {
+                ...pos,
+                left: `${spacing}px`,
+                transform: undefined,
+            };
+        }
+
+        if (triggerCenterX + halfWidth > viewport.width - spacing) {
+            return {
+                ...pos,
+                right: `${spacing}px`,
+                left: undefined,
+                transform: undefined,
+            };
+        }
+    } else {
+        const halfHeight = popoverRect.height / 2;
+
+        if (triggerCenterY - halfHeight < spacing) {
+            return {
+                ...pos,
+                top: `${spacing}px`,
+                transform: undefined,
+            };
+        }
+
+        if (triggerCenterY + halfHeight > viewport.height - spacing) {
+            return {
+                ...pos,
+                bottom: `${spacing}px`,
+                top: undefined,
+                transform: undefined,
+            };
+        }
+    }
+
+    return pos;
+};
+
+const calculateTooltipPositionComplete = (
+    preferredPlacement: "top" | "bottom" | "left" | "right",
+    context: PositionContext
+): Position => {
+    const result = findBestTooltipPlacement(preferredPlacement, context);
+    return adjustTooltipBoundaries(result.placement, result.position, context);
+};
+
+const calculatePosition = (
+    placement: Placement,
+    context: PositionContext
+): Position => {
+    if (isDropdownPlacement(placement)) {
+        return calculateDropdownPositionComplete(placement, context);
+    }
+
+    if (
+        placement !== "top" &&
+        placement !== "bottom" &&
+        placement !== "left" &&
+        placement !== "right"
+    ) {
+        return {};
+    }
+
+    return calculateTooltipPositionComplete(placement, context);
+};
+
+const positionsEqual = (
+    pos1: Position | null,
+    pos2: Position | null
+): boolean => {
+    if (pos1 === null && pos2 === null) return true;
+    if (pos1 === null || pos2 === null) return false;
+
+    const keys1 = Object.keys(pos1) as Array<keyof Position>;
+    const keys2 = Object.keys(pos2) as Array<keyof Position>;
+
+    if (keys1.length !== keys2.length) return false;
+
+    return keys1.every((key) => pos1[key] === pos2[key]);
+};
+
+const getKeysToUpdate = (
+    newPos: Position,
+    oldPos: Position | null
+): Set<keyof Position> => {
+    const keys = new Set<keyof Position>();
+    Object.keys(newPos).forEach((key) => keys.add(key as keyof Position));
+    if (oldPos) {
+        Object.keys(oldPos).forEach((key) => keys.add(key as keyof Position));
+    }
+    return keys;
+};
+
+const applyPositionToDOM = (
+    popover: HTMLElement,
+    pos: Position,
+    oldPos: Position | null
+): void => {
+    const style = popover.style;
+    const keysToUpdate = getKeysToUpdate(pos, oldPos);
+
+    for (const key of keysToUpdate) {
+        const value = pos[key];
+        if (value !== undefined) {
+            if (key === "transform") {
+                style.transform = value;
+            } else {
+                style.setProperty(`--popover-${key}`, value);
+            }
+        } else {
+            if (key === "transform") {
+                style.transform = "";
+            } else {
+                style.removeProperty(`--popover-${key}`);
+            }
+        }
+    }
+};
+
 /**
  * Hook for positioning popover elements using JavaScript.
  * Used as a fallback when CSS Anchor Positioning is not supported.
- *
- * @param options - Configuration options for positioning
- * @returns Cleanup function (automatically handled by SolidJS lifecycle)
  */
 export function usePopoverPosition(options: UsePopoverPositionOptions) {
     const { triggerRef, popoverRef, placement, isOpen, spacing = 8 } = options;
 
+    // Mutable state for RAF and position caching (necessary for performance)
+    let rafId: number | null = null;
+    let lastPosition: Position | null = null;
+
     const updatePosition = () => {
-        if (typeof window === "undefined") return;
-
-        const trigger = triggerRef();
-        const popover = popoverRef();
-        if (!trigger || !popover) return;
-
-        const triggerRect = trigger.getBoundingClientRect();
-        const popoverRect = popover.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        const place = placement();
-        let pos: {
-            top?: string;
-            bottom?: string;
-            left?: string;
-            right?: string;
-            transform?: string;
-        } = {};
-
-        // Handle dropdown-style placements (bottom-start, bottom-end, top-start, top-end)
-        if (
-            place === "bottom-start" ||
-            place === "bottom-end" ||
-            place === "top-start" ||
-            place === "top-end"
-        ) {
-            if (place.startsWith("bottom")) {
-                pos.top = `${triggerRect.bottom + spacing}px`;
-                if (place === "bottom-start") {
-                    pos.left = `${triggerRect.left}px`;
-                } else {
-                    pos.right = `${viewportWidth - triggerRect.right}px`;
-                }
-            } else {
-                pos.bottom = `${viewportHeight - triggerRect.top + spacing}px`;
-                if (place === "top-start") {
-                    pos.left = `${triggerRect.left}px`;
-                } else {
-                    pos.right = `${viewportWidth - triggerRect.right}px`;
-                }
-            }
-
-            // Adjust for horizontal viewport boundaries
-            const computedLeft = place.endsWith("start")
-                ? triggerRect.left
-                : viewportWidth - triggerRect.right;
-            const popoverWidth = popoverRect.width;
-
-            if (computedLeft + popoverWidth > viewportWidth - spacing) {
-                pos.left = `${viewportWidth - popoverWidth - spacing}px`;
-                pos.right = undefined;
-            }
-            if (computedLeft < spacing) {
-                pos.left = `${spacing}px`;
-                pos.right = undefined;
-            }
-
-            // Adjust for vertical viewport boundaries
-            const popoverHeight = popoverRect.height;
-
-            if (place.startsWith("bottom")) {
-                const top = triggerRect.bottom + spacing;
-                if (top + popoverHeight > viewportHeight - spacing) {
-                    const newTop = triggerRect.top - popoverHeight - spacing;
-                    if (newTop >= spacing) {
-                        pos.top = `${newTop}px`;
-                        pos.bottom = undefined;
-                    } else {
-                        pos.top = `${spacing}px`;
-                        pos.bottom = undefined;
-                    }
-                }
-            } else {
-                const bottom = viewportHeight - triggerRect.top + spacing;
-                if (bottom + popoverHeight > viewportHeight - spacing) {
-                    const newBottom =
-                        viewportHeight -
-                        triggerRect.bottom -
-                        popoverHeight -
-                        spacing;
-                    if (newBottom >= spacing) {
-                        pos.bottom = `${newBottom}px`;
-                        pos.top = undefined;
-                    } else {
-                        pos.bottom = `${spacing}px`;
-                        pos.top = undefined;
-                    }
-                }
-            }
-        } else {
-            // Handle tooltip-style placements (top, bottom, left, right)
-            const placements: Placement[] = ["top", "bottom", "left", "right"];
-            let bestPlacement = place;
-            let fits = false;
-
-            for (const p of [
-                place,
-                ...placements.filter((pl) => pl !== place),
-            ]) {
-                let testPos: typeof pos = {};
-
-                switch (p) {
-                    case "top":
-                        testPos = {
-                            bottom: `${viewportHeight - triggerRect.top + spacing}px`,
-                            left: `${triggerRect.left + triggerRect.width / 2}px`,
-                            transform: "translateX(-50%)",
-                        };
-                        fits =
-                            triggerRect.left +
-                                triggerRect.width / 2 -
-                                popoverRect.width / 2 >=
-                                0 &&
-                            triggerRect.left +
-                                triggerRect.width / 2 +
-                                popoverRect.width / 2 <=
-                                viewportWidth &&
-                            triggerRect.top - popoverRect.height - spacing >= 0;
-                        break;
-                    case "bottom":
-                        testPos = {
-                            top: `${triggerRect.bottom + spacing}px`,
-                            left: `${triggerRect.left + triggerRect.width / 2}px`,
-                            transform: "translateX(-50%)",
-                        };
-                        fits =
-                            triggerRect.left +
-                                triggerRect.width / 2 -
-                                popoverRect.width / 2 >=
-                                0 &&
-                            triggerRect.left +
-                                triggerRect.width / 2 +
-                                popoverRect.width / 2 <=
-                                viewportWidth &&
-                            triggerRect.bottom + popoverRect.height + spacing <=
-                                viewportHeight;
-                        break;
-                    case "left":
-                        testPos = {
-                            top: `${triggerRect.top + triggerRect.height / 2}px`,
-                            right: `${viewportWidth - triggerRect.left + spacing}px`,
-                            transform: "translateY(-50%)",
-                        };
-                        fits =
-                            triggerRect.top +
-                                triggerRect.height / 2 -
-                                popoverRect.height / 2 >=
-                                0 &&
-                            triggerRect.top +
-                                triggerRect.height / 2 +
-                                popoverRect.height / 2 <=
-                                viewportHeight &&
-                            triggerRect.left - popoverRect.width - spacing >= 0;
-                        break;
-                    case "right":
-                        testPos = {
-                            top: `${triggerRect.top + triggerRect.height / 2}px`,
-                            left: `${triggerRect.right + spacing}px`,
-                            transform: "translateY(-50%)",
-                        };
-                        fits =
-                            triggerRect.top +
-                                triggerRect.height / 2 -
-                                popoverRect.height / 2 >=
-                                0 &&
-                            triggerRect.top +
-                                triggerRect.height / 2 +
-                                popoverRect.height / 2 <=
-                                viewportHeight &&
-                            triggerRect.right + popoverRect.width + spacing <=
-                                viewportWidth;
-                        break;
-                }
-
-                if (fits) {
-                    // @ts-expect-error
-                    bestPlacement = p;
-                    pos = testPos;
-                    break;
-                }
-            }
-
-            // Adjust for viewport boundaries
-            if (bestPlacement === "top" || bestPlacement === "bottom") {
-                const centerX = triggerRect.left + triggerRect.width / 2;
-                const halfWidth = popoverRect.width / 2;
-
-                if (centerX - halfWidth < spacing) {
-                    pos.left = `${spacing}px`;
-                    pos.transform = undefined;
-                } else if (centerX + halfWidth > viewportWidth - spacing) {
-                    pos.right = `${spacing}px`;
-                    pos.left = undefined;
-                    pos.transform = undefined;
-                }
-            } else if (bestPlacement === "left" || bestPlacement === "right") {
-                const centerY = triggerRect.top + triggerRect.height / 2;
-                const halfHeight = popoverRect.height / 2;
-
-                if (centerY - halfHeight < spacing) {
-                    pos.top = `${spacing}px`;
-                    pos.transform = undefined;
-                } else if (centerY + halfHeight > viewportHeight - spacing) {
-                    pos.bottom = `${spacing}px`;
-                    pos.top = undefined;
-                    pos.transform = undefined;
-                }
-            }
+        if (rafId !== null) {
+            cancelAnimationFrame(rafId);
         }
 
-        // Apply CSS custom properties
-        Object.entries(pos).forEach(([key, value]) => {
-            if (value !== undefined) {
-                if (key === "transform") {
-                    popover.style.transform = value;
-                } else {
-                    popover.style.setProperty(`--popover-${key}`, value);
-                }
-            } else {
-                if (key === "transform") {
-                    popover.style.transform = "";
-                } else {
-                    popover.style.removeProperty(`--popover-${key}`);
-                }
+        rafId = requestAnimationFrame(() => {
+            rafId = null;
+
+            if (typeof window === "undefined") return;
+
+            const trigger = untrack(triggerRef);
+            const popover = untrack(popoverRef);
+            if (!trigger || !popover) return;
+
+            const triggerRect = trigger.getBoundingClientRect();
+            const popoverRect = popover.getBoundingClientRect();
+            const viewport = getViewportDimensions();
+            const place = untrack(placement);
+
+            const context: PositionContext = {
+                triggerRect: {
+                    left: triggerRect.left,
+                    top: triggerRect.top,
+                    right: triggerRect.right,
+                    bottom: triggerRect.bottom,
+                    width: triggerRect.width,
+                    height: triggerRect.height,
+                },
+                popoverRect: {
+                    left: popoverRect.left,
+                    top: popoverRect.top,
+                    right: popoverRect.right,
+                    bottom: popoverRect.bottom,
+                    width: popoverRect.width,
+                    height: popoverRect.height,
+                },
+                viewport,
+                spacing,
+            };
+
+            const newPosition = calculatePosition(place, context);
+
+            if (!positionsEqual(newPosition, lastPosition)) {
+                applyPositionToDOM(popover, newPosition, lastPosition);
+                lastPosition = { ...newPosition };
             }
         });
     };
@@ -261,29 +510,60 @@ export function usePopoverPosition(options: UsePopoverPositionOptions) {
     createEffect(() => {
         if (isOpen() && triggerRef() && popoverRef()) {
             updatePosition();
+        } else {
+            lastPosition = null;
         }
     });
 
     onMount(() => {
         if (typeof window === "undefined") return;
 
+        let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+        let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
         const handleResize = () => {
-            if (isOpen() && triggerRef() && popoverRef()) {
-                updatePosition();
-            }
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (
+                    untrack(isOpen) &&
+                    untrack(triggerRef) &&
+                    untrack(popoverRef)
+                ) {
+                    updatePosition();
+                }
+            }, 100);
         };
 
         const handleScroll = () => {
-            if (isOpen() && triggerRef() && popoverRef()) {
-                updatePosition();
-            }
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                if (
+                    untrack(isOpen) &&
+                    untrack(triggerRef) &&
+                    untrack(popoverRef)
+                ) {
+                    updatePosition();
+                }
+            }, 16);
         };
 
-        window.addEventListener("resize", handleResize);
-        window.addEventListener("scroll", handleScroll, true);
+        window.addEventListener("resize", handleResize, { passive: true });
+        window.addEventListener("scroll", handleScroll, {
+            passive: true,
+            capture: true,
+        });
 
         onCleanup(() => {
             if (typeof window === "undefined") return;
+
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+
             window.removeEventListener("resize", handleResize);
             window.removeEventListener("scroll", handleScroll, true);
         });

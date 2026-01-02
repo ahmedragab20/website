@@ -47,7 +47,7 @@ const anchorPositioningCSS = `
 `;
 
 const dropdown = tv({
-    base: "rounded-lg bg-secondary border border-ui-border shadow-lg min-w-[200px] p-1 z-50",
+    base: "overflow-auto max-h-[97svh] rounded-lg bg-secondary border border-ui-border shadow-lg min-w-[200px] p-1 z-50",
     variants: {
         size: {
             sm: "text-sm",

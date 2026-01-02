@@ -56,7 +56,7 @@ describe("Label", () => {
 
         it("required asterisk has correct styling", () => {
             const { container } = render(() => <Label required>Email</Label>);
-            const asterisk = container.querySelector(".text-accent");
+            const asterisk = container.querySelector(".text-error");
             expect(asterisk).toBeInTheDocument();
         });
     });

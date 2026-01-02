@@ -1,4 +1,4 @@
-import { splitProps, type JSX } from "solid-js";
+import { splitProps, untrack, type JSX } from "solid-js";
 import { tv } from "tailwind-variants";
 
 const button = tv({
@@ -205,7 +205,7 @@ export function Button(props: ButtonProps) {
             class: local.class,
         });
 
-    if (isLink()) {
+    if (untrack(() => isLink())) {
         return (
             <a
                 class={buttonClasses()}

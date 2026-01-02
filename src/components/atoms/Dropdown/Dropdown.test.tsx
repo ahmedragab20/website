@@ -4,11 +4,46 @@ import { Dropdown, DropdownItem } from "./Dropdown";
 
 describe("Dropdown", () => {
     beforeEach(() => {
-        vi.useFakeTimers();
+        // Mock Popover API
+        HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+            this.classList.add(":popover-open");
+            const event = new Event("toggle");
+            // @ts-ignore
+            event.newState = "open";
+            // @ts-ignore
+            event.oldState = "closed";
+            this.dispatchEvent(event);
+        });
+        HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+            this.classList.remove(":popover-open");
+            const event = new Event("toggle");
+            // @ts-ignore
+            event.newState = "closed";
+            // @ts-ignore
+            event.oldState = "open";
+            this.dispatchEvent(event);
+        });
+        HTMLElement.prototype.togglePopover = vi.fn(function (
+            this: HTMLElement
+        ) {
+            if (this.classList.contains(":popover-open")) {
+                this.hidePopover();
+                return true;
+            } else {
+                this.showPopover();
+                return true;
+            }
+        });
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
+        // @ts-ignore
+        delete HTMLElement.prototype.showPopover;
+        // @ts-ignore
+        delete HTMLElement.prototype.hidePopover;
+        // @ts-ignore
+        delete HTMLElement.prototype.togglePopover;
     });
 
     describe("Rendering", () => {
@@ -59,6 +94,7 @@ describe("Dropdown", () => {
             expect(popover).not.toHaveClass(":popover-open");
 
             fireEvent.click(trigger);
+
             await waitFor(() => {
                 expect(popover).toHaveClass(":popover-open");
             });

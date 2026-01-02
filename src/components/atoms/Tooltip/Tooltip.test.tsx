@@ -1,17 +1,67 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@solidjs/testing-library";
+import { render, screen, fireEvent } from "@solidjs/testing-library";
 import { Tooltip } from "./Tooltip";
+
+vi.mock("../../hooks/usePopoverPosition", async (importOriginal) => {
+    return {
+        ...importOriginal(),
+        supportsAnchorPositioning: vi.fn(() => true),
+    };
+});
 
 describe("Tooltip", () => {
     beforeEach(() => {
         vi.useFakeTimers();
+
+        // Mock Popover API
+        HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+            this.classList.add(":popover-open");
+            const event = new Event("toggle");
+            // @ts-ignore
+            event.newState = "open";
+            // @ts-ignore
+            event.oldState = "closed";
+            this.dispatchEvent(event);
+        });
+        HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+            this.classList.remove(":popover-open");
+            const event = new Event("toggle");
+            // @ts-ignore
+            event.newState = "closed";
+            // @ts-ignore
+            event.oldState = "open";
+            this.dispatchEvent(event);
+        });
+        HTMLElement.prototype.togglePopover = vi.fn(function (
+            this: HTMLElement
+        ) {
+            if (this.classList.contains(":popover-open")) {
+                this.hidePopover();
+                return true;
+            } else {
+                this.showPopover();
+                return true;
+            }
+        });
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
+        vi.useRealTimers();
+        // @ts-ignore
+        delete HTMLElement.prototype.showPopover;
+        // @ts-ignore
+        delete HTMLElement.prototype.hidePopover;
+        // @ts-ignore
+        delete HTMLElement.prototype.togglePopover;
     });
 
     describe("Rendering", () => {
+        it("sanity check: showPopover mock works", () => {
+            const div = document.createElement("div");
+            expect(typeof div.showPopover).toBe("function");
+        });
+
         it("renders trigger element", () => {
             render(() => (
                 <Tooltip content="Tooltip text">
@@ -42,104 +92,101 @@ describe("Tooltip", () => {
     });
 
     describe("Interactions", () => {
-        it("shows tooltip on mouse enter", async () => {
+        it("shows tooltip on mouse enter", () => {
             render(() => (
                 <Tooltip content="Tooltip text">
                     <button>Hover me</button>
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Hover me");
+            const button = screen.getByText("Hover me");
+            const trigger = button.parentElement!;
             const popover = document.querySelector(
                 '[popover="auto"]'
             ) as HTMLElement;
 
             fireEvent.mouseEnter(trigger);
-            vi.advanceTimersByTime(100);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).toHaveClass(":popover-open");
-            });
+            expect(popover).toHaveClass(":popover-open");
         });
 
-        it("hides tooltip on mouse leave", async () => {
+        it("hides tooltip on mouse leave", () => {
             render(() => (
                 <Tooltip content="Tooltip text">
                     <button>Hover me</button>
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Hover me");
+            const button = screen.getByText("Hover me");
+            const trigger = button.parentElement!;
             const popover = document.querySelector(
                 '[popover="auto"]'
             ) as HTMLElement;
 
             fireEvent.mouseEnter(trigger);
-            vi.advanceTimersByTime(100);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).toHaveClass(":popover-open");
-            });
+            expect(popover).toHaveClass(":popover-open");
 
             fireEvent.mouseLeave(trigger);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).not.toHaveClass(":popover-open");
-            });
+            expect(popover).not.toHaveClass(":popover-open");
         });
 
-        it("shows tooltip on focus", async () => {
+        it("shows tooltip on focus", () => {
             render(() => (
                 <Tooltip content="Tooltip text">
                     <button>Focus me</button>
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Focus me");
+            const button = screen.getByText("Focus me");
+            const trigger = button.parentElement!;
             const popover = document.querySelector(
                 '[popover="auto"]'
             ) as HTMLElement;
 
             fireEvent.focus(trigger);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).toHaveClass(":popover-open");
-            });
+            expect(popover).toHaveClass(":popover-open");
         });
 
-        it("hides tooltip on blur", async () => {
+        it("hides tooltip on blur", () => {
             render(() => (
                 <Tooltip content="Tooltip text">
                     <button>Focus me</button>
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Focus me");
+            const button = screen.getByText("Focus me");
+            const trigger = button.parentElement!;
             const popover = document.querySelector(
                 '[popover="auto"]'
             ) as HTMLElement;
 
             fireEvent.focus(trigger);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).toHaveClass(":popover-open");
-            });
+            expect(popover).toHaveClass(":popover-open");
 
             fireEvent.blur(trigger);
+            vi.runAllTimers();
 
-            await waitFor(() => {
-                expect(popover).not.toHaveClass(":popover-open");
-            });
+            expect(popover).not.toHaveClass(":popover-open");
         });
 
-        it("respects delay prop", async () => {
+        it("respects delay prop", () => {
             render(() => (
                 <Tooltip content="Tooltip text" delay={500}>
                     <button>Hover me</button>
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Hover me");
+            const button = screen.getByText("Hover me");
+            const trigger = button.parentElement!;
             const popover = document.querySelector(
                 '[popover="auto"]'
             ) as HTMLElement;
@@ -151,9 +198,7 @@ describe("Tooltip", () => {
 
             vi.advanceTimersByTime(300);
 
-            await waitFor(() => {
-                expect(popover).toHaveClass(":popover-open");
-            });
+            expect(popover).toHaveClass(":popover-open");
         });
     });
 
@@ -186,8 +231,9 @@ describe("Tooltip", () => {
                 </Tooltip>
             ));
 
-            const trigger = screen.getByText("Hover me");
-            const popoverId = trigger.getAttribute("aria-describedby");
+            const triggerButton = screen.getByText("Hover me");
+            const triggerWrapper = triggerButton.parentElement;
+            const popoverId = triggerWrapper?.getAttribute("aria-describedby");
             expect(popoverId).toBeTruthy();
 
             const popover = document.getElementById(popoverId!);
