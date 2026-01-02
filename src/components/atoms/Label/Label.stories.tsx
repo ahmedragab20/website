@@ -57,7 +57,7 @@ export const Default: Story = {
 
 export const WithInput: Story = {
     render: (args: Story["args"]) => (
-        <div class="flex flex-col gap-2 w-[300px]">
+        <div class="flex flex-col gap-2 w-75">
             <Label {...args} for="input-example" />
             <Input id="input-example" value="" placeholder="Enter value" />
         </div>
@@ -113,7 +113,7 @@ export const Required: Story = {
 
 export const RequiredWithInput: Story = {
     render: (args: Story["args"]) => (
-        <div class="flex flex-col gap-2 w-[300px]">
+        <div class="flex flex-col gap-2 w-75">
             <Label {...args} for="required-input" />
             <Input
                 id="required-input"
@@ -132,7 +132,7 @@ export const RequiredWithInput: Story = {
 // Composition
 export const FormExample: Story = {
     render: () => (
-        <form class="flex flex-col gap-4 w-[300px]">
+        <form class="flex flex-col gap-4 w-75">
             <div class="flex flex-col gap-2">
                 <Label for="form-name" required>
                     Full Name

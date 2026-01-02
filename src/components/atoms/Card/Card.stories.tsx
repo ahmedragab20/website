@@ -182,7 +182,7 @@ export const ComplexContent: Story = {
                     including headings, text, images, and interactive
                     components.
                 </Text>
-                <div class="h-[120px] bg-tertiary rounded-lg flex items-center justify-center">
+                <div class="h-30 bg-tertiary rounded-lg flex items-center justify-center">
                     <Text color="muted">Image placeholder</Text>
                 </div>
                 <Button variant="solid" color="accent">

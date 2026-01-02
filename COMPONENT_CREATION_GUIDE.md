@@ -997,4 +997,3 @@ When creating a new component:
 6. **Ensure Quality** - Test, lint, format, and verify accessibility
 
 **Remember**: Consistency, quality, and accessibility are non-negotiable. Every component must meet these standards before it's considered complete.
-
