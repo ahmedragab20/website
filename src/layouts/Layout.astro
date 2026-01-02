@@ -9,7 +9,30 @@
         <script is:inline>
             (function () {
                 const savedTheme = localStorage.getItem("theme");
-                const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"];
+                const themes = [
+                    "nordfox",
+                    "nightfox",
+                    "carbonfox",
+                    "dayfox",
+                    "dracula",
+                    "onedark",
+                    "gruvbox",
+                    "material",
+                    "monokai",
+                    "solarized-dark",
+                    "solarized-light",
+                    "tokyo-night",
+                    "catppuccin-mocha",
+                    "catppuccin-latte",
+                    "rose-pine",
+                    "ayu-dark",
+                    "ayu-light",
+                    "github-dark",
+                    "github-light",
+                    "nord",
+                    "everforest-dark",
+                    "everforest-light",
+                ];
                 if (savedTheme && themes.includes(savedTheme)) {
                     document.documentElement.setAttribute(
                         "data-theme",

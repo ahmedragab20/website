@@ -1,42 +1,30 @@
-import { createSignal, onMount, For } from "solid-js";
-
-const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"] as const;
-type Theme = (typeof themes)[number];
+import { For } from "solid-js";
+import { useTheme } from "../hooks/useTheme";
 
 export default function ThemeToggle() {
-    const [currentTheme, setCurrentTheme] = createSignal<Theme>("nordfox");
+    const { theme, setTheme, themes } = useTheme();
 
-    onMount(() => {
-        const savedTheme = localStorage.getItem("theme") as Theme;
-        if (savedTheme && themes.includes(savedTheme)) {
-            setCurrentTheme(savedTheme);
-            document.documentElement.setAttribute("data-theme", savedTheme);
-        } else {
-            document.documentElement.setAttribute("data-theme", "nordfox");
-        }
-    });
-
-    const switchTheme = (theme: Theme) => {
-        setCurrentTheme(theme);
-        document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("theme", theme);
+    const formatThemeName = (themeName: string): string => {
+        return themeName
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
     };
 
     return (
-        <div class="flex items-center gap-2 p-2 rounded-lg bg-secondary border border-(--color-ui-border)">
-            <span class="text-sm text-fg-mute px-2">Theme:</span>
-            <div class="flex gap-1">
+        <div class="flex items-center gap-2 p-2 rounded-lg bg-secondary border border-ui-border">
+            <div class="flex gap-1 flex-wrap">
                 <For each={themes}>
-                    {(theme) => (
+                    {(themeOption) => (
                         <button
-                            onClick={() => switchTheme(theme)}
+                            onClick={() => setTheme(themeOption)}
                             class={`px-3 py-1.5 text-sm font-medium rounded transition-all ${
-                                currentTheme() === theme
+                                theme() === themeOption
                                     ? "bg-accent text-primary"
-                                    : "text-fg-mute hover:text-fg-main hover:bg-(--color-tertiary)"
+                                    : "text-fg-muted hover:text-fg-main hover:bg-tertiary"
                             }`}
                         >
-                            {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                            {formatThemeName(themeOption)}
                         </button>
                     )}
                 </For>

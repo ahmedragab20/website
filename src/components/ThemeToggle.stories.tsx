@@ -4,13 +4,8 @@ import ThemeToggle from "./ThemeToggle";
 /**
  * ThemeToggle component for switching between color themes.
  *
- * Provides a visual interface to switch between available themes:
- * - nordfox (default)
- * - nightfox
- * - carbonfox
- * - dayfox
- *
- * The selected theme is persisted in localStorage and applied to the document root.
+ * Provides a visual interface to switch between available themes.
+ * Supports 35 modern IDE themes.
  *
  * @example
  * ```tsx

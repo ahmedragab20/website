@@ -1,8 +1,9 @@
 import type { Preview } from "storybook-solidjs-vite";
 import { ThemeDecorator } from "./ThemeDecorator";
 import "../src/assets/design/tokens.css";
+import { THEMES } from "../src/hooks/useTheme";
 
-const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"] as const;
+const themes = THEMES;
 
 // Apply theme to all documents (including iframes for docs)
 const applyThemeToAll = (theme: string) => {
@@ -41,7 +42,11 @@ const applyThemeToAll = (theme: string) => {
 
 // Initialize theme on load
 if (typeof window !== "undefined") {
-    const initialTheme = localStorage.getItem("storybook-theme") || "nordfox";
+    const savedTheme = localStorage.getItem("storybook-theme");
+    const initialTheme =
+        savedTheme && themes.includes(savedTheme as any)
+            ? savedTheme
+            : "nordfox";
     applyThemeToAll(initialTheme);
 
     // Watch for theme changes
@@ -82,7 +87,13 @@ const preview: Preview = {
                 icon: "paintbrush",
                 items: themes.map((theme) => ({
                     value: theme,
-                    title: theme.charAt(0).toUpperCase() + theme.slice(1),
+                    title: theme
+                        .split("-")
+                        .map(
+                            (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" "),
                 })),
                 dynamicTitle: true,
             },

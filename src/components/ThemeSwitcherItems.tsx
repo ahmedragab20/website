@@ -1,44 +1,25 @@
-import { onMount, For } from "solid-js";
+import { For } from "solid-js";
 import { DropdownItem } from "./atoms/Dropdown";
-
-const themes = ["nordfox", "nightfox", "carbonfox", "dayfox"] as const;
-type Theme = (typeof themes)[number];
-
-function switchTheme(theme: Theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-
-    // Update display
-    const display = document.getElementById("current-theme-display");
-    if (display) {
-        display.textContent = theme;
-    }
-
-    // Dispatch custom event for same-window listeners
-    window.dispatchEvent(
-        new CustomEvent("theme-change", { detail: { theme } })
-    );
-}
+import { useTheme } from "../hooks/useTheme";
 
 export default function ThemeSwitcherItems() {
-    onMount(() => {
-        // Set initial theme display
-        const savedTheme = (localStorage.getItem("theme") ||
-            "nordfox") as Theme;
-        const display = document.getElementById("current-theme-display");
-        if (display) {
-            display.textContent = savedTheme;
-        }
-    });
+    const { setTheme, themes } = useTheme();
+
+    const formatThemeName = (themeName: string): string => {
+        return themeName
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+    };
 
     return (
         <For each={themes}>
-            {(theme) => (
+            {(themeOption) => (
                 <DropdownItem
-                    onClick={() => switchTheme(theme)}
+                    onClick={() => setTheme(themeOption)}
                     class="capitalize"
                 >
-                    {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                    {formatThemeName(themeOption)}
                 </DropdownItem>
             )}
         </For>
