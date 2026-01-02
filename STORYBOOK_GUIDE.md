@@ -825,7 +825,6 @@ export const Destructive: Story = {
 };
 ```
 
-
 ### Pattern 3: Component in Context
 
 **File: `Button.stories.tsx`**

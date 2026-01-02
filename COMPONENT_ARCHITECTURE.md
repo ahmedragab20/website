@@ -738,6 +738,7 @@ export function Button(props: ButtonProps) {
 ### Icon Sizing Guidelines
 
 Lucide icons accept a `size` prop (number in pixels). Common sizes:
+
 - **12px**: Inline with small text, badges
 - **16px**: Buttons, form inputs, inline with body text
 - **20px**: Default size, most common use case
@@ -745,9 +746,12 @@ Lucide icons accept a `size` prop (number in pixels). Common sizes:
 - **32px**: Hero sections, large CTAs
 
 You can also use Tailwind classes for sizing:
+
 ```astro
-<Salad class="w-5 h-5" />  <!-- 20px -->
-<Salad class="w-6 h-6" />  <!-- 24px -->
+<Salad class="w-5 h-5" />
+<!-- 20px -->
+<Salad class="w-6 h-6" />
+<!-- 24px -->
 ```
 
 ### Accessibility with Icons
@@ -757,18 +761,18 @@ You can also use Tailwind classes for sizing:
 ```astro
 <!-- Decorative icon (hidden from screen readers) -->
 <button>
-  <X size={16} aria-hidden="true" />
-  <span class="sr-only">Close</span>
+    <X size={16} aria-hidden="true" />
+    <span class="sr-only">Close</span>
 </button>
 
 <!-- Icon with meaning (provide label) -->
 <button aria-label="Delete item">
-  <Trash2 size={16} aria-hidden="true" />
+    <Trash2 size={16} aria-hidden="true" />
 </button>
 
 <!-- Icon-only button (must have aria-label) -->
 <button aria-label="Close dialog">
-  <X size={16} />
+    <X size={16} />
 </button>
 ```
 
@@ -820,10 +824,10 @@ import { Button } from "@/components/atoms/Button";
 
 <!-- Status indicators -->
 <div class="flex items-center gap-2">
-  <Icon size="sm" color="success">
-    <CheckCircle />
-  </Icon>
-  <span>Success</span>
+    <Icon size="sm" color="success">
+        <CheckCircle />
+    </Icon>
+    <span>Success</span>
 </div>
 ```
 
@@ -1538,7 +1542,6 @@ import { Button } from "@/components/atoms/Button";
     <Trash2 size={16} class="mr-2" />
     Delete
 </Button>
-
 
 <!-- Icon-only button (must provide aria-label) -->
 <Button client:load aria-label="Close">
