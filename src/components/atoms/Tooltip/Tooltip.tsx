@@ -130,6 +130,7 @@ export function Tooltip(props: TooltipProps) {
     };
 
     const handleMouseEnter = () => {
+        if (typeof window === "undefined") return;
         if (timeoutId) {
             clearTimeout(timeoutId);
         }
@@ -139,6 +140,7 @@ export function Tooltip(props: TooltipProps) {
     };
 
     const handleMouseLeave = () => {
+        if (typeof window === "undefined") return;
         if (timeoutId) {
             clearTimeout(timeoutId);
         }
@@ -154,6 +156,9 @@ export function Tooltip(props: TooltipProps) {
     };
 
     onMount(() => {
+        if (typeof window === "undefined" || typeof document === "undefined")
+            return;
+
         // Inject anchor positioning CSS if supported
         if (
             supportsAnchor &&
@@ -166,6 +171,7 @@ export function Tooltip(props: TooltipProps) {
         }
 
         onCleanup(() => {
+            if (typeof window === "undefined") return;
             if (timeoutId) {
                 clearTimeout(timeoutId);
             }

@@ -29,6 +29,8 @@ export function usePopoverPosition(options: UsePopoverPositionOptions) {
     const { triggerRef, popoverRef, placement, isOpen, spacing = 8 } = options;
 
     const updatePosition = () => {
+        if (typeof window === "undefined") return;
+
         const trigger = triggerRef();
         const popover = popoverRef();
         if (!trigger || !popover) return;
@@ -263,6 +265,8 @@ export function usePopoverPosition(options: UsePopoverPositionOptions) {
     });
 
     onMount(() => {
+        if (typeof window === "undefined") return;
+
         const handleResize = () => {
             if (isOpen() && triggerRef() && popoverRef()) {
                 updatePosition();
@@ -279,6 +283,7 @@ export function usePopoverPosition(options: UsePopoverPositionOptions) {
         window.addEventListener("scroll", handleScroll, true);
 
         onCleanup(() => {
+            if (typeof window === "undefined") return;
             window.removeEventListener("resize", handleResize);
             window.removeEventListener("scroll", handleScroll, true);
         });
@@ -287,8 +292,10 @@ export function usePopoverPosition(options: UsePopoverPositionOptions) {
 
 /**
  * Checks if CSS Anchor Positioning is supported in the browser.
+ * Returns false during SSR.
  */
 export function supportsAnchorPositioning(): boolean {
+    if (typeof window === "undefined") return false;
     return (
         typeof CSS !== "undefined" &&
         "anchorName" in CSS.supports &&

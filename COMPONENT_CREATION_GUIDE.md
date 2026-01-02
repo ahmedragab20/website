@@ -274,6 +274,276 @@ const handleKeyDown = (e: KeyboardEvent) => {
 };
 ```
 
+### 7. Server-Side Rendering (SSR) Support
+
+**ALWAYS** ensure components support SSR. Components must work correctly when rendered on the server (Astro) and hydrated on the client.
+
+#### SSR Requirements
+
+1. **Browser API Guards**: **ALWAYS** check for browser APIs before using them:
+
+```tsx
+// ✅ DO: Check for window/document before using
+onMount(() => {
+    if (typeof window === "undefined") return;
+    // Safe to use window/document here
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+// ❌ DON'T: Use browser APIs without guards
+onMount(() => {
+    // This will fail during SSR
+    document.addEventListener("keydown", handleKeyDown);
+});
+```
+
+2. **onMount and onCleanup**: **ALWAYS** guard browser API access in lifecycle hooks:
+
+```tsx
+onMount(() => {
+    if (typeof window === "undefined") return;
+
+    // Safe browser API usage
+    window.addEventListener("resize", handleResize);
+    document.addEventListener("keydown", handleKeyDown);
+
+    onCleanup(() => {
+        if (typeof window === "undefined") return;
+        window.removeEventListener("resize", handleResize);
+        document.removeEventListener("keydown", handleKeyDown);
+    });
+});
+```
+
+3. **Dynamic Imports and Feature Detection**: **ALWAYS** check for feature support safely:
+
+```tsx
+// ✅ DO: Check for feature support
+export function supportsFeature(): boolean {
+    return (
+        typeof window !== "undefined" &&
+        typeof CSS !== "undefined" &&
+        "featureName" in CSS.supports
+    );
+}
+
+// ❌ DON'T: Access browser APIs directly
+export function supportsFeature(): boolean {
+    return CSS.supports("feature-name", "value"); // Fails in SSR
+}
+```
+
+4. **Timers and Async Operations**: **ALWAYS** guard timer usage:
+
+```tsx
+// ✅ DO: Check for window before using timers
+const timeoutId =
+    typeof window !== "undefined"
+        ? window.setTimeout(() => {}, 1000)
+        : undefined;
+
+onCleanup(() => {
+    if (typeof window !== "undefined" && timeoutId) {
+        window.clearTimeout(timeoutId);
+    }
+});
+
+// ❌ DON'T: Use timers without guards
+const timeoutId = setTimeout(() => {}, 1000); // Fails in SSR
+```
+
+5. **DOM Queries**: **ALWAYS** guard DOM queries:
+
+```tsx
+// ✅ DO: Check for document before querying
+onMount(() => {
+    if (typeof document === "undefined") return;
+    const element = document.getElementById("my-id");
+    // Use element...
+});
+
+// ❌ DON'T: Query DOM without guards
+const element = document.getElementById("my-id"); // Fails in SSR
+```
+
+6. **Initial Render with Fallback Content**: Components **MUST** render valid HTML during SSR, even if interactive features require client-side hydration. Always provide fallback content:
+
+```tsx
+// ✅ DO: Render fallback during SSR
+export function Component(props: ComponentProps) {
+    const [isOpen, setIsOpen] = createSignal(false);
+    const [isClient, setIsClient] = createSignal(false);
+
+    onMount(() => {
+        setIsClient(true);
+    });
+
+    // Component renders valid HTML during SSR
+    return (
+        <div>
+            <button onClick={() => setIsOpen(true)}>Open</button>
+            {isOpen() && <div>Content</div>}
+        </div>
+    );
+}
+
+// ✅ DO: Provide SSR fallback for client-only components
+export function ClientOnlyComponent(props: ComponentProps) {
+    const [isClient, setIsClient] = createSignal(false);
+
+    onMount(() => {
+        setIsClient(true);
+    });
+
+    // SSR fallback: render placeholder that will be replaced on client
+    if (!isClient()) {
+        return (
+            <div style={{ display: "none" }} aria-hidden="true">
+                {/* SSR placeholder - will be replaced on client */}
+            </div>
+        );
+    }
+
+    return <div>Client-only content</div>;
+}
+
+// ❌ DON'T: Access browser APIs during render
+export function Component(props: ComponentProps) {
+    // This will fail during SSR
+    const width = window.innerWidth; // Fails in SSR
+    return <div style={{ width: `${width}px` }}>Content</div>;
+}
+
+// ❌ DON'T: Return nothing during SSR
+export function Component(props: ComponentProps) {
+    const [isClient, setIsClient] = createSignal(false);
+
+    onMount(() => setIsClient(true));
+
+    // This returns nothing during SSR - bad!
+    if (!isClient()) return null;
+
+    return <div>Content</div>;
+}
+```
+
+#### SSR Patterns
+
+**Pattern 1: Conditional Browser API Access**
+
+```tsx
+import { onMount, onCleanup } from "solid-js";
+
+export function Component(props: ComponentProps) {
+    onMount(() => {
+        // Guard all browser API access
+        if (typeof window === "undefined") return;
+        if (typeof document === "undefined") return;
+
+        // Safe to use browser APIs
+        document.addEventListener("click", handleClick);
+
+        onCleanup(() => {
+            if (typeof document === "undefined") return;
+            document.removeEventListener("click", handleClick);
+        });
+    });
+
+    return <div>Content</div>;
+}
+```
+
+**Pattern 2: Feature Detection with SSR Safety**
+
+```tsx
+export function supportsFeature(): boolean {
+    if (typeof window === "undefined") return false;
+    if (typeof CSS === "undefined") return false;
+    return CSS.supports("feature-name", "value");
+}
+
+export function Component(props: ComponentProps) {
+    const hasFeature = supportsFeature();
+
+    return (
+        <div>{hasFeature() ? <ModernComponent /> : <FallbackComponent />}</div>
+    );
+}
+```
+
+**Pattern 3: Client-Only Operations with SSR Fallback**
+
+```tsx
+import { onMount, createSignal } from "solid-js";
+
+export function Component(props: ComponentProps) {
+    const [isClient, setIsClient] = createSignal(false);
+
+    onMount(() => {
+        setIsClient(true);
+        // Client-only operations here
+    });
+
+    // SSR fallback: Always render something meaningful
+    if (!isClient()) {
+        return (
+            <div style={{ display: "none" }} aria-hidden="true">
+                {/* SSR placeholder - will be replaced on client */}
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <ClientOnlyFeature />
+        </div>
+    );
+}
+```
+
+**Pattern 4: Interactive Components with Hidden Content**
+
+For components like Dropdown or Tooltip that have hidden content (popovers), the content should still be rendered in the DOM but hidden by default:
+
+```tsx
+export function Dropdown(props: DropdownProps) {
+    // ... component logic ...
+
+    return (
+        <>
+            {/* Trigger is always visible - works in SSR */}
+            <div ref={setTriggerRef} onClick={handleClick}>
+                {props.trigger}
+            </div>
+            {/* Popover content is rendered but hidden - works in SSR */}
+            <div
+                ref={setPopoverRef}
+                popover="auto" // Hidden by default, shows on interaction
+                role="menu"
+            >
+                {props.children}
+            </div>
+        </>
+    );
+}
+```
+
+#### SSR Checklist
+
+When creating or updating components, verify:
+
+- [ ] No direct `window` or `document` access outside `onMount`/`onCleanup`
+- [ ] All browser API calls are guarded with `typeof window !== "undefined"` or `typeof document !== "undefined"`
+- [ ] Timer functions (`setTimeout`, `setInterval`) are guarded
+- [ ] DOM queries are only executed in `onMount` or with guards
+- [ ] Feature detection functions check for browser environment
+- [ ] Components render valid HTML during SSR
+- [ ] **Components provide fallback content during SSR (never return `null` or empty)**
+- [ ] Client-only components render a hidden placeholder during SSR
+- [ ] Interactive features gracefully degrade or wait for client hydration
+- [ ] `onCleanup` functions check for browser environment before cleanup
+- [ ] Hidden content (popovers, tooltips) is still rendered in DOM but hidden by default
+
 ---
 
 ## Testing Requirements
@@ -898,6 +1168,9 @@ Before considering a component complete, verify:
 - [ ] TypeScript interface is properly defined
 - [ ] Default variants are sensible
 - [ ] Accessibility features are implemented (ARIA, keyboard)
+- [ ] SSR support: All browser APIs are guarded
+- [ ] SSR support: Components render valid HTML during SSR
+- [ ] SSR support: No direct window/document access outside lifecycle hooks
 
 ### Testing
 

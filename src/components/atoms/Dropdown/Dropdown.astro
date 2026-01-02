@@ -1,0 +1,41 @@
+---
+import { DropdownBridge } from "./DropdownBridge";
+import type { DropdownProps } from "./Dropdown";
+
+interface Props extends Omit<DropdownProps, "trigger" | "children"> {
+    class?: string;
+    "aria-label"?: string;
+    onOpenChange?: (open: boolean) => void;
+}
+
+const {
+    size,
+    placement,
+    class: className,
+    "aria-label": ariaLabel,
+    onOpenChange,
+} = Astro.props;
+
+// Generate a unique ID for the trigger container
+const triggerId = `dropdown-trigger-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<!-- Render trigger slot into a container with display: contents to avoid layout issues -->
+<div id={triggerId} style="display: contents;">
+    <slot name="trigger" />
+</div>
+
+<!-- Render the SolidJS bridge component -->
+<!-- Children (DropdownItem components) are passed via the default slot -->
+<!-- When using client:load, SolidJS components in slots are still passed correctly -->
+<DropdownBridge
+    client:load
+    triggerId={triggerId}
+    size={size}
+    placement={placement}
+    class={className}
+    aria-label={ariaLabel}
+    onOpenChange={onOpenChange}
+>
+    <slot />
+</DropdownBridge>

@@ -118,6 +118,7 @@ export function DropdownItem(props: DropdownItemProps) {
     ]);
 
     const handleClick = () => {
+        if (typeof document === "undefined") return;
         if (!local.disabled) {
             local.onClick?.();
             const popover = document.getElementById(
@@ -130,6 +131,7 @@ export function DropdownItem(props: DropdownItemProps) {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+        if (typeof document === "undefined") return;
         if ((e.key === "Enter" || e.key === " ") && !local.disabled) {
             e.preventDefault();
             local.onClick?.();
@@ -213,12 +215,14 @@ export function Dropdown(props: DropdownProps) {
     }
 
     const handleClick = () => {
+        if (typeof window === "undefined") return;
         if (popoverRef && typeof popoverRef.togglePopover === "function") {
             popoverRef.togglePopover();
         }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+        if (typeof window === "undefined") return;
         if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
             e.preventDefault();
             handleClick();
@@ -231,6 +235,7 @@ export function Dropdown(props: DropdownProps) {
     };
 
     const handleEscape = (e: KeyboardEvent) => {
+        if (typeof window === "undefined") return;
         if (e.key === "Escape" && isOpen() && popoverRef) {
             popoverRef.hidePopover();
             setIsOpen(false);
@@ -239,6 +244,9 @@ export function Dropdown(props: DropdownProps) {
     };
 
     onMount(() => {
+        if (typeof window === "undefined" || typeof document === "undefined")
+            return;
+
         if (popoverRef) {
             popoverRef.addEventListener(
                 "toggle",
@@ -260,6 +268,8 @@ export function Dropdown(props: DropdownProps) {
     });
 
     onCleanup(() => {
+        if (typeof window === "undefined") return;
+
         if (popoverRef) {
             popoverRef.removeEventListener(
                 "toggle",
