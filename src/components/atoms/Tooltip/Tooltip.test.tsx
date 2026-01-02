@@ -36,8 +36,8 @@ describe("Tooltip", () => {
                     <button>Hover</button>
                 </Tooltip>
             ));
-            const trigger = container.querySelector("[popoverTarget]");
-            expect(trigger?.className).toContain("custom-class");
+            const popover = container.querySelector('[popover="auto"]');
+            expect(popover?.className).toContain("custom-class");
         });
     });
 
@@ -158,22 +158,22 @@ describe("Tooltip", () => {
     });
 
     describe("Placements", () => {
-        const placementMap = {
-            top: "mb-2",
-            bottom: "mt-2",
-            left: "mr-2",
-            right: "ml-2",
-        } as const;
+        const placements = ["top", "bottom", "left", "right"] as const;
 
-        Object.entries(placementMap).forEach(([placement, expectedClass]) => {
-            it(`applies correct classes for ${placement} placement`, () => {
+        placements.forEach((placement) => {
+            it(`applies correct placement for ${placement}`, () => {
                 const { container } = render(() => (
-                    <Tooltip content="Tooltip" placement={placement as any}>
+                    <Tooltip content="Tooltip" placement={placement}>
                         <button>Hover</button>
                     </Tooltip>
                 ));
                 const popover = container.querySelector('[popover="auto"]');
-                expect(popover?.className).toContain(expectedClass);
+                expect(popover).toBeInTheDocument();
+                // Placement is handled via CSS anchor positioning or data attributes
+                expect(popover).toHaveAttribute(
+                    "data-tooltip-placement",
+                    placement
+                );
             });
         });
     });
@@ -203,7 +203,8 @@ describe("Tooltip", () => {
                 </Tooltip>
             ));
             const popover = container.querySelector('[popover="auto"]');
-            expect(popover?.className).toContain("mb-2");
+            expect(popover).toBeInTheDocument();
+            expect(popover).toHaveAttribute("data-tooltip-placement", "top");
         });
     });
 });

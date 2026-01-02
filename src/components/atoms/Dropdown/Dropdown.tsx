@@ -6,10 +6,45 @@ import {
     onCleanup,
     createContext,
     useContext,
-    createEffect,
     type ParentProps,
 } from "solid-js";
 import { tv } from "tailwind-variants";
+import {
+    usePopoverPosition,
+    supportsAnchorPositioning,
+    type Placement as PopoverPlacement,
+} from "../../hooks/usePopoverPosition";
+
+// CSS for anchor positioning (only used when supported)
+const anchorPositioningCSS = `
+[data-dropdown-anchor] {
+    position: fixed;
+}
+
+[data-dropdown-placement="bottom-start"][data-dropdown-anchor] {
+    position-anchor: var(--dropdown-anchor-name);
+    top: anchor(var(--dropdown-anchor-name) bottom) + 8px;
+    left: anchor(var(--dropdown-anchor-name) left);
+}
+
+[data-dropdown-placement="bottom-end"][data-dropdown-anchor] {
+    position-anchor: var(--dropdown-anchor-name);
+    top: anchor(var(--dropdown-anchor-name) bottom) + 8px;
+    right: calc(100vw - anchor(var(--dropdown-anchor-name) right));
+}
+
+[data-dropdown-placement="top-start"][data-dropdown-anchor] {
+    position-anchor: var(--dropdown-anchor-name);
+    bottom: calc(100vh - anchor(var(--dropdown-anchor-name) top) + 8px);
+    left: anchor(var(--dropdown-anchor-name) left);
+}
+
+[data-dropdown-placement="top-end"][data-dropdown-anchor] {
+    position-anchor: var(--dropdown-anchor-name);
+    bottom: calc(100vh - anchor(var(--dropdown-anchor-name) top) + 8px);
+    right: calc(100vw - anchor(var(--dropdown-anchor-name) right));
+}
+`;
 
 const dropdown = tv({
     base: "rounded-lg bg-secondary border border-ui-border shadow-lg min-w-[200px] p-1 z-50",
@@ -140,6 +175,9 @@ export function Dropdown(props: DropdownProps) {
     const popoverId = `dropdown-${Math.random().toString(36).substring(2, 9)}`;
     const [isOpen, setIsOpen] = createSignal(false);
     const placement = () => local.placement || "bottom-start";
+    const supportsAnchor = supportsAnchorPositioning();
+    const anchorName = `--dropdown-anchor-${popoverId}`;
+    let styleElement: HTMLStyleElement | undefined;
 
     let triggerRef: HTMLElement | undefined;
     let popoverRef: HTMLDivElement | undefined;
@@ -149,6 +187,13 @@ export function Dropdown(props: DropdownProps) {
         if (el) {
             el.setAttribute("popoverTarget", popoverId);
             el.setAttribute("popoverTargetAction", "toggle");
+            if (supportsAnchor) {
+                (el.style as any).anchorName = anchorName;
+                (el.style as any).setProperty(
+                    "--dropdown-anchor-name",
+                    anchorName
+                );
+            }
         }
     };
 
@@ -156,101 +201,16 @@ export function Dropdown(props: DropdownProps) {
         popoverRef = el;
     };
 
-    const updatePosition = () => {
-        if (!triggerRef || !popoverRef) return;
-
-        const triggerRect = triggerRef.getBoundingClientRect();
-        const popoverRect = popoverRef.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const spacing = 8;
-
-        const place = placement();
-        let pos: {
-            top?: string;
-            bottom?: string;
-            left?: string;
-            right?: string;
-        } = {};
-
-        // Calculate initial position based on placement
-        if (place.startsWith("bottom")) {
-            pos.top = `${triggerRect.bottom + spacing}px`;
-            if (place === "bottom-start") {
-                pos.left = `${triggerRect.left}px`;
-            } else {
-                pos.right = `${viewportWidth - triggerRect.right}px`;
-            }
-        } else {
-            pos.bottom = `${viewportHeight - triggerRect.top + spacing}px`;
-            if (place === "top-start") {
-                pos.left = `${triggerRect.left}px`;
-            } else {
-                pos.right = `${viewportWidth - triggerRect.right}px`;
-            }
-        }
-
-        // Adjust for horizontal viewport boundaries
-        const computedLeft = place.endsWith("start")
-            ? triggerRect.left
-            : viewportWidth - triggerRect.right;
-        const popoverWidth = popoverRect.width;
-
-        if (computedLeft + popoverWidth > viewportWidth - spacing) {
-            pos.left = `${viewportWidth - popoverWidth - spacing}px`;
-            pos.right = undefined;
-        }
-        if (computedLeft < spacing) {
-            pos.left = `${spacing}px`;
-            pos.right = undefined;
-        }
-
-        // Adjust for vertical viewport boundaries
-        const popoverHeight = popoverRect.height;
-
-        if (place.startsWith("bottom")) {
-            const top = triggerRect.bottom + spacing;
-            if (top + popoverHeight > viewportHeight - spacing) {
-                // Flip to top if there's not enough space below
-                const newTop = triggerRect.top - popoverHeight - spacing;
-                if (newTop >= spacing) {
-                    pos.top = `${newTop}px`;
-                    pos.bottom = undefined;
-                } else {
-                    // If flipping doesn't work, constrain to viewport
-                    pos.top = `${spacing}px`;
-                    pos.bottom = undefined;
-                }
-            }
-        } else {
-            const bottom = viewportHeight - triggerRect.top + spacing;
-            if (bottom + popoverHeight > viewportHeight - spacing) {
-                // Flip to bottom if there's not enough space above
-                const newBottom =
-                    viewportHeight -
-                    triggerRect.bottom -
-                    popoverHeight -
-                    spacing;
-                if (newBottom >= spacing) {
-                    pos.bottom = `${newBottom}px`;
-                    pos.top = undefined;
-                } else {
-                    // If flipping doesn't work, constrain to viewport
-                    pos.bottom = `${spacing}px`;
-                    pos.top = undefined;
-                }
-            }
-        }
-
-        // Apply CSS custom properties
-        Object.entries(pos).forEach(([key, value]) => {
-            if (value !== undefined) {
-                popoverRef!.style.setProperty(`--dropdown-${key}`, value);
-            } else {
-                popoverRef!.style.removeProperty(`--dropdown-${key}`);
-            }
+    // Use JS positioning as fallback when CSS Anchor Positioning is not supported
+    if (!supportsAnchor) {
+        usePopoverPosition({
+            triggerRef: () => triggerRef,
+            popoverRef: () => popoverRef,
+            placement: () => placement() as PopoverPlacement,
+            isOpen,
+            spacing: 8,
         });
-    };
+    }
 
     const handleClick = () => {
         if (popoverRef && typeof popoverRef.togglePopover === "function") {
@@ -268,12 +228,6 @@ export function Dropdown(props: DropdownProps) {
     const handleToggle = (e: ToggleEvent) => {
         setIsOpen(e.newState === "open");
         local.onOpenChange?.(e.newState === "open");
-        if (e.newState === "open") {
-            requestAnimationFrame(() => {
-                updatePosition();
-                requestAnimationFrame(updatePosition);
-            });
-        }
     };
 
     const handleEscape = (e: KeyboardEvent) => {
@@ -284,12 +238,6 @@ export function Dropdown(props: DropdownProps) {
         }
     };
 
-    createEffect(() => {
-        if (isOpen() && triggerRef && popoverRef) {
-            updatePosition();
-        }
-    });
-
     onMount(() => {
         if (popoverRef) {
             popoverRef.addEventListener(
@@ -299,25 +247,16 @@ export function Dropdown(props: DropdownProps) {
         }
         document.addEventListener("keydown", handleEscape);
 
-        const handleResize = () => {
-            if (isOpen() && triggerRef && popoverRef) {
-                updatePosition();
-            }
-        };
-
-        const handleScroll = () => {
-            if (isOpen() && triggerRef && popoverRef) {
-                updatePosition();
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        window.addEventListener("scroll", handleScroll, true);
-
-        onCleanup(() => {
-            window.removeEventListener("resize", handleResize);
-            window.removeEventListener("scroll", handleScroll, true);
-        });
+        // Inject anchor positioning CSS if supported
+        if (
+            supportsAnchor &&
+            !document.getElementById("dropdown-anchor-styles")
+        ) {
+            styleElement = document.createElement("style");
+            styleElement.id = "dropdown-anchor-styles";
+            styleElement.textContent = anchorPositioningCSS;
+            document.head.appendChild(styleElement);
+        }
     });
 
     onCleanup(() => {
@@ -333,6 +272,23 @@ export function Dropdown(props: DropdownProps) {
     const contextValue: DropdownContextValue = {
         popoverId: popoverId,
         isOpen,
+    };
+
+    // Generate styles for popover
+    const getPopoverStyles = () => {
+        if (!supportsAnchor) {
+            return {
+                position: "fixed" as const,
+                top: "var(--popover-top, auto)",
+                bottom: "var(--popover-bottom, auto)",
+                left: "var(--popover-left, auto)",
+                right: "var(--popover-right, auto)",
+            };
+        }
+
+        return {
+            "--dropdown-anchor-name": anchorName,
+        } as Record<string, string>;
     };
 
     return (
@@ -357,13 +313,11 @@ export function Dropdown(props: DropdownProps) {
                 })}
                 role="menu"
                 aria-orientation="vertical"
-                style={{
-                    position: "fixed",
-                    top: "var(--dropdown-top, auto)",
-                    bottom: "var(--dropdown-bottom, auto)",
-                    left: "var(--dropdown-left, auto)",
-                    right: "var(--dropdown-right, auto)",
-                }}
+                data-dropdown-anchor={supportsAnchor ? "" : undefined}
+                data-dropdown-placement={
+                    supportsAnchor ? placement() : undefined
+                }
+                style={getPopoverStyles()}
             >
                 {local.children}
             </div>
