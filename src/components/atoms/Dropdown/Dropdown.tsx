@@ -10,40 +10,56 @@ import {
     type ParentProps,
 } from "solid-js";
 import { tv } from "tailwind-variants";
-import {
-    usePopoverPosition,
-    supportsAnchorPositioning,
-    type Placement as PopoverPlacement,
-} from "../../hooks/usePopoverPosition";
 
-// CSS for anchor positioning (only used when supported)
-const anchorPositioningCSS = `
-[data-dropdown-anchor] {
+// CSS for anchor positioning and fallback
+const dropdownCSS = `
+/* Fallback for browsers that don't support anchor positioning */
+[data-dropdown-popover] {
     position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
 }
 
-[data-dropdown-placement="bottom-start"][data-dropdown-anchor] {
-    position-anchor: var(--dropdown-anchor-name);
-    top: anchor(var(--dropdown-anchor-name) bottom) + 8px;
-    left: anchor(var(--dropdown-anchor-name) left);
-}
+@supports (position-anchor: --foo) {
+    [data-dropdown-popover] {
+        position: fixed; /* Keep fixed for top-layer */
+        transform: none; /* Reset fallback transform */
+        inset: auto; /* Reset fallback inset if any */
+        margin: 0;
 
-[data-dropdown-placement="bottom-end"][data-dropdown-anchor] {
-    position-anchor: var(--dropdown-anchor-name);
-    top: anchor(var(--dropdown-anchor-name) bottom) + 8px;
-    right: calc(100vw - anchor(var(--dropdown-anchor-name) right));
-}
+        position-anchor: var(--dropdown-anchor-name);
+        position-visibility: anchors-visible;
+    }
 
-[data-dropdown-placement="top-start"][data-dropdown-anchor] {
-    position-anchor: var(--dropdown-anchor-name);
-    bottom: calc(100vh - anchor(var(--dropdown-anchor-name) top) + 8px);
-    left: anchor(var(--dropdown-anchor-name) left);
-}
+    [data-dropdown-placement="bottom-start"][data-dropdown-popover] {
+        top: anchor(bottom);
+        left: anchor(left);
+        width: max-content;
+        margin-top: 8px;
+    }
 
-[data-dropdown-placement="top-end"][data-dropdown-anchor] {
-    position-anchor: var(--dropdown-anchor-name);
-    bottom: calc(100vh - anchor(var(--dropdown-anchor-name) top) + 8px);
-    right: calc(100vw - anchor(var(--dropdown-anchor-name) right));
+    [data-dropdown-placement="bottom-end"][data-dropdown-popover] {
+        top: anchor(bottom);
+        right: anchor(right);
+        width: max-content;
+        margin-top: 8px;
+    }
+
+    [data-dropdown-placement="top-start"][data-dropdown-popover] {
+        bottom: anchor(top);
+        left: anchor(left);
+        width: max-content;
+        margin-bottom: 8px;
+    }
+
+    [data-dropdown-placement="top-end"][data-dropdown-popover] {
+        bottom: anchor(top);
+        right: anchor(right);
+        width: max-content;
+        margin-bottom: 8px;
+    }
 }
 `;
 
@@ -178,70 +194,26 @@ export function Dropdown(props: DropdownProps) {
     const popoverId = createUniqueId();
     const [isOpen, setIsOpen] = createSignal(false);
     const placement = () => local.placement || "bottom-start";
-    const supportsAnchor = supportsAnchorPositioning();
     const anchorName = `--dropdown-anchor-${popoverId}`;
-    let styleElement: HTMLStyleElement | undefined;
 
-    let triggerRef: HTMLElement | undefined;
     let popoverRef: HTMLDivElement | undefined;
 
-    const setTriggerRef = (el: HTMLElement | undefined) => {
-        triggerRef = el;
-        if (el) {
-            el.setAttribute("popoverTarget", popoverId);
-            el.setAttribute("popoverTargetAction", "toggle");
-            if (supportsAnchor) {
-                (el.style as any).anchorName = anchorName;
-                (el.style as any).setProperty(
-                    "--dropdown-anchor-name",
-                    anchorName
-                );
-            }
-        }
-    };
-
-    const setPopoverRef = (el: HTMLDivElement | undefined) => {
-        popoverRef = el;
-    };
-
-    // Use JS positioning as fallback when CSS Anchor Positioning is not supported
-    if (!supportsAnchor) {
-        usePopoverPosition({
-            triggerRef: () => triggerRef,
-            popoverRef: () => popoverRef,
-            placement: () => placement() as PopoverPlacement,
-            isOpen,
-            spacing: 8,
-        });
-    }
-
-    const handleClick = () => {
-        if (typeof window === "undefined") return;
-        if (popoverRef && typeof popoverRef.togglePopover === "function") {
-            popoverRef.togglePopover();
-        }
+    const handleClick = (_: MouseEvent) => {
+        if (typeof document === "undefined") return;
+        popoverRef?.togglePopover();
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (typeof window === "undefined") return;
+        if (typeof document === "undefined") return;
         if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
             e.preventDefault();
-            handleClick();
+            popoverRef?.togglePopover();
         }
     };
 
     const handleToggle = (e: ToggleEvent) => {
         setIsOpen(e.newState === "open");
         local.onOpenChange?.(e.newState === "open");
-    };
-
-    const handleEscape = (e: KeyboardEvent) => {
-        if (typeof window === "undefined") return;
-        if (e.key === "Escape" && isOpen() && popoverRef) {
-            popoverRef.hidePopover();
-            setIsOpen(false);
-            local.onOpenChange?.(false);
-        }
     };
 
     onMount(() => {
@@ -254,16 +226,12 @@ export function Dropdown(props: DropdownProps) {
                 handleToggle as EventListener
             );
         }
-        document.addEventListener("keydown", handleEscape);
 
-        // Inject anchor positioning CSS if supported
-        if (
-            supportsAnchor &&
-            !document.getElementById("dropdown-anchor-styles")
-        ) {
-            styleElement = document.createElement("style");
+        // Inject styles once
+        if (!document.getElementById("dropdown-anchor-styles")) {
+            const styleElement = document.createElement("style");
             styleElement.id = "dropdown-anchor-styles";
-            styleElement.textContent = anchorPositioningCSS;
+            styleElement.textContent = dropdownCSS;
             document.head.appendChild(styleElement);
         }
     });
@@ -277,7 +245,6 @@ export function Dropdown(props: DropdownProps) {
                 handleToggle as EventListener
             );
         }
-        document.removeEventListener("keydown", handleEscape);
     });
 
     const contextValue: DropdownContextValue = {
@@ -285,37 +252,21 @@ export function Dropdown(props: DropdownProps) {
         isOpen,
     };
 
-    // Generate styles for popover
-    const getPopoverStyles = () => {
-        if (!supportsAnchor) {
-            return {
-                position: "fixed" as const,
-                top: "var(--popover-top, auto)",
-                bottom: "var(--popover-bottom, auto)",
-                left: "var(--popover-left, auto)",
-                right: "var(--popover-right, auto)",
-            };
-        }
-
-        return {
-            "--dropdown-anchor-name": anchorName,
-        } as Record<string, string>;
-    };
-
     return (
         <DropdownContext.Provider value={contextValue}>
             <div
-                ref={setTriggerRef}
+                style={{ "anchor-name": anchorName, display: "inline-block" }}
                 onClick={handleClick}
                 onKeyDown={handleKeyDown}
-                aria-expanded={isOpen()}
+                role="button"
+                tabIndex={0}
                 aria-haspopup="true"
-                style={{ display: "inline-block" }}
+                aria-expanded={isOpen()}
             >
                 {local.trigger}
             </div>
             <div
-                ref={setPopoverRef}
+                ref={(el) => (popoverRef = el)}
                 id={popoverId}
                 popover="auto"
                 class={dropdown({
@@ -324,11 +275,9 @@ export function Dropdown(props: DropdownProps) {
                 })}
                 role="menu"
                 aria-orientation="vertical"
-                data-dropdown-anchor={supportsAnchor ? "" : undefined}
-                data-dropdown-placement={
-                    supportsAnchor ? placement() : undefined
-                }
-                style={getPopoverStyles()}
+                data-dropdown-popover=""
+                data-dropdown-placement={placement()}
+                style={{ "--dropdown-anchor-name": anchorName }}
             >
                 {local.children}
             </div>

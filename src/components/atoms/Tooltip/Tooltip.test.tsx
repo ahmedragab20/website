@@ -86,7 +86,7 @@ describe("Tooltip", () => {
                     <button>Hover</button>
                 </Tooltip>
             ));
-            const popover = container.querySelector('[popover="auto"]');
+            const popover = container.querySelector('[popover="manual"]');
             expect(popover?.className).toContain("custom-class");
         });
     });
@@ -102,7 +102,7 @@ describe("Tooltip", () => {
             const button = screen.getByText("Hover me");
             const trigger = button.parentElement!;
             const popover = document.querySelector(
-                '[popover="auto"]'
+                '[popover="manual"]'
             ) as HTMLElement;
 
             fireEvent.mouseEnter(trigger);
@@ -121,7 +121,7 @@ describe("Tooltip", () => {
             const button = screen.getByText("Hover me");
             const trigger = button.parentElement!;
             const popover = document.querySelector(
-                '[popover="auto"]'
+                '[popover="manual"]'
             ) as HTMLElement;
 
             fireEvent.mouseEnter(trigger);
@@ -145,7 +145,7 @@ describe("Tooltip", () => {
             const button = screen.getByText("Focus me");
             const trigger = button.parentElement!;
             const popover = document.querySelector(
-                '[popover="auto"]'
+                '[popover="manual"]'
             ) as HTMLElement;
 
             fireEvent.focus(trigger);
@@ -164,7 +164,7 @@ describe("Tooltip", () => {
             const button = screen.getByText("Focus me");
             const trigger = button.parentElement!;
             const popover = document.querySelector(
-                '[popover="auto"]'
+                '[popover="manual"]'
             ) as HTMLElement;
 
             fireEvent.focus(trigger);
@@ -188,7 +188,7 @@ describe("Tooltip", () => {
             const button = screen.getByText("Hover me");
             const trigger = button.parentElement!;
             const popover = document.querySelector(
-                '[popover="auto"]'
+                '[popover="manual"]'
             ) as HTMLElement;
 
             fireEvent.mouseEnter(trigger);
@@ -212,7 +212,7 @@ describe("Tooltip", () => {
                         <button>Hover</button>
                     </Tooltip>
                 ));
-                const popover = container.querySelector('[popover="auto"]');
+                const popover = container.querySelector('[popover="manual"]');
                 expect(popover).toBeInTheDocument();
                 // Placement is handled via CSS anchor positioning or data attributes
                 expect(popover).toHaveAttribute(
@@ -248,7 +248,7 @@ describe("Tooltip", () => {
                     <button>Hover</button>
                 </Tooltip>
             ));
-            const popover = container.querySelector('[popover="auto"]');
+            const popover = container.querySelector('[popover="manual"]');
             expect(popover).toBeInTheDocument();
             expect(popover).toHaveAttribute("data-tooltip-placement", "top");
         });

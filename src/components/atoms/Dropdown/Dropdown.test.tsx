@@ -3,6 +3,8 @@ import { render, screen, fireEvent, waitFor } from "@solidjs/testing-library";
 import { Dropdown, DropdownItem } from "./Dropdown";
 
 describe("Dropdown", () => {
+    let cleanupEscapeListener: () => void;
+
     beforeEach(() => {
         // Mock Popover API
         HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
@@ -34,9 +36,25 @@ describe("Dropdown", () => {
                 return true;
             }
         });
+
+        // Mock light dismiss for Escape
+        const handleGlobalEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                const openPopovers =
+                    document.querySelectorAll(".\\:popover-open");
+                openPopovers.forEach((popover) => {
+                    // @ts-ignore
+                    if (popover.hidePopover) popover.hidePopover();
+                });
+            }
+        };
+        document.addEventListener("keydown", handleGlobalEscape);
+        cleanupEscapeListener = () =>
+            document.removeEventListener("keydown", handleGlobalEscape);
     });
 
     afterEach(() => {
+        if (cleanupEscapeListener) cleanupEscapeListener();
         vi.restoreAllMocks();
         // @ts-ignore
         delete HTMLElement.prototype.showPopover;

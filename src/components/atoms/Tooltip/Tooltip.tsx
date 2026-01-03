@@ -1,51 +1,116 @@
 import {
     splitProps,
     type JSX,
-    createSignal,
     onMount,
     onCleanup,
     type ParentProps,
     createUniqueId,
 } from "solid-js";
 import { tv } from "tailwind-variants";
-import {
-    usePopoverPosition,
-    supportsAnchorPositioning,
-    type Placement as PopoverPlacement,
-} from "../../hooks/usePopoverPosition";
 
-// CSS for anchor positioning (only used when supported)
-const anchorPositioningCSS = `
-[data-tooltip-anchor] {
+// CSS for anchor positioning and fallback
+const tooltipCSS = `
+/* Fallback for browsers that don't support anchor positioning */
+[data-tooltip-popover] {
     position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    width: max-content;
+    max-width: 90vw;
 }
 
-[data-tooltip-placement="top"][data-tooltip-anchor] {
-    position-anchor: var(--tooltip-anchor-name);
-    bottom: calc(100vh - anchor(var(--tooltip-anchor-name) top) + 8px);
-    left: anchor(var(--tooltip-anchor-name) left);
-    transform: translateX(-50%);
-}
+@supports (position-anchor: --foo) {
+    [data-tooltip-popover] {
+        position: fixed;
+        transform: none;
+        inset: auto;
+        margin: 0;
+        
+        position-anchor: var(--tooltip-anchor-name);
+        position-visibility: anchors-visible; 
+    }
 
-[data-tooltip-placement="bottom"][data-tooltip-anchor] {
-    position-anchor: var(--tooltip-anchor-name);
-    top: anchor(var(--tooltip-anchor-name) bottom) + 8px;
-    left: anchor(var(--tooltip-anchor-name) left);
-    transform: translateX(-50%);
-}
+    /* Top Placement */
+    [data-tooltip-placement="top"][data-tooltip-popover] {
+        bottom: anchor(top);
+        left: anchor(center);
+        translate: -50% 0;
+        margin-bottom: 8px; /* Spacing */
+    }
 
-[data-tooltip-placement="left"][data-tooltip-anchor] {
-    position-anchor: var(--tooltip-anchor-name);
-    top: anchor(var(--tooltip-anchor-name) top);
-    right: calc(100vw - anchor(var(--tooltip-anchor-name) left) + 8px);
-    transform: translateY(-50%);
-}
+    [data-tooltip-placement="top-start"][data-tooltip-popover] {
+        bottom: anchor(top);
+        left: anchor(left);
+        margin-bottom: 8px;
+    }
 
-[data-tooltip-placement="right"][data-tooltip-anchor] {
-    position-anchor: var(--tooltip-anchor-name);
-    top: anchor(var(--tooltip-anchor-name) top);
-    left: anchor(var(--tooltip-anchor-name) right) + 8px;
-    transform: translateY(-50%);
+    [data-tooltip-placement="top-end"][data-tooltip-popover] {
+        bottom: anchor(top);
+        right: anchor(right);
+        margin-bottom: 8px;
+    }
+
+    /* Bottom Placement */
+    [data-tooltip-placement="bottom"][data-tooltip-popover] {
+        top: anchor(bottom);
+        left: anchor(center);
+        translate: -50% 0;
+        margin-top: 8px;
+    }
+
+    [data-tooltip-placement="bottom-start"][data-tooltip-popover] {
+        top: anchor(bottom);
+        left: anchor(left);
+        margin-top: 8px;
+    }
+
+    [data-tooltip-placement="bottom-end"][data-tooltip-popover] {
+        top: anchor(bottom);
+        right: anchor(right);
+        margin-top: 8px;
+    }
+
+    /* Left Placement */
+    [data-tooltip-placement="left"][data-tooltip-popover] {
+        right: anchor(left);
+        top: anchor(center);
+        translate: 0 -50%;
+        margin-right: 8px;
+    }
+
+    [data-tooltip-placement="left-start"][data-tooltip-popover] {
+        right: anchor(left);
+        top: anchor(top);
+        margin-right: 8px;
+    }
+
+    [data-tooltip-placement="left-end"][data-tooltip-popover] {
+        right: anchor(left);
+        bottom: anchor(bottom);
+        margin-right: 8px;
+    }
+
+    /* Right Placement */
+    [data-tooltip-placement="right"][data-tooltip-popover] {
+        left: anchor(right);
+        top: anchor(center);
+        translate: 0 -50%;
+        margin-left: 8px;
+    }
+
+    [data-tooltip-placement="right-start"][data-tooltip-popover] {
+        left: anchor(right);
+        top: anchor(top);
+        margin-left: 8px;
+    }
+
+    [data-tooltip-placement="right-end"][data-tooltip-popover] {
+        left: anchor(right);
+        bottom: anchor(bottom);
+        margin-left: 8px;
+    }
 }
 `;
 
@@ -54,9 +119,17 @@ const tooltip = tv({
     variants: {
         placement: {
             top: "",
+            "top-start": "",
+            "top-end": "",
             bottom: "",
+            "bottom-start": "",
+            "bottom-end": "",
             left: "",
+            "left-start": "",
+            "left-end": "",
             right: "",
+            "right-start": "",
+            "right-end": "",
         },
     },
     defaultVariants: {
@@ -64,7 +137,19 @@ const tooltip = tv({
     },
 });
 
-type Placement = "top" | "bottom" | "left" | "right";
+type Placement =
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "left"
+    | "left-start"
+    | "left-end"
+    | "right"
+    | "right-start"
+    | "right-end";
 
 export interface TooltipProps extends ParentProps {
     content: JSX.Element | string;
@@ -83,50 +168,33 @@ export function Tooltip(props: TooltipProps) {
         "delay",
     ]);
 
-    const [isOpen, setIsOpen] = createSignal(false);
     const placement = () => local.placement || "top";
     const popoverId = createUniqueId();
-    const supportsAnchor = supportsAnchorPositioning();
     const anchorName = `--tooltip-anchor-${popoverId}`;
-    let triggerRef: HTMLElement | undefined;
+
     let popoverRef: HTMLDivElement | undefined;
     let timeoutId: number | undefined;
-    let styleElement: HTMLStyleElement | undefined;
-
-    const setTriggerRef = (el: HTMLElement | undefined) => {
-        triggerRef = el;
-        if (el && supportsAnchor) {
-            (el.style as any).anchorName = anchorName;
-            (el.style as any).setProperty("--tooltip-anchor-name", anchorName);
-        }
-    };
-
-    const setPopoverRef = (el: HTMLDivElement | undefined) => {
-        popoverRef = el;
-    };
-
-    // Use JS positioning as fallback when CSS Anchor Positioning is not supported
-    if (!supportsAnchor) {
-        usePopoverPosition({
-            triggerRef: () => triggerRef,
-            popoverRef: () => popoverRef,
-            placement: () => placement() as PopoverPlacement,
-            isOpen,
-            spacing: 8,
-        });
-    }
 
     const showTooltip = () => {
         if (popoverRef && typeof popoverRef.showPopover === "function") {
-            popoverRef.showPopover();
-            setIsOpen(true);
+            try {
+                // Ensure popover is not already open to avoid errors if logic overlaps
+                if (!popoverRef.matches(":popover-open")) {
+                    popoverRef.showPopover();
+                }
+            } catch {
+                // Ignore transient errors
+            }
         }
     };
 
     const hideTooltip = () => {
         if (popoverRef && typeof popoverRef.hidePopover === "function") {
-            popoverRef.hidePopover();
-            setIsOpen(false);
+            try {
+                popoverRef.hidePopover();
+            } catch {
+                // Ignore transient errors
+            }
         }
     };
 
@@ -160,66 +228,50 @@ export function Tooltip(props: TooltipProps) {
         if (typeof window === "undefined" || typeof document === "undefined")
             return;
 
-        // Inject anchor positioning CSS if supported
-        if (
-            supportsAnchor &&
-            !document.getElementById("tooltip-anchor-styles")
-        ) {
-            styleElement = document.createElement("style");
+        // Inject styles once
+        if (!document.getElementById("tooltip-anchor-styles")) {
+            const styleElement = document.createElement("style");
             styleElement.id = "tooltip-anchor-styles";
-            styleElement.textContent = anchorPositioningCSS;
+            styleElement.textContent = tooltipCSS;
             document.head.appendChild(styleElement);
         }
+    });
 
-        onCleanup(() => {
-            if (typeof window === "undefined") return;
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-        });
+    onCleanup(() => {
+        if (typeof window === "undefined") return;
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
     });
 
     return (
         <>
             <div
-                ref={setTriggerRef}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 aria-describedby={popoverId}
                 class={local.class}
+                style={{ "anchor-name": anchorName, display: "inline-block" }}
                 {...others}
             >
                 {local.children}
             </div>
             <div
-                ref={setPopoverRef}
+                ref={(el) => (popoverRef = el)}
                 id={popoverId}
-                popover="auto"
+                popover="manual"
                 class={tooltip({
                     placement: placement(),
                     class: local.class,
                 })}
                 role="tooltip"
-                data-tooltip-anchor={supportsAnchor ? "" : undefined}
-                data-tooltip-placement={
-                    supportsAnchor ? placement() : undefined
-                }
-                style={
-                    supportsAnchor
-                        ? ({
-                              "--tooltip-anchor-name": anchorName,
-                          } as Record<string, string>)
-                        : {
-                              position: "fixed",
-                              top: "var(--popover-top, auto)",
-                              bottom: "var(--popover-bottom, auto)",
-                              left: "var(--popover-left, auto)",
-                              right: "var(--popover-right, auto)",
-                              transform: "var(--popover-transform, none)",
-                          }
-                }
+                data-tooltip-popover=""
+                data-tooltip-placement={placement()}
+                style={{ "--tooltip-anchor-name": anchorName }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
             >
                 {local.content}
             </div>
