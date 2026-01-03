@@ -1,18 +1,34 @@
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
-import { Card } from "./Card";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardSubtitle,
+    CardContent,
+    CardFooter,
+} from "./Card";
 import { Text } from "../Text/Text";
 import { Button } from "../Button/Button";
 
 /**
  * Card component for containing related content.
  *
- * Provides a container with optional padding and elevation.
+ * Provides a container with structured sub-components: Header, Title, Subtitle, Content, and Footer.
  * Use cards to group related information and create visual hierarchy.
  *
  * @example
  * ```tsx
- * <Card padding="md">
- *   <Text>Card content</Text>
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Card Title</CardTitle>
+ *     <CardSubtitle>Card Subtitle</CardSubtitle>
+ *   </CardHeader>
+ *   <CardContent>
+ *     <Text>Card content</Text>
+ *   </CardContent>
+ *   <CardFooter>
+ *     <Button>Action</Button>
+ *   </CardFooter>
  * </Card>
  * ```
  */
@@ -23,14 +39,18 @@ const meta = {
         layout: "centered",
     },
     tags: ["autodocs"],
+    args: {
+        class: "sm:min-w-sm w-full",
+    },
     argTypes: {
         padding: {
             control: "select",
             options: ["none", "sm", "md", "lg"],
-            description: "Internal padding of the card",
+            description:
+                "Internal padding of the card container (usually 'none' when using sub-components)",
             table: {
                 type: { summary: "string" },
-                defaultValue: { summary: "md" },
+                defaultValue: { summary: "none" },
             },
         },
         elevation: {
@@ -48,154 +68,111 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Basic usage
+// Basic usage with new hierarchy
 export const Default: Story = {
     args: {
         children: (
+            <>
+                <CardHeader>
+                    <CardTitle>Notifications</CardTitle>
+                    <CardSubtitle>You have 3 unread messages.</CardSubtitle>
+                </CardHeader>
+                <CardContent>
+                    <div class="p-4 bg-tertiary rounded-md">
+                        <Text>
+                            Your production server is ready to simplify.
+                        </Text>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button variant="solid" color="accent" size="sm">
+                        Mark all as read
+                    </Button>
+                </CardFooter>
+            </>
+        ),
+    },
+};
+
+// Legacy/Simple usage (with manual padding override)
+export const Simple: Story = {
+    args: {
+        padding: "md",
+        children: (
             <Text>
-                This is a basic card with default padding and flat elevation.
+                This is a basic card using the legacy padding prop directly on
+                the container.
             </Text>
         ),
     },
 };
 
-export const WithContent: Story = {
+export const WithComplexContent: Story = {
     args: {
         children: (
-            <div class="flex flex-col gap-3">
-                <Text as="h3" size="lg" weight="semibold">
-                    Card Title
-                </Text>
-                <Text color="muted">
-                    This card contains a title and some body text. Cards are
-                    useful for grouping related content together.
-                </Text>
-            </div>
+            <>
+                <CardHeader>
+                    <CardTitle>Create project</CardTitle>
+                    <CardSubtitle>
+                        Deploy your new project in one-click.
+                    </CardSubtitle>
+                </CardHeader>
+                <CardContent>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-2">
+                            <Text size="sm" weight="medium">
+                                Name
+                            </Text>
+                            <div class="h-10 border border-ui-border rounded px-3 flex items-center bg-primary text-sm">
+                                My Project
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <Text size="sm" weight="medium">
+                                Framework
+                            </Text>
+                            <div class="h-10 border border-ui-border rounded px-3 flex items-center bg-primary text-sm">
+                                SolidJS
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+                <CardFooter class="justify-between">
+                    <Button variant="outline" color="primary">
+                        Cancel
+                    </Button>
+                    <Button variant="solid" color="accent">
+                        Deploy
+                    </Button>
+                </CardFooter>
+            </>
         ),
     },
     parameters: {
         docs: {
             description: {
-                story: "Card with structured content including a title and body text.",
+                story: "Complex card layout demonstrating form elements and footer actions.",
             },
         },
-    },
-};
-
-// Padding variants
-export const NoPadding: Story = {
-    args: {
-        padding: "none",
-        children: (
-            <div class="p-4">
-                <Text>
-                    Card with no padding. Content must handle its own spacing.
-                </Text>
-            </div>
-        ),
-    },
-};
-
-export const SmallPadding: Story = {
-    args: {
-        padding: "sm",
-        children: <Text>Card with small padding (16px).</Text>,
-    },
-};
-
-export const MediumPadding: Story = {
-    args: {
-        padding: "md",
-        children: <Text>Card with medium padding (24px).</Text>,
-    },
-};
-
-export const LargePadding: Story = {
-    args: {
-        padding: "lg",
-        children: <Text>Card with large padding (32px).</Text>,
     },
 };
 
 // Elevation
-export const Flat: Story = {
-    args: {
-        elevation: "flat",
-        children: <Text>Flat card with no shadow.</Text>,
-    },
-};
-
 export const Raised: Story = {
     args: {
         elevation: "raised",
-        children: <Text>Raised card with shadow for depth.</Text>,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Raised elevation adds a shadow to create visual depth and separation from the background.",
-            },
-        },
-    },
-};
-
-// Composition examples
-export const WithButton: Story = {
-    args: {
         children: (
-            <div class="flex flex-col gap-4">
-                <Text>
-                    This card contains a button. Cards are often used as
-                    containers for interactive content.
-                </Text>
-                <div class="flex gap-2">
-                    <Button variant="solid" color="accent">
-                        Primary Action
-                    </Button>
-                    <Button variant="outline" color="accent">
-                        Secondary
-                    </Button>
-                </div>
-            </div>
+            <>
+                <CardHeader>
+                    <CardTitle>Raised Card</CardTitle>
+                    <CardSubtitle>This card stands out.</CardSubtitle>
+                </CardHeader>
+                <CardContent>
+                    <Text>
+                        Raised elevation adds a shadow to create visual depth.
+                    </Text>
+                </CardContent>
+            </>
         ),
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Card containing buttons. Shows how cards work with interactive elements.",
-            },
-        },
-    },
-};
-
-export const ComplexContent: Story = {
-    args: {
-        padding: "lg",
-        elevation: "raised",
-        children: (
-            <div class="flex flex-col gap-4">
-                <Text as="h2" size="xl" weight="bold">
-                    Feature Card
-                </Text>
-                <Text color="muted">
-                    Cards can contain complex layouts with multiple elements,
-                    including headings, text, images, and interactive
-                    components.
-                </Text>
-                <div class="h-30 bg-tertiary rounded-lg flex items-center justify-center">
-                    <Text color="muted">Image placeholder</Text>
-                </div>
-                <Button variant="solid" color="accent">
-                    Learn More
-                </Button>
-            </div>
-        ),
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: "Complex card layout with multiple content types. Demonstrates card flexibility.",
-            },
-        },
     },
 };

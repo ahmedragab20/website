@@ -6,6 +6,7 @@ import {
     onCleanup,
     createContext,
     useContext,
+    createUniqueId,
     type ParentProps,
 } from "solid-js";
 import { tv } from "tailwind-variants";
@@ -174,7 +175,7 @@ export function Dropdown(props: DropdownProps) {
         "onOpenChange",
     ]);
 
-    const popoverId = `dropdown-${Math.random().toString(36).substring(2, 9)}`;
+    const popoverId = createUniqueId();
     const [isOpen, setIsOpen] = createSignal(false);
     const placement = () => local.placement || "bottom-start";
     const supportsAnchor = supportsAnchorPositioning();

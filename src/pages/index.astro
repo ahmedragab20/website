@@ -1,9 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import ParticleButton from "../components/ParticleButton.tsx";
-import ThemeSwitcher from "../components/ThemeSwitcher.astro";
+import ThemeToggle from "../components/app/ThemeToggle/ThemeToggle";
 import { Button } from "../components/atoms/Button";
-import { Card } from "../components/atoms/Card";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    CardFooter,
+} from "../components/atoms/Card";
 import { Text } from "../components/atoms/Text";
 ---
 
@@ -13,12 +18,12 @@ import { Text } from "../components/atoms/Text";
             class="sticky top-0 z-50 border-b border-ui-border bg-secondary/80 backdrop-blur-sm"
         >
             <div class="container mx-auto px-6 py-4">
-                <div class="flex items-center justify-between">
+                <div class="space-y-4">
                     <Text as="h1" size="xl" weight="bold" class="text-accent">
                         Ahmed Ragab
                     </Text>
                     <div class="flex items-center gap-3">
-                        <ThemeSwitcher />
+                        <ThemeToggle client:idle />
                     </div>
                 </div>
             </div>
@@ -58,18 +63,20 @@ import { Text } from "../components/atoms/Text";
                     About
                 </Text>
                 <Card class="mb-6">
-                    <Text as="p" size="base" color="main" class="mb-4">
-                        I'm a software engineer focused on creating robust,
-                        performant web applications and design systems that
-                        scale. I believe in writing maintainable code, following
-                        best practices, and building tools that developers
-                        actually want to use.
-                    </Text>
-                    <Text as="p" size="base" color="muted">
-                        Currently developing this website and expanding my
-                        portfolio. Check back soon for updates on projects,
-                        articles, and more.
-                    </Text>
+                    <CardContent class="py-6">
+                        <Text as="p" size="base" color="main" class="mb-4">
+                            I'm a software engineer focused on creating robust,
+                            performant web applications and design systems that
+                            scale. I believe in writing maintainable code,
+                            following best practices, and building tools that
+                            developers actually want to use.
+                        </Text>
+                        <Text as="p" size="base" color="muted">
+                            Currently developing this website and expanding my
+                            portfolio. Check back soon for updates on projects,
+                            articles, and more.
+                        </Text>
+                    </CardContent>
                 </Card>
             </section>
 
@@ -84,57 +91,71 @@ import { Text } from "../components/atoms/Text";
                 </Text>
                 <div class="grid md:grid-cols-3 gap-6">
                     <Card>
-                        <Text as="h3" size="lg" weight="semibold" class="mb-2">
-                            Email
-                        </Text>
-                        <Text as="p" size="sm" color="muted" class="mb-4">
-                            Let's discuss projects, opportunities, or just chat
-                            about tech.
-                        </Text>
-                        <Button
-                            href="mailto:ahmedragab20901@gmail.com"
-                            variant="outline"
-                            color="accent"
-                            size="sm"
-                        >
-                            Send Email
-                        </Button>
+                        <CardHeader>
+                            <CardTitle class="text-lg">Email</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Text as="p" size="sm" color="muted">
+                                Let's discuss projects, opportunities, or just
+                                chat about tech.
+                            </Text>
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                href="mailto:ahmedragab20901@gmail.com"
+                                variant="outline"
+                                color="accent"
+                                size="sm"
+                            >
+                                Send Email
+                            </Button>
+                        </CardFooter>
                     </Card>
 
                     <Card>
-                        <Text as="h3" size="lg" weight="semibold" class="mb-2">
-                            LinkedIn
-                        </Text>
-                        <Text as="p" size="sm" color="muted" class="mb-4">
-                            Connect professionally and see my work experience.
-                        </Text>
-                        <Button
-                            href="https://www.linkedin.com/in/ahmed-ragab-bb75541b3/"
-                            variant="outline"
-                            color="accent"
-                            size="sm"
-                            target="_blank"
-                        >
-                            View Profile
-                        </Button>
+                        <CardHeader>
+                            <CardTitle class="text-lg">LinkedIn</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Text as="p" size="sm" color="muted">
+                                Connect professionally and see my work
+                                experience.
+                            </Text>
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                href="https://www.linkedin.com/in/ahmed-ragab-bb75541b3/"
+                                variant="outline"
+                                color="accent"
+                                size="sm"
+                                target="_blank"
+                            >
+                                View Profile
+                            </Button>
+                        </CardFooter>
                     </Card>
 
                     <Card>
-                        <Text as="h3" size="lg" weight="semibold" class="mb-2">
-                            GitHub
-                        </Text>
-                        <Text as="p" size="sm" color="muted" class="mb-4">
-                            Explore my open-source contributions and projects.
-                        </Text>
-                        <Button
-                            href="https://github.com/ahmedragab20"
-                            variant="outline"
-                            color="accent"
-                            size="sm"
-                            target="_blank"
-                        >
-                            View Repos
-                        </Button>
+                        <CardHeader>
+                            <CardTitle class="text-lg">GitHub</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Text as="p" size="sm" color="muted">
+                                Explore my open-source contributions and
+                                projects.
+                            </Text>
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                href="https://github.com/ahmedragab20"
+                                variant="outline"
+                                color="accent"
+                                size="sm"
+                                target="_blank"
+                            >
+                                View Repos
+                            </Button>
+                        </CardFooter>
                     </Card>
                 </div>
             </section>
@@ -149,92 +170,94 @@ import { Text } from "../components/atoms/Text";
                     Tech Stack
                 </Text>
                 <Card>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <Text
-                                as="h3"
-                                size="base"
-                                weight="semibold"
-                                class="mb-3 text-accent"
-                            >
-                                Frontend
-                            </Text>
-                            <ul class="space-y-2">
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        React, SolidJS, Astro
-                                    </Text>
-                                </li>
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        TypeScript, JavaScript
-                                    </Text>
-                                </li>
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        Tailwind CSS, Design Systems
-                                    </Text>
-                                </li>
-                            </ul>
+                    <CardContent class="py-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <Text
+                                    as="h3"
+                                    size="base"
+                                    weight="semibold"
+                                    class="mb-3 text-accent"
+                                >
+                                    Frontend
+                                </Text>
+                                <ul class="space-y-2">
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            React, SolidJS, Astro
+                                        </Text>
+                                    </li>
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            TypeScript, JavaScript
+                                        </Text>
+                                    </li>
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            Tailwind CSS, Design Systems
+                                        </Text>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <Text
+                                    as="h3"
+                                    size="base"
+                                    weight="semibold"
+                                    class="mb-3 text-accent"
+                                >
+                                    Tools & Practices
+                                </Text>
+                                <ul class="space-y-2">
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            Git, CI/CD, Testing
+                                        </Text>
+                                    </li>
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            Performance Optimization
+                                        </Text>
+                                    </li>
+                                    <li>
+                                        <Text
+                                            as="span"
+                                            size="sm"
+                                            color="muted"
+                                            font="mono"
+                                        >
+                                            Component Architecture
+                                        </Text>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <div>
-                            <Text
-                                as="h3"
-                                size="base"
-                                weight="semibold"
-                                class="mb-3 text-accent"
-                            >
-                                Tools & Practices
-                            </Text>
-                            <ul class="space-y-2">
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        Git, CI/CD, Testing
-                                    </Text>
-                                </li>
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        Performance Optimization
-                                    </Text>
-                                </li>
-                                <li>
-                                    <Text
-                                        as="span"
-                                        size="sm"
-                                        color="muted"
-                                        font="mono"
-                                    >
-                                        Component Architecture
-                                    </Text>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    </CardContent>
                 </Card>
             </section>
         </main>

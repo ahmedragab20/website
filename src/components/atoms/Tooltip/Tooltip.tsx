@@ -5,6 +5,7 @@ import {
     onMount,
     onCleanup,
     type ParentProps,
+    createUniqueId,
 } from "solid-js";
 import { tv } from "tailwind-variants";
 import {
@@ -84,7 +85,7 @@ export function Tooltip(props: TooltipProps) {
 
     const [isOpen, setIsOpen] = createSignal(false);
     const placement = () => local.placement || "top";
-    const popoverId = `tooltip-${Math.random().toString(36).substring(2, 9)}`;
+    const popoverId = createUniqueId();
     const supportsAnchor = supportsAnchorPositioning();
     const anchorName = `--tooltip-anchor-${popoverId}`;
     let triggerRef: HTMLElement | undefined;

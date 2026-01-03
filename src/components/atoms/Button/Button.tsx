@@ -196,19 +196,16 @@ export function Button(props: ButtonProps) {
         }
     };
 
-    const buttonClasses = () =>
-        button({
-            variant: local.variant,
-            color: local.color,
-            size: local.size,
-            state: buttonState(),
-            class: local.class,
-        });
-
     if (untrack(() => isLink())) {
         return (
             <a
-                class={buttonClasses()}
+                class={button({
+                    variant: local.variant,
+                    color: local.color,
+                    size: local.size,
+                    state: buttonState(),
+                    class: local.class,
+                })}
                 href={local.href}
                 target={local.target}
                 rel={
@@ -235,7 +232,13 @@ export function Button(props: ButtonProps) {
 
     return (
         <button
-            class={buttonClasses()}
+            class={button({
+                variant: local.variant,
+                color: local.color,
+                size: local.size,
+                state: buttonState(),
+                class: local.class,
+            })}
             type={others.type || "button"}
             disabled={local.disabled}
             onClick={() => local.onClick?.()}

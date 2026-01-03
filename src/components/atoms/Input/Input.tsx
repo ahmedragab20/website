@@ -61,6 +61,7 @@ export function Input(props: InputProps) {
 
     const handleInput = (e: Event) => {
         const target = e.currentTarget as HTMLInputElement;
+        // DISCLAIMER!! BROTHER, DO NOT UESE BOTH! 🙂
         local.onInput?.(target.value);
         local.onChange?.(target.value);
     };

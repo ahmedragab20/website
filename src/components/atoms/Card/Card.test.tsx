@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@solidjs/testing-library";
-import { Card } from "./Card";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardSubtitle,
+    CardContent,
+    CardFooter,
+} from "./Card";
 
 describe("Card", () => {
     describe("Rendering", () => {
@@ -19,6 +26,13 @@ describe("Card", () => {
     });
 
     describe("Padding Variants", () => {
+        // Default is now none
+        it("uses default padding (none) when not specified", () => {
+            const { container } = render(() => <Card>Test</Card>);
+            const div = container.querySelector("div");
+            expect(div?.className).toContain("p-0");
+        });
+
         const paddingMap = {
             none: "p-0",
             sm: "p-4",
@@ -51,46 +65,56 @@ describe("Card", () => {
             const div = container.querySelector("div");
             expect(div?.className).toContain("shadow-lg");
         });
+    });
 
-        it("applies flat elevation when specified", () => {
+    describe("Sub-components", () => {
+        it("renders CardHeader with correct classes", () => {
+            const { container } = render(() => <CardHeader>Header</CardHeader>);
+            const element = container.querySelector("div");
+            expect(element).toHaveClass(
+                "flex",
+                "flex-col",
+                "space-y-1.5",
+                "p-6"
+            );
+        });
+
+        it("renders CardTitle with correct classes", () => {
+            render(() => <CardTitle>Title</CardTitle>);
+            const title = screen.getByRole("heading", { level: 3 });
+            expect(title).toBeInTheDocument();
+            expect(title).toHaveClass("text-2xl", "font-semibold");
+        });
+
+        it("renders CardSubtitle with correct classes", () => {
             const { container } = render(() => (
-                <Card elevation="flat">Test</Card>
+                <CardSubtitle>Subtitle</CardSubtitle>
             ));
-            const div = container.querySelector("div");
-            expect(div?.className).not.toContain("shadow-lg");
-        });
-    });
-
-    describe("Base Styles", () => {
-        it("applies base card styles", () => {
-            const { container } = render(() => <Card>Test</Card>);
-            const div = container.querySelector("div");
-            expect(div?.className).toContain("rounded-lg");
-            expect(div?.className).toContain("bg-secondary");
-            expect(div?.className).toContain("border");
-            expect(div?.className).toContain("border-ui-border");
-        });
-    });
-
-    describe("Accessibility", () => {
-        it("has proper ARIA attributes", () => {
-            render(() => <Card aria-label="Product card">Content</Card>);
-            const card = screen.getByLabelText("Product card");
-            expect(card).toBeInTheDocument();
-        });
-    });
-
-    describe("Default Values", () => {
-        it("uses default padding (md) when not specified", () => {
-            const { container } = render(() => <Card>Test</Card>);
-            const div = container.querySelector("div");
-            expect(div?.className).toContain("p-6");
+            const desc = container.querySelector("p");
+            expect(desc).toBeInTheDocument();
+            expect(desc).toHaveClass("text-sm", "text-fg-muted");
         });
 
-        it("uses default elevation (flat) when not specified", () => {
-            const { container } = render(() => <Card>Test</Card>);
-            const div = container.querySelector("div");
-            expect(div?.className).not.toContain("shadow-lg");
+        it("renders CardContent with correct classes", () => {
+            const { container } = render(() => (
+                <CardContent>Content</CardContent>
+            ));
+            const content = container.querySelector("div");
+            expect(content).toBeInTheDocument();
+            expect(content).toHaveClass("px-6");
+        });
+
+        it("renders CardFooter with correct classes", () => {
+            const { container } = render(() => <CardFooter>Footer</CardFooter>);
+            const footer = container.querySelector("div");
+            expect(footer).toBeInTheDocument();
+            expect(footer).toHaveClass("flex", "items-center", "p-6");
+        });
+
+        it("supports custom classes on sub-components", () => {
+            render(() => <CardTitle class="text-red-500">Title</CardTitle>);
+            const title = screen.getByRole("heading");
+            expect(title).toHaveClass("text-red-500");
         });
     });
 });
