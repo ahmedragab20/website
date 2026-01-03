@@ -9,59 +9,11 @@ import {
     createUniqueId,
     type ParentProps,
 } from "solid-js";
+import {
+    generateAnchorCSS,
+    injectStyles,
+} from "../../../utils/style/anchor-positioning";
 import { tv } from "tailwind-variants";
-
-// CSS for anchor positioning and fallback
-const dropdownCSS = `
-/* Fallback for browsers that don't support anchor positioning */
-[data-dropdown-popover] {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-}
-
-@supports (position-anchor: --foo) {
-    [data-dropdown-popover] {
-        position: fixed; /* Keep fixed for top-layer */
-        transform: none; /* Reset fallback transform */
-        inset: auto; /* Reset fallback inset if any */
-        margin: 0;
-
-        position-anchor: var(--dropdown-anchor-name);
-        position-visibility: anchors-visible;
-    }
-
-    [data-dropdown-placement="bottom-start"][data-dropdown-popover] {
-        top: anchor(bottom);
-        left: anchor(left);
-        width: max-content;
-        margin-top: 8px;
-    }
-
-    [data-dropdown-placement="bottom-end"][data-dropdown-popover] {
-        top: anchor(bottom);
-        right: anchor(right);
-        width: max-content;
-        margin-top: 8px;
-    }
-
-    [data-dropdown-placement="top-start"][data-dropdown-popover] {
-        bottom: anchor(top);
-        left: anchor(left);
-        width: max-content;
-        margin-bottom: 8px;
-    }
-
-    [data-dropdown-placement="top-end"][data-dropdown-popover] {
-        bottom: anchor(top);
-        right: anchor(right);
-        width: max-content;
-        margin-bottom: 8px;
-    }
-}
-`;
 
 const dropdown = tv({
     base: "overflow-auto max-h-[97svh] rounded-lg bg-secondary border border-ui-border shadow-lg min-w-[200px] p-1 z-50",
@@ -227,13 +179,11 @@ export function Dropdown(props: DropdownProps) {
             );
         }
 
-        // Inject styles once
-        if (!document.getElementById("dropdown-anchor-styles")) {
-            const styleElement = document.createElement("style");
-            styleElement.id = "dropdown-anchor-styles";
-            styleElement.textContent = dropdownCSS;
-            document.head.appendChild(styleElement);
-        }
+        const css = generateAnchorCSS({
+            namespace: "dropdown",
+            baseStyles: "width: max-content;",
+        });
+        injectStyles("dropdown-anchor-styles", css);
     });
 
     onCleanup(() => {
