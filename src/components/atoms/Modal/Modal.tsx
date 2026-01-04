@@ -10,7 +10,7 @@ const modal = tv({
             md: "max-w-lg", // Default
             lg: "max-w-2xl",
             xl: "max-w-4xl",
-            full: "max-w-[95vw] h-[95vh]",
+            full: "max-w-[95svw] h-[95svh]",
         },
     },
     defaultVariants: {
@@ -27,7 +27,7 @@ const modalTitle = tv({
 });
 
 const modalBody = tv({
-    base: "p-6 overflow-y-auto max-h-[70vh] flex-grow",
+    base: "p-6 overflow-y-auto flex-grow",
 });
 
 const modalFooter = tv({
