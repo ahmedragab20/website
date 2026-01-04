@@ -5,12 +5,8 @@ import { THEMES } from "../src/hooks/useTheme";
 
 const themes = THEMES;
 
-// Apply theme to all documents (including iframes for docs)
 const applyThemeToAll = (theme: string) => {
-    // Apply to main document
     document.documentElement.setAttribute("data-theme", theme);
-
-    // Apply to all iframes (for Storybook docs)
     const applyToIframes = () => {
         document.querySelectorAll("iframe").forEach((iframe) => {
             try {
@@ -26,7 +22,6 @@ const applyThemeToAll = (theme: string) => {
 
     applyToIframes();
 
-    // Also watch for new iframes being added (for docs pages that load dynamically)
     const observer = new MutationObserver(() => {
         applyToIframes();
     });
@@ -36,20 +31,17 @@ const applyThemeToAll = (theme: string) => {
         subtree: true,
     });
 
-    // Clean up observer after a delay to avoid memory leaks
     setTimeout(() => observer.disconnect(), 5000);
 };
 
-// Initialize theme on load
 if (typeof window !== "undefined") {
     const savedTheme = localStorage.getItem("storybook-theme");
     const initialTheme =
-        savedTheme && themes.includes(savedTheme as any)
+        savedTheme && (themes as any).includes(savedTheme)
             ? savedTheme
             : "nordfox";
     applyThemeToAll(initialTheme);
 
-    // Watch for theme changes
     window.addEventListener("storage", (e) => {
         if (e.key === "storybook-theme" && e.newValue) {
             applyThemeToAll(e.newValue);
@@ -74,8 +66,12 @@ const preview: Preview = {
         },
 
         docs: {
-            // Ensure MDX files inherit theme styles
-            theme: undefined, // Use default Storybook theme
+            theme: undefined,
+        },
+        options: {
+            storySort: {
+                order: ["Design System", ["Overview"], "*"],
+            },
         },
     },
     globalTypes: {
