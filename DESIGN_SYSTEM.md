@@ -367,6 +367,28 @@ switch (size) {
 
 ---
 
+### 8. **Avoid 'Primary' as a Component Prop Color**
+
+Do not use "primary" as a string value for color props (e.g. `color="primary"`), as the term `primary` is strictly reserved for variables referring to the main page background (`--color-primary`, `bg-primary`). This avoids confusion between the main background color and the main brand/accent color.
+
+❌ **DON'T:**
+
+```tsx
+<Button color="primary" />
+// Confusing: does this mean "brand color" or "page background color"?
+```
+
+✅ **DO:**
+
+Use `accent` for the main brand color, or specific names.
+
+```tsx
+<Button color="accent" />
+// Clear: this uses the accent token
+```
+
+---
+
 ## Code Examples
 
 ### Complete Component Example
@@ -508,6 +530,7 @@ import Layout from "../layouts/Layout.astro";
 7. **ALWAYS** test that text is readable in all themes
 8. **ALWAYS** prefer dictionary object maps over switch statements for value mapping
 9. **NEVER** write useless comments that just describe what the code already shows (e.g., `// icon` above an `<Icon>` component)
+10. **NEVER** use "primary" as a component color prop (reserved for background); use "accent" instead
 
 ---
 
