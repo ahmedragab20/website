@@ -1,6 +1,7 @@
 /*this file only styles the color and the animation of the <dialog>*/
 
 .modal-dialog {
+    display: none;
     background-color: var(--color-secondary);
     color: var(--color-fg-main);
     border: 1px solid var(--color-ui-border);
@@ -15,6 +16,7 @@
         display 0.15s allow-discrete;
 }
 .modal-dialog[open] {
+    display: flex;
     opacity: 1;
     transform: scale(1) translateY(0);
     filter: blur(0);

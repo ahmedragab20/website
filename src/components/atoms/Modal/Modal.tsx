@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import "./Modal.css";
 
 const modal = tv({
-    base: "modal-dialog flex flex-col rounded-lg shadow-xl p-0 max-w-lg w-full m-auto",
+    base: "modal-dialog flex-col rounded-lg shadow-xl p-0 max-w-lg w-full m-auto",
     variants: {
         size: {
             sm: "max-w-sm",
