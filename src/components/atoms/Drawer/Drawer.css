@@ -1,0 +1,119 @@
+/* Styles for the Drawer component */
+.drawer-dialog {
+    display: none;
+    background-color: var(--color-secondary);
+    color: var(--color-fg-main);
+    border: 1px solid var(--color-ui-border);
+    opacity: 0;
+
+    /* Reset dialog defaults */
+    margin: 0;
+
+    /* Animation settings */
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        overlay 0.3s allow-discrete,
+        display 0.3s allow-discrete;
+}
+
+/* --- Placements --- */
+
+/* Right */
+.drawer-dialog[data-placement="right"] {
+    margin-left: auto;
+    margin-right: 0;
+    max-height: 100svh;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    transform: translateX(100%);
+}
+
+/* Left */
+.drawer-dialog[data-placement="left"] {
+    margin-right: auto;
+    margin-left: 0;
+    max-height: 100svh;
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    transform: translateX(-100%);
+}
+
+/* Top */
+.drawer-dialog[data-placement="top"] {
+    margin-bottom: auto;
+    margin-top: 0;
+    max-width: 100svw;
+    width: 100svw;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    transform: translateY(-100%);
+}
+
+/* Bottom */
+.drawer-dialog[data-placement="bottom"] {
+    margin-top: auto;
+    margin-bottom: 0;
+    max-height: auto;
+    max-width: 100svw;
+    width: 100svw;
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transform: translateY(100%);
+}
+
+/* --- Open State --- */
+
+.drawer-dialog[open] {
+    display: flex;
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+/* --- Starting Styles for Animation --- */
+
+@starting-style {
+    .drawer-dialog[open][data-placement="right"] {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    .drawer-dialog[open][data-placement="left"] {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    .drawer-dialog[open][data-placement="top"] {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    .drawer-dialog[open][data-placement="bottom"] {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* --- Backdrop --- */
+
+.drawer-dialog::backdrop {
+    background-color: rgb(0 0 0 / 0);
+    backdrop-filter: blur(0);
+    transition:
+        display 0.3s allow-discrete,
+        overlay 0.3s allow-discrete,
+        background-color 0.3s ease,
+        backdrop-filter 0.3s ease;
+}
+
+.drawer-dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0.4);
+    backdrop-filter: blur(2px);
+}
+
+@starting-style {
+    .drawer-dialog[open]::backdrop {
+        background-color: rgb(0 0 0 / 0);
+        backdrop-filter: blur(0);
+    }
+}

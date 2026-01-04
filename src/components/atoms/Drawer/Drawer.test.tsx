@@ -1,26 +1,26 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@solidjs/testing-library";
-import { Modal, ModalHeader, ModalBody, ModalFooter } from "./Modal";
+import { Drawer, DrawerHeader, DrawerBody, DrawerFooter } from "./Drawer";
 
-describe("Modal", () => {
+describe("Drawer", () => {
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
     it("renders children content", () => {
         render(() => (
-            <Modal isOpen={true} onClose={() => {}}>
-                <div>Modal Content</div>
-            </Modal>
+            <Drawer isOpen={true} onClose={() => {}}>
+                <div>Drawer Content</div>
+            </Drawer>
         ));
-        expect(screen.getByText("Modal Content")).toBeInTheDocument();
+        expect(screen.getByText("Drawer Content")).toBeInTheDocument();
     });
 
     it("does not show when isOpen is false (initially)", () => {
         render(() => (
-            <Modal isOpen={false} onClose={() => {}}>
-                <div>Modal Content</div>
-            </Modal>
+            <Drawer isOpen={false} onClose={() => {}}>
+                <div>Drawer Content</div>
+            </Drawer>
         ));
         const dialog = screen.getByRole("dialog", { hidden: true });
         expect(dialog).not.toHaveAttribute("open");
@@ -28,9 +28,9 @@ describe("Modal", () => {
 
     it("shows when isOpen is true", () => {
         render(() => (
-            <Modal isOpen={true} onClose={() => {}}>
-                <div>Modal Content</div>
-            </Modal>
+            <Drawer isOpen={true} onClose={() => {}}>
+                <div>Drawer Content</div>
+            </Drawer>
         ));
         const dialog = screen.getByRole("dialog");
         expect(dialog).toHaveAttribute("open");
@@ -40,9 +40,9 @@ describe("Modal", () => {
     it("calls onClose when backdrop is clicked", () => {
         const onClose = vi.fn();
         render(() => (
-            <Modal isOpen={true} onClose={onClose} closeOnOutsideClick={true}>
+            <Drawer isOpen={true} onClose={onClose} closeOnOutsideClick={true}>
                 <div style={{ width: "100px", height: "100px" }}>Content</div>
-            </Modal>
+            </Drawer>
         ));
 
         const dialog = screen.getByRole("dialog");
@@ -68,9 +68,9 @@ describe("Modal", () => {
     it("does not call onClose when content is clicked", () => {
         const onClose = vi.fn();
         render(() => (
-            <Modal isOpen={true} onClose={onClose} closeOnOutsideClick={true}>
+            <Drawer isOpen={true} onClose={onClose} closeOnOutsideClick={true}>
                 <div style={{ width: "100px", height: "100px" }}>Content</div>
-            </Modal>
+            </Drawer>
         ));
 
         const dialog = screen.getByRole("dialog");
@@ -93,23 +93,53 @@ describe("Modal", () => {
         expect(onClose).not.toHaveBeenCalled();
     });
 
-    it("applies size classes", () => {
+    it("applies placement attribute", () => {
         const { container } = render(() => (
-            <Modal isOpen={true} onClose={() => {}} size="lg">
+            <Drawer isOpen={true} onClose={() => {}} placement="left">
                 Content
-            </Modal>
+            </Drawer>
         ));
         const dialog = container.querySelector("dialog");
-        expect(dialog?.className).toContain("max-w-2xl");
+        expect(dialog).toHaveAttribute("data-placement", "left");
+    });
+
+    it("applies correct size classes for side placement", () => {
+        const { container } = render(() => (
+            <Drawer
+                isOpen={true}
+                onClose={() => {}}
+                placement="right"
+                size="lg"
+            >
+                Content
+            </Drawer>
+        ));
+        const dialog = container.querySelector("dialog");
+        expect(dialog?.className).toContain("max-w-lg");
+    });
+
+    it("applies correct size classes for vertical placement", () => {
+        const { container } = render(() => (
+            <Drawer
+                isOpen={true}
+                onClose={() => {}}
+                placement="bottom"
+                size="sm"
+            >
+                Content
+            </Drawer>
+        ));
+        const dialog = container.querySelector("dialog");
+        expect(dialog?.className).toContain("max-h-[30vh]");
     });
 
     it("renders header, body, footer", () => {
         render(() => (
-            <Modal isOpen={true} onClose={() => {}}>
-                <ModalHeader>Header</ModalHeader>
-                <ModalBody>Body</ModalBody>
-                <ModalFooter>Footer</ModalFooter>
-            </Modal>
+            <Drawer isOpen={true} onClose={() => {}}>
+                <DrawerHeader>Header</DrawerHeader>
+                <DrawerBody>Body</DrawerBody>
+                <DrawerFooter>Footer</DrawerFooter>
+            </Drawer>
         ));
         expect(screen.getByText("Header")).toBeInTheDocument();
         expect(screen.getByText("Body")).toBeInTheDocument();

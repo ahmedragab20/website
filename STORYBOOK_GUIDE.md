@@ -645,7 +645,20 @@ export const WithTooltip: Story = {
     },
 };
 ```
-
+### 9. Type Args in Render Functions
+ 
+**ALWAYS** explicitly type the `args` parameter in render functions to avoid implicit `any` errors and ensure type safety:
+ 
+```typescript
+export const CustomStory: Story = {
+    render: (args: Story["args"]) => <Component {...args} />,
+    args: {
+        // ...
+    },
+};
+```
+ 
+Using `Story["args"]` ensures that the `args` object matches the inferred types from your meta configuration.
 ### 5. Use Meaningful Default Args
 
 Set sensible defaults in the meta:
