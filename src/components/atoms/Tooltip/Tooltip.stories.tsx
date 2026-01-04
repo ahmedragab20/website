@@ -5,6 +5,9 @@ import { Button } from "../Button";
 /**
  * Tooltip component using the Popover API with reactive placement.
  *
+ * **Note:** This component relies on the **CSS Anchor Positioning API** for precise positioning relative to the trigger.
+ * In browsers that do not support this API (e.g., Safari, Firefox), a fallback strategy is used where the tooltip appears fixed at the bottom of the screen (toast-style).
+ *
  * Automatically adjusts position based on available viewport space.
  * Shows on hover or focus for accessibility.
  *

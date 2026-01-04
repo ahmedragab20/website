@@ -6,6 +6,9 @@ import { Button } from "../Button";
 /**
  * Dropdown component using the Popover API.
  *
+ * **Note:** This component relies on the **CSS Anchor Positioning API** for precise positioning relative to the trigger.
+ * In browsers that do not support this API (e.g., Safari, Firefox), a fallback strategy is used where the dropdown appears fixed in the center of the screen (dialog-style).
+ *
  * Provides a menu that appears on top of other content.
  * Supports keyboard navigation and accessibility features.
  *

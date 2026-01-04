@@ -17,10 +17,26 @@ export function generateAnchorCSS(options: AnchorPositionOptions): string {
 /* Fallback for browsers that don't support anchor positioning */
 [${popoverAttr}] {
     position: fixed;
-    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     margin: 0;
+    ${
+        namespace === "dropdown"
+            ? `
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    `
+            : namespace === "tooltip"
+              ? `
+    top: auto;
+    bottom: 24px;
+    `
+              : `
+    top: 50%;
+    transform: translate(-50%, -50%);
+    `
+    }
     ${baseStyles}
 }
 
