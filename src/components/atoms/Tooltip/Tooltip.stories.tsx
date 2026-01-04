@@ -236,29 +236,15 @@ export const InContext: Story = {
 
 export const EdgePositions: Story = {
     render: (args: Story["args"]) => (
-        <div class="flex flex-col gap-8 p-8">
+        <div class="flex flex-col justify-between h-screen gap-8 p-8">
             <div class="flex justify-between items-start">
-                <Tooltip {...args} content="Top-left corner" placement="top">
-                    <Button>Top Left</Button>
-                </Tooltip>
-                <Tooltip {...args} content="Top-right corner" placement="top">
-                    <Button>Top Right</Button>
+                <Tooltip {...args} content="Top corner" placement="top">
+                    <Button>Top</Button>
                 </Tooltip>
             </div>
             <div class="flex justify-between items-end">
-                <Tooltip
-                    {...args}
-                    content="Bottom-left corner"
-                    placement="bottom"
-                >
-                    <Button>Bottom Left</Button>
-                </Tooltip>
-                <Tooltip
-                    {...args}
-                    content="Bottom-right corner"
-                    placement="bottom"
-                >
-                    <Button>Bottom Right</Button>
+                <Tooltip {...args} content="Bottom corner" placement="bottom">
+                    <Button>Bottom</Button>
                 </Tooltip>
             </div>
         </div>

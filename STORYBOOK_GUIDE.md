@@ -140,7 +140,9 @@ const meta = {
 
 ### Adding Component Description
 
-Use JSDoc comments or MDX files for detailed documentation:
+**MANDATORY:** Every story file MUST include a top-level JSDoc comment describing the component and providing a usage example.
+
+Use JSDoc comments above the `meta` definition:
 
 ````typescript
 /**
@@ -154,9 +156,9 @@ Use JSDoc comments or MDX files for detailed documentation:
  * <Button variant="solid" color="accent">Click me</Button>
  * ```
  */
-export function Button(props: ButtonProps) {
+const meta = {
     // ...
-}
+} satisfies Meta<typeof Button>;
 ````
 
 ### Custom MDX Documentation (Content-First)

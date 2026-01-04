@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* --- FONT FACE DECLARATIONS --- */
 @font-face {
     font-family: "DankMono";
     src: url("../fonts/DankMono-Regular.otf") format("opentype");
@@ -834,7 +833,6 @@
     --color-ui-gutter: #f0f0f1;
 }
 
-
 [data-theme="zenburn"] {
     --color-primary: #3f3f3f;
     --color-secondary: #4f4f4f;
@@ -954,7 +952,6 @@
     --color-ui-active: #bdc3c7;
     --color-ui-gutter: #bdc3c7;
 }
-
 
 [data-theme="linear-light"] {
     --color-primary: #ffffff;

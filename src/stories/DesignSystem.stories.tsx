@@ -180,7 +180,7 @@ export const Showcase: Story = {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div class="flex flex-col gap-4">
                             <span class="text-xs font-bold text-fg-muted uppercase tracking-wider">
-                                Sans Serif (Inter / System)
+                                Sans Serif (Google Sans)
                             </span>
                             <div class="flex flex-col gap-2">
                                 <h1 class="text-4xl font-bold">Heading 1</h1>
