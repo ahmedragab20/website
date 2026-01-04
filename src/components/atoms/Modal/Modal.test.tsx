@@ -76,7 +76,7 @@ describe("Modal", () => {
         } as DOMRect);
 
         // Click outside (0, 0)
-        fireEvent.mouseDown(dialog, { clientX: 0, clientY: 0 });
+        fireEvent.click(dialog, { clientX: 0, clientY: 0 });
         expect(onClose).toHaveBeenCalled();
     });
 
@@ -104,7 +104,7 @@ describe("Modal", () => {
         } as DOMRect);
 
         // Click inside (150, 150)
-        fireEvent.mouseDown(dialog, { clientX: 150, clientY: 150 });
+        fireEvent.click(dialog, { clientX: 150, clientY: 150 });
         expect(onClose).not.toHaveBeenCalled();
     });
 

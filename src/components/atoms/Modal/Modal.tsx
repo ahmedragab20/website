@@ -72,14 +72,12 @@ export function Modal(props: ModalProps) {
         }
     });
 
-    // Handle interactions
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleBackdropClick = (e: MouseEvent) => {
+        e.stopPropagation();
+
         if (local.closeOnOutsideClick === false || !dialogRef) return;
 
-        // Check if click is outside the dialog (on the backdrop)
-        // When clicking backdrop, the target is the dialog itself
         if (e.target === dialogRef) {
-            // Check bounding rect to be sure (target check is usually enough for dialog)
             const rect = dialogRef.getBoundingClientRect();
             const isInDialog =
                 rect.top <= e.clientY &&
@@ -105,8 +103,7 @@ export function Modal(props: ModalProps) {
             ref={dialogRef}
             class={modal({ size: local.size, class: local.class })}
             onClose={handleCloseEvent}
-            onMouseDown={handleMouseDown}
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside from closing
+            onClick={handleBackdropClick}
             {...others}
         >
             {local.children}
