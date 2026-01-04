@@ -167,7 +167,7 @@ export const Raised: Story = {
                     <CardTitle>Raised Card</CardTitle>
                     <CardSubtitle>This card stands out.</CardSubtitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent class="pb-6">
                     <Text>
                         Raised elevation adds a shadow to create visual depth.
                     </Text>
