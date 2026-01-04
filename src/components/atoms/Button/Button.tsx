@@ -37,11 +37,6 @@ const button = tv({
         },
         {
             variant: "solid",
-            color: "primary",
-            class: "bg-primary text-fg-main border border-ui-border hover:bg-secondary",
-        },
-        {
-            variant: "solid",
             color: "success",
             class: "bg-success text-primary hover:opacity-90",
         },
@@ -139,11 +134,6 @@ const button = tv({
             color: "error",
             class: "text-error hover:underline",
         },
-        {
-            variant: "link",
-            color: "primary",
-            class: "text-fg-main hover:underline",
-        },
     ],
     defaultVariants: {
         variant: "solid",
@@ -156,7 +146,7 @@ const button = tv({
 export interface ButtonProps {
     children: JSX.Element;
     variant?: "solid" | "subtle" | "text" | "outline" | "link";
-    color?: "primary" | "accent" | "success" | "warning" | "error";
+    color?: "accent" | "success" | "warning" | "error";
     size?: "sm" | "md" | "lg";
     disabled?: boolean;
     onClick?: () => void;

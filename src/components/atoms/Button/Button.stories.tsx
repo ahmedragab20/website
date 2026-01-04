@@ -32,7 +32,7 @@ const meta = {
         },
         color: {
             control: "select",
-            options: ["primary", "accent", "success", "warning", "error"],
+            options: ["accent", "success", "warning", "error"],
             description: "Color scheme of the button",
             table: {
                 type: { summary: "string" },

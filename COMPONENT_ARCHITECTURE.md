@@ -528,12 +528,12 @@ export function Button(props: ButtonProps) {
 // Use interfaces for component props
 interface ButtonProps {
     children: JSX.Element;
-    variant?: "primary" | "secondary";
+    variant?: "solid" | "subtle";
     onClick?: () => void;
 }
 
 // Use types for unions, intersections, and computed types
-type ButtonVariant = "primary" | "secondary" | "text";
+type ButtonVariant = "solid" | "subtle";
 type ButtonSize = "sm" | "md" | "lg";
 ```
 

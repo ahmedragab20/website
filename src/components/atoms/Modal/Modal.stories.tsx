@@ -64,18 +64,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Interactive wrapper for stories
 const ModalWrapper = (props: any) => {
     const [isOpen, setIsOpen] = createSignal(false);
 
-    // Sync with controls if needed, but for interactive demo we manage internal state
-    // We can use createEffect to sync props.isOpen if we wanted, but usually Storybook
-    // controls toggle the prop. However, Modal needs internal or external state to show.
-    // Use the prop 'isOpen' from args to control initial state or override?
-    // Better: let the user click the button.
-
     return (
-        <div>
+        <div class="p-24 flex justify-center items-center">
             <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
             <Modal
                 {...props}

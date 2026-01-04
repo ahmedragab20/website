@@ -138,9 +138,7 @@ export const WithComplexContent: Story = {
                     </div>
                 </CardContent>
                 <CardFooter class="justify-between">
-                    <Button variant="outline" color="primary">
-                        Cancel
-                    </Button>
+                    <Button variant="outline">Cancel</Button>
                     <Button variant="solid" color="accent">
                         Deploy
                     </Button>
