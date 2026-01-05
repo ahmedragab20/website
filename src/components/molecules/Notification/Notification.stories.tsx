@@ -33,6 +33,7 @@ const NotificationDemo = () => {
                             description: "Action completed successfully",
                             placement: "top-right",
                             duration: 3000,
+                            variant: "success",
                         })
                     }
                     color="success"
@@ -45,9 +46,10 @@ const NotificationDemo = () => {
                             title: "Error Occurred",
                             description: "Something went wrong",
                             placement: "top-left",
+                            variant: "error",
                         })
                     }
-                    color="error" // Button color
+                    color="error"
                 >
                     Top Left (Error)
                 </Button>
@@ -57,10 +59,11 @@ const NotificationDemo = () => {
                             title: "New Message",
                             description: "You have received a new message",
                             placement: "bottom-right",
+                            variant: "info",
                         })
                     }
                 >
-                    Bottom Right
+                    Bottom Right (Info)
                 </Button>
                 <Button
                     onClick={() =>
@@ -68,10 +71,12 @@ const NotificationDemo = () => {
                             title: "System Update",
                             description: "Update available",
                             placement: "bottom-left",
+                            variant: "warning",
                         })
                     }
+                    color="warning"
                 >
-                    Bottom Left
+                    Bottom Left (Warning)
                 </Button>
             </div>
 
@@ -84,6 +89,7 @@ const NotificationDemo = () => {
                             description: "This will stay until you close it",
                             persisted: true,
                             placement: "top-right",
+                            variant: "info",
                         })
                     }
                 >
@@ -123,9 +129,11 @@ const NotificationDemo = () => {
                         const interval = setInterval(() => {
                             addNotification({
                                 title: `Stack Item ${++count}`,
-                                description: "Watch them stack up!",
+                                description:
+                                    "Watch them stack up! Hover to pause timeout.",
                                 placement: "bottom-right",
                                 duration: 5000,
+                                variant: "info",
                             });
                             if (count >= 5) clearInterval(interval);
                         }, 300);
@@ -133,6 +141,41 @@ const NotificationDemo = () => {
                 >
                     Trigger 5 Rapidly
                 </Button>
+            </div>
+            <div class="mt-8">
+                <h3 class="font-bold mb-2">Test Features</h3>
+                <div class="flex flex-wrap gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() =>
+                            addNotification({
+                                title: "Hover to Pause",
+                                description:
+                                    "Hover over this notification to pause the timeout",
+                                placement: "top-right",
+                                duration: 8000,
+                                variant: "warning",
+                            })
+                        }
+                    >
+                        Test Hover Pause
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() =>
+                            addNotification({
+                                title: "Keyboard Focus",
+                                description:
+                                    "Tab to this notification and focus to pause",
+                                placement: "top-left",
+                                duration: 6000,
+                                variant: "success",
+                            })
+                        }
+                    >
+                        Test Focus Pause
+                    </Button>
+                </div>
             </div>
         </div>
     );

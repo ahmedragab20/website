@@ -77,7 +77,10 @@ export function NotificationProvider(props: NotificationProviderProps) {
     };
 
     const removeNotification = (id: string) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        // Add a small delay to allow exit animation to play
+        setTimeout(() => {
+            setNotifications((prev) => prev.filter((n) => n.id !== id));
+        }, 50);
     };
 
     const toggleExpand = (placement: NotificationPlacement) => {
@@ -96,6 +99,16 @@ export function NotificationProvider(props: NotificationProviderProps) {
             value={{ addNotification, removeNotification }}
         >
             {props.children}
+            {/* ARIA live region for screen readers */}
+            <div aria-live="polite" aria-atomic="true" class="sr-only">
+                <For each={notifications()}>
+                    {(notification) => (
+                        <div>
+                            {notification.title} {notification.description}
+                        </div>
+                    )}
+                </For>
+            </div>
             <For each={placements}>
                 {(placement) => {
                     const placementItems = createMemo(() =>

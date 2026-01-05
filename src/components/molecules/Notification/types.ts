@@ -6,6 +6,8 @@ export type NotificationPlacement =
     | "bottom-left"
     | "bottom-right";
 
+export type NotificationVariant = "info" | "success" | "warning" | "error";
+
 export interface NotificationData {
     id: string;
     title?: string;
@@ -14,6 +16,7 @@ export interface NotificationData {
     duration?: number;
     persisted?: boolean;
     placement: NotificationPlacement;
+    variant?: NotificationVariant;
 }
 
 export type AddNotificationOptions = Omit<
@@ -21,6 +24,7 @@ export type AddNotificationOptions = Omit<
     "id" | "placement"
 > & {
     placement?: NotificationPlacement;
+    variant?: NotificationVariant;
 };
 
 export interface NotificationContextValue {
