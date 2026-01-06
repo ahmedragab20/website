@@ -64,17 +64,13 @@ export function NotificationProvider(props: NotificationProviderProps) {
 
         setNotifications((prev) => [...prev, notification]);
 
-        // Auto-dismiss is now handled in the Notification component itself
-        // to properly support pause on hover
-
         return id;
     };
 
     const removeNotification = (id: string) => {
-        // Add a small delay to allow exit animation to play
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== id));
-        }, 50);
+        });
     };
 
     const toggleExpand = (placement: NotificationPlacement) => {
@@ -93,7 +89,6 @@ export function NotificationProvider(props: NotificationProviderProps) {
                     ?.getAttribute("data-notification-id") === item.id
         );
 
-        // Announce keyboard navigation to screen readers
         const announceNavigation = (direction: string, index: number) => {
             const announcement = `${items[index].title || items[index].description || `Notification ${index + 1}`}`;
             const announcer = document.getElementById("notification-announcer");
@@ -178,7 +173,6 @@ export function NotificationProvider(props: NotificationProviderProps) {
         }
     };
 
-    // Global keyboard and click event handlers
     createEffect(() => {
         const placements: NotificationPlacement[] = [
             "top-left",

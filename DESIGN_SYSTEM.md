@@ -306,14 +306,47 @@ Always consider responsive breakpoints:
 </div>
 ```
 
-### 5. **Accessibility**
+### 5. **Never Use Fixed Colors**
+
+**CRITICAL RULE**: Never use fixed color names like `black`, `white`, `gray`, `red`, `blue`, etc. in any context. This applies to:
+
+- Text colors (`text-black`, `text-white`, `text-gray-500`)
+- Background colors (`bg-black`, `bg-white`, `bg-gray-100`)
+- Border colors (`border-black`, `border-white`, `border-gray-300`)
+- Opacity overlays (`bg-black/20`, `bg-white/10`)
+- Hover/focus states (`hover:bg-black/10`, `hover:text-white`)
+- Any other color application
+
+✅ **DO:**
+
+```html
+<!-- Use semantic tokens for all color needs -->
+<div class="bg-primary text-fg-main border-ui-border">
+    <button class="hover:bg-fg-main/10 text-accent">Click</button>
+    <div class="bg-secondary/80 backdrop-blur">Overlay</div>
+</div>
+```
+
+❌ **DON'T:**
+
+```html
+<!-- Never use fixed colors -->
+<div class="bg-gray-900 text-white border-gray-700">
+    <button class="hover:bg-black/20 text-blue-500">Click</button>
+    <div class="bg-white/10 backdrop-blur">Overlay</div>
+</div>
+```
+
+**Why?** Fixed colors break theme compatibility. All components must work seamlessly across all themes (dark and light). Using semantic tokens ensures proper contrast and visual consistency regardless of the active theme.
+
+### 6. **Accessibility**
 
 - Use proper heading hierarchy (h1 → h2 → h3)
 - Ensure sufficient color contrast (handled by theme colors)
 - Use semantic HTML elements
 - Include proper ARIA labels when needed
 
-### 6. **Theme Compatibility**
+### 7. **Theme Compatibility**
 
 All components MUST work across all themes. Test that:
 
@@ -322,7 +355,7 @@ All components MUST work across all themes. Test that:
 - Interactive states (hover, focus) are clear
 - Color combinations maintain proper contrast
 
-### 7. **Prefer Dictionary Maps Over Switch Statements**
+### 8. **Prefer Dictionary Maps Over Switch Statements**
 
 When mapping values or handling conditional logic, prefer dictionary object maps over switch statements for better maintainability and performance.
 
@@ -367,24 +400,28 @@ switch (size) {
 
 ---
 
-### 8. **Avoid 'Primary' as a Component Prop Color**
+### 9. **Strict Component Colors**
 
-Do not use "primary" as a string value for color props (e.g. `color="primary"`), as the term `primary` is strictly reserved for variables referring to the main page background (`--color-primary`, `bg-primary`). This avoids confusion between the main background color and the main brand/accent color.
+Components offering color variants must strictly use the following set of semantic colors:
+- `accent` (Brand color, default action)
+- `success` (Positive action)
+- `warning` (Cautionary action)
+- `error` (Destructive action)
+
+**NEVER** use `neutral` or `primary` as color prop values.
 
 ❌ **DON'T:**
 
 ```tsx
+<Chip color="neutral" />
 <Button color="primary" />
-// Confusing: does this mean "brand color" or "page background color"?
 ```
 
 ✅ **DO:**
 
-Use `accent` for the main brand color, or specific names.
-
 ```tsx
-<Button color="accent" />
-// Clear: this uses the accent token
+<Chip color="accent" />
+<Button color="success" />
 ```
 
 ---
@@ -522,15 +559,16 @@ import Layout from "../layouts/Layout.astro";
 ## Reminders for LLMs
 
 1. **NEVER** use hardcoded colors (hex codes, rgb values)
-2. **ALWAYS** use utility classes (`bg-primary`, not `bg-[var(--color-primary)]`)
-3. **ALWAYS** ensure components work across all themes
-4. **ALWAYS** use semantic color names from the design system
-5. **ALWAYS** follow the typography scale
-6. **ALWAYS** maintain consistent spacing using Tailwind utilities
-7. **ALWAYS** test that text is readable in all themes
-8. **ALWAYS** prefer dictionary object maps over switch statements for value mapping
-9. **NEVER** write useless comments that just describe what the code already shows (e.g., `// icon` above an `<Icon>` component)
-10. **NEVER** use "primary" as a component color prop (reserved for background); use "accent" instead
+2. **NEVER** use fixed color names (`black`, `white`, `gray`, `red`, `blue`, etc.) in ANY context - including text, backgrounds, borders, opacity overlays, or hover/focus states
+3. **ALWAYS** use utility classes (`bg-primary`, not `bg-[var(--color-primary)]`)
+4. **ALWAYS** ensure components work across all themes
+5. **ALWAYS** use semantic color names from the design system
+6. **ALWAYS** follow the typography scale
+7. **ALWAYS** maintain consistent spacing using Tailwind utilities
+8. **ALWAYS** test that text is readable in all themes
+9. **ALWAYS** prefer dictionary object maps over switch statements for value mapping
+10. **NEVER** write useless comments that just describe what the code already shows (e.g., `// icon` above an `<Icon>` component)
+11. **ALWAYS** restrict component color props to: "accent", "success", "warning", "error". NEVER use "primary" or "neutral".
 
 ---
 
