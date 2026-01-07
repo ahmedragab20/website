@@ -403,6 +403,7 @@ switch (size) {
 ### 9. **Strict Component Colors**
 
 Components offering color variants must strictly use the following set of semantic colors:
+
 - `accent` (Brand color, default action)
 - `success` (Positive action)
 - `warning` (Cautionary action)

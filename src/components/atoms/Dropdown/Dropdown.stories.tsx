@@ -184,7 +184,7 @@ export const Large: Story = {
 
 export const InContext: Story = {
     render: (args: Story["args"]) => (
-        <div class="flex flex-col gap-4 w-[300px]">
+        <div class="flex flex-col gap-4 w-75">
             <div class="p-6 rounded-lg bg-secondary border border-ui-border">
                 <h3 class="text-lg font-semibold mb-4">User Menu</h3>
                 <Dropdown {...args} trigger={<Button>User Options</Button>}>

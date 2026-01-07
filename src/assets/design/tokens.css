@@ -1334,4 +1334,14 @@
         font-variant-numeric: tabular-nums;
         font-variant-ligatures: contextual;
     }
+
+    ::selection {
+        background-color: var(--color-accent);
+        color: var(--color-primary);
+    }
+
+    ::-moz-selection {
+        background-color: var(--color-accent);
+        color: var(--color-primary);
+    }
 }
