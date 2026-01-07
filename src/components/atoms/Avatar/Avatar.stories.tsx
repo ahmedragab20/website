@@ -133,11 +133,19 @@ export const Variants: Story = {
 
 export const Group: Story = {
     render: () => (
-        <div class="flex gap-2">
-            <Avatar alt="John Doe" />
-            <Avatar alt="Alice Brown" />
-            <Avatar alt="Charlie Davis" />
-            <Avatar alt="Eve Foster" variant="accent" />
+        <div class="space-y-1">
+            <div class="flex gap-2 [&>div]:-me-4 [&>div]:shadow-inner mx-auto">
+                <Avatar src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <Avatar src="https://images.unsplash.com/photo-1678282955936-426bbe7a9693?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <Avatar alt="Ahmed Ragab" />
+                <Avatar src="https://images.unsplash.com/photo-1740102074734-ba03d00a8796?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+            </div>
+            <p class="text-fg-muted text-xs">
+                <i>
+                    All Pictures are from{" "}
+                    <a href="https://unsplash.com/">Unsplash</a>.
+                </i>
+            </p>
         </div>
     ),
     parameters: {

@@ -1,4 +1,3 @@
-- [ ] Pin Input
 - [ ] Select
 - [ ] Context Menu
 - [ ] Code Editor

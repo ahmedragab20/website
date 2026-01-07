@@ -2,6 +2,7 @@ import { createSignal, createEffect } from "solid-js";
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { PinInput, type PinInputProps } from "./PinInput";
+import { Alert } from "../Alert";
 
 /**
  * Pin input component for entering verification codes or PINs.
@@ -295,29 +296,36 @@ export const Interactive: Story = {
         createEffect(() => setInternalValue(args?.value || []));
 
         return (
-            <div class="flex flex-col gap-4 items-center">
-                <h3 class="text-lg font-semibold text-fg-main">
-                    Try the Pin Input
-                </h3>
-                <p class="text-sm text-fg-muted text-center max-w-[300px]">
-                    Type numbers or paste a code. Use arrow keys to navigate,
-                    Backspace to delete.
-                </p>
-                <PinInput
-                    {...args}
-                    value={internalValue()}
-                    onChange={(v) => {
-                        setInternalValue(v);
-                        args.onChange?.(v);
-                    }}
-                />
-                <div class="text-xs text-fg-muted text-center">
-                    <p>• Auto-focus on input</p>
-                    <p>• Paste support (Ctrl+V / Cmd+V)</p>
-                    <p>• Keyboard navigation</p>
-                    <p>• Screen reader friendly</p>
+            <>
+                <div class="mb-5">
+                    <Alert color="warning" variant="subtle">
+                        🚧 Pasting a code might not be working as expected.
+                    </Alert>
                 </div>
-            </div>
+                <div class="flex flex-col gap-4 items-center">
+                    <h3 class="text-lg font-semibold text-fg-main">
+                        Try the Pin Input
+                    </h3>
+                    <p class="text-sm text-fg-muted text-center max-w-[300px]">
+                        Type numbers or paste a code. Use arrow keys to
+                        navigate, Backspace to delete.
+                    </p>
+                    <PinInput
+                        {...args}
+                        value={internalValue()}
+                        onChange={(v) => {
+                            setInternalValue(v);
+                            args.onChange?.(v);
+                        }}
+                    />
+                    <div class="text-xs text-fg-muted text-center">
+                        <p>• Auto-focus on input</p>
+                        <p>• Paste support (Ctrl+V / Cmd+V)</p>
+                        <p>• Keyboard navigation</p>
+                        <p>• Screen reader friendly</p>
+                    </div>
+                </div>
+            </>
         );
     },
     args: {

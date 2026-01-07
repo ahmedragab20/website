@@ -37,7 +37,7 @@ const switchStyles = tv({
             },
             lg: {
                 track: "w-14 h-8",
-                knob: "w-6 h-6 left-0.5",
+                knob: "w-7 h-7 left-0.5",
             },
         },
         checked: {
@@ -62,7 +62,7 @@ const switchStyles = tv({
             checked: true,
             size: "sm",
             class: {
-                knob: "translate-x-3",
+                knob: "translate-x-4",
             },
         },
         {
@@ -127,7 +127,6 @@ export function Switch(
         }
     };
 
-    // Memoize styles to properly track reactive dependencies
     const styles = createMemo(() =>
         switchStyles({
             size: local.size,
