@@ -1,4 +1,21 @@
 - [ ] Select
+- [ ] Tables
+- [ ] Calendars
+- [ ] Pagination
+- [ ] Button Group
+- [ ] Carousels
 - [ ] Context Menu
 - [ ] Code Editor
 - [ ] Notification
+- [ ] Tabs
+- [ ] KBD + Shortcuts system
+- [ ] Resizable
+- [ ] Toggle and ToggleGroup
+- [ ] Skeleton
+- [ ] Menubar
+- [ ] RadioGroup
+- [ ] CheckboxGroup
+- [ ] Combobox
+- [ ] HoverCard
+- [ ] Timeline
+- [ ] Tiptap
