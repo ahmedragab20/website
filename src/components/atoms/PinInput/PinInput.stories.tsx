@@ -328,7 +328,7 @@ export const Interactive: Story = {
                     value={internalValue()}
                     onChange={(v) => {
                         setInternalValue(v);
-                        args.onChange?.(v);
+                        args?.onChange?.(v);
                     }}
                 />
                 <div class="text-xs text-fg-muted text-center">
