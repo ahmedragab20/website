@@ -67,6 +67,9 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 **Rule:** Use `<For>`, `<Show>`, `<Switch>`, `<Match>`, `<Index>` instead of `array.map`, ternary operators, or `if` statements inside JSX.
 
 - **Why:** Solid's control flow components are optimized for fine-grained updates. `Array.map` recreates all nodes on every update.
+- **Tip (For vs Index):**
+    - Use `<For each={items()}>` when iterating over **objects**. It keys by reference, so if the array order changes, DOM nodes are moved, not recreated.
+    - Use `<Index each={items()}>` when iterating over **primitives** (strings/numbers) or when the list length is stable and you standardly want to update values at specific indices without moving DOM nodes.
 - **Correct:**
     ```tsx
     <For each={items()}>{(item) => <div>{item.name}</div>}</For>
@@ -154,19 +157,81 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 
 ## 9. Advanced Reactivity Techniques
 
-### 9.1. Nested Reactivity with `createStore`
+### 9.1. Nested Reactivity & Path Syntax (createStore)
 
-**Rule:** Use `createStore` when dealing with nested objects or arrays where you want fine-grained updates for individual properties.
+**CRITICAL RULE:** When updating a store, **ALWAYS use path syntax** (`setStore('key', 'nested', value)`). **NEVER** use object spreading (`...`) to update the store at the top level or nested levels unless absolutely necessary for replacing an entire structure. Path syntax allows Solid to pinpoint exactly which property changed, ensuring fine-grained reactivity.
 
-- **Why:** `createSignal` triggers an update for the whole object when any part changes (if not mutated carefully), whereas `createStore` allows tracking specific properties.
-- **Example:**
+- **Why:** 
+    - Spreading (`{ ...state, count: 5 }`) creates a new object reference. This notifies *all* observers of the parent object, even if they only cared about unrelated properties.
+    - Path syntax (`setStore('count', 5)`) updates *only* the specific property, triggering *only* the effects that depend on that specific leaf node.
+
+- **Correct (Path Syntax):**
     ```tsx
-    const [state, setState] = createStore({ user: { name: "John", age: 25 } });
-    // Update only age
-    setState("user", "age", 26);
+    const [state, setState] = createStore({ 
+        user: { 
+            name: "John", 
+            settings: { theme: "dark", notifications: true } 
+        },
+        todos: [{ id: 1, text: "Buy milk", done: false }]
+    });
+
+    // Update nested property directly
+    setState("user", "settings", "theme", "light");
+
+    // Update array item by index
+    setState("todos", 0, "done", true);
+
+    // Update array items using a predicate (e.g., mark all as done)
+    setState("todos", (todo) => !todo.done, "done", true);
     ```
 
-### 9.2. `batch` for Performance
+- **Incorrect (Spreading):**
+    ```tsx
+    // BAD: Triggers updates for 'user' and everything inside it, even if only 'age' changed
+    setState({ 
+        ...state, 
+        user: { 
+            ...state.user, 
+            settings: { ...state.user.settings, theme: "light" } 
+        } 
+    });
+    ```
+
+    ```
+
+### 9.2. Store Utilities (`produce`, `reconcile`, `unwrap`)
+
+**Rule:** Use these utilities to handle complex store updates more efficiently.
+
+#### 9.2.1. `produce`
+- **Use when:** You want to modify a store using mutable style (like Immer), or need to update multiple properties at once without multiple path-setter calls.
+- **Example:**
+    ```tsx
+    import { produce } from "solid-js/store";
+    setState("users", index, produce((user) => {
+        user.name = "New Name";
+        user.active = true;
+    }));
+    ```
+
+#### 9.2.2. `reconcile`
+- **Use when:** You are replacing a large part of the store (e.g., from an API response) and want to keep references stable where data hasn't changed. This avoids recreating DOM nodes for unchanged items in a list.
+- **Example:**
+    ```tsx
+    import { reconcile } from "solid-js/store";
+    // Only updates 'animals' that actually changed/added/removed
+    setState("animals", reconcile(apiResponseList)); 
+    ```
+
+#### 9.2.3. `unwrap`
+- **Use when:** You need a non-reactive, raw JavaScript object snapshot of the store (e.g., for logging or passing to a 3rd party non-reactive library).
+- **Example:**
+    ```tsx
+    import { unwrap } from "solid-js/store";
+    console.log(unwrap(store.data)); 
+    ```
+
+### 9.3. `batch` for Performance
 
 **Rule:** Use `batch` when making multiple synchronous state updates to prevent unnecessary intermediate re-renders.
 
@@ -178,7 +243,7 @@ This guide outlines strict rules and best practices for generating SolidJS code.
     });
     ```
 
-### 9.3. `untrack`
+### 9.4. `untrack`
 
 **Rule:** Use `untrack` when you need to read a signal's value inside a tracking scope (like `createEffect`) WITHOUT subscribing to that signal.
 
@@ -233,45 +298,39 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 
 ## 11. Async & Resources
 
-### 11.1. `createResource`
+### 11.1. `createResource` (The Gold Standard)
 
-**Rule:** Use `createResource` for async data fetching. It integrates with `<Suspense>` automatically.
+**Rule:** Always use `createResource` for asynchronous data fetching (e.g., API calls). It integrates automatically with `<Suspense>` and `<ErrorBoundary>`.
 
+- **Why:** `createResource` manages the loading state, error state, and value automatically. It also handles race conditions (latest request wins) and integrates with Solid's SSR and hydration.
 - **Example:**
     ```tsx
-    const [data] = createResource(userId, fetchUser);
+    const [data, { mutate, refetch }] = createResource(sourceSignal, fetchDataFunction);
+    
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <div>{data()?.name}</div>
+            <ErrorBoundary fallback={(err) => <div>Error: {err.message}</div>}>
+                <div>{data()?.name}</div>
+            </ErrorBoundary>
         </Suspense>
     );
     ```
 
-## 12. Recommended Utilities
+### 11.2. Async in `createEffect`
 
-### 12.1. Solid Primitives
+**Rule:** `createEffect` functions are synchronous by default. If you need to perform async operations (that are NOT data fetching - for data fetching use Resources), be very careful about dependencies and cleanup.
 
-**Rule:** For common problems, check `@solid-primitives/*` before writing custom hooks.
+- **Warning:** `await` inside a `createEffect` breaks the tracking scope. Signals accessed *after* the `await` keyword will NOT be tracked as dependencies of the effect.
+- **Solution:** 
+    1. Read all necessary signals *synchronously* at the start of the effect.
+    2. Use `onCleanup` to handle cancellations or resetting state.
+    3. Use `on` (from `solid-js`) to make dependencies explicit if logic gets complex.
 
-- **Common Packages:**
-    - `@solid-primitives/resize-observer`: For element resizing.
-    - `@solid-primitives/intersection-observer`: For visibility checks.
-    - `@solid-primitives/media`: For media queries.
-    - `@solid-primitives/storage`: For reactive localStorage/sessionStorage.
-
-## 13. Animation (Solid Transition Group)
-
-### 13.1. Presence
-
-**Rule:** When animating mounting/unmounting, use `@solid-primitives/transition-group` or pure CSS animations triggered by class changes if possible. Do not manually manipulate DOM nodes for removal if `Show` or `For` can handle it.
-
-## 14. Summary Checklist for LLMs
-
-1.  [ ] Are direct prop accesses used instead of destructuring (`props.x`, not `const { x } = props`)?
-2.  [ ] Are signals called as functions (`val()`)?
-3.  [ ] Are control flow components (`<Show>`, `<For>`) used instead of JS equivalents?
-4.  [ ] Is `classList` used for conditional classes?
-5.  [ ] Are derived states implemented as functions or `createMemo`, avoiding `createEffect` for state synchronization?
-6.  [ ] Is `createStore` used for complex nested state?
-7.  [ ] Are `batch` and `untrack` used to optimize reactivity where appropriate?
-8.  [ ] Are Layout/Compound components using Context to share state instead of iterating children?
+- **Example (Explicit Dependencies with `on`):**
+    ```tsx
+    createEffect(on(userId, async (id) => {
+        // 'userId' is strictly tracked. 
+        // Anything accessed inside the async function is NOT tracked, which is often desired for async side-effects.
+        await doAsyncWork(id);
+    }));
+    ```
