@@ -12,7 +12,6 @@ const button = tv({
             link: "bg-transparent underline-offset-4",
         },
         color: {
-            primary: "",
             accent: "",
             success: "",
             warning: "",

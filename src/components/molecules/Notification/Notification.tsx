@@ -5,7 +5,8 @@ import {
     createSignal,
     type JSX,
 } from "solid-js";
-import type { NotificationData, NotificationVariant } from "./types";
+import { tv } from "tailwind-variants";
+import type { NotificationData } from "./types";
 import { Button } from "../../atoms/Button";
 
 interface NotificationProps {
@@ -16,24 +17,60 @@ interface NotificationProps {
     closeIcon?: JSX.Element;
 }
 
+const notificationStyles = tv({
+    base: [
+        "relative w-full rounded-lg shadow-lg",
+        "border border-ui-border bg-secondary",
+        "text-fg-main cursor-pointer overflow-hidden",
+        "transition-all duration-300 ease-out",
+        "hover:shadow-xl focus-visible:outline focus-visible:outline-2",
+        "focus-visible:outline-accent focus-visible:outline-offset-2",
+    ],
+    variants: {
+        variant: {
+            info: "border-l-4 border-l-accent bg-accent/5",
+            success: "border-l-4 border-l-success bg-success/5",
+            warning: "border-l-4 border-l-warning bg-warning/5",
+            error: "border-l-4 border-l-error bg-error/5",
+        },
+        isExiting: {
+            true: "opacity-0 scale-95 translate-x-4",
+            false: "opacity-100 scale-100 translate-x-0",
+        },
+    },
+    defaultVariants: {
+        variant: "info",
+        isExiting: false,
+    },
+});
+
+const progressBarStyles = tv({
+    base: "absolute bottom-0 left-0 right-0 h-1 bg-fg-main/10",
+    variants: {
+        variant: {
+            info: "",
+            success: "",
+            warning: "",
+            error: "",
+        },
+    },
+});
+
+const progressFillStyles = tv({
+    base: "h-full transition-all duration-100 ease-linear",
+    variants: {
+        variant: {
+            info: "bg-accent/30",
+            success: "bg-success/30",
+            warning: "bg-warning/30",
+            error: "bg-error/30",
+        },
+    },
+});
+
 export function Notification(props: NotificationProps) {
     const [progress, setProgress] = createSignal(100);
-    const [isPaused, setIsPaused] = createSignal(false);
     const [isExiting, setIsExiting] = createSignal(false);
-    let progressInterval: number | undefined;
-    let startTime: number;
-    let pausedAt: number | null = null;
-
-    const getVariantClasses = (variant?: NotificationVariant) => {
-        const baseClasses = "notification-item shadow-lg";
-        const variantClasses = {
-            info: "border border-blue-200 bg-blue-50 text-blue-900",
-            success: "border border-green-200 bg-green-50 text-green-900",
-            warning: "border border-yellow-200 bg-yellow-50 text-yellow-900",
-            error: "border border-red-200 bg-red-50 text-red-900",
-        };
-        return `${baseClasses} ${variantClasses[variant || "info"]}`;
-    };
 
     const handleClick = (e: MouseEvent) => {
         e.stopPropagation();
@@ -53,61 +90,63 @@ export function Notification(props: NotificationProps) {
 
     const handleDismiss = () => {
         setIsExiting(true);
-        setTimeout(() => {
+        // Match CSS transition duration (300ms)
+        if (typeof window !== "undefined") {
+            window.setTimeout(() => {
+                props.onDismiss();
+            }, 300);
+        } else {
             props.onDismiss();
-        }, 300); // Match exit animation duration
-    };
-
-    const pauseProgress = () => {
-        if (!isPaused() && !props.data.persisted) {
-            pausedAt = Date.now();
-            setIsPaused(true);
         }
     };
 
-    const resumeProgress = () => {
-        if (isPaused() && !props.data.persisted && pausedAt) {
-            startTime += Date.now() - pausedAt;
-            pausedAt = null;
-            setIsPaused(false);
-        }
-    };
-
-    // Progress indicator and auto-dismiss logic
+    // Auto-dismiss logic with SSR guard
     createEffect(() => {
-        if (props.data.duration && !props.data.persisted) {
-            startTime = Date.now();
-            const duration = props.data.duration;
-            const interval = 50; // Update every 50ms
+        if (typeof window === "undefined") return;
+        if (!props.data.duration || props.data.persisted) return;
 
-            progressInterval = setInterval(() => {
-                if (!isPaused()) {
-                    const elapsed = pausedAt
-                        ? pausedAt - startTime
-                        : Date.now() - startTime;
-                    const remaining = Math.max(0, duration - elapsed);
-                    const progressPercent = (remaining / duration) * 100;
+        const duration = props.data.duration;
+        const startTime = Date.now();
+        const interval = 50; // Update every 50ms
 
-                    setProgress(progressPercent);
+        const intervalId = window.setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, duration - elapsed);
+            const progressPercent = (remaining / duration) * 100;
 
-                    if (remaining <= 0) {
-                        clearInterval(progressInterval);
-                        handleDismiss();
-                    }
-                }
-            }, interval) as unknown as number;
+            setProgress(progressPercent);
 
-            onCleanup(() => {
-                if (progressInterval) {
-                    clearInterval(progressInterval);
-                }
-            });
-        }
+            if (remaining <= 0) {
+                window.clearInterval(intervalId);
+                handleDismiss();
+            }
+        }, interval);
+
+        onCleanup(() => {
+            if (typeof window !== "undefined") {
+                window.clearInterval(intervalId);
+            }
+        });
     });
+
+    const getVariantClass = () => {
+        return notificationStyles({
+            variant: props.data.variant,
+            isExiting: isExiting(),
+        });
+    };
+
+    const getProgressBarClass = () => {
+        return progressBarStyles({ variant: props.data.variant });
+    };
+
+    const getProgressFillClass = () => {
+        return progressFillStyles({ variant: props.data.variant });
+    };
 
     return (
         <div
-            class={`${getVariantClasses(props.data.variant)} ${isExiting() ? "exiting" : ""}`}
+            class={getVariantClass()}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             role="alert"
@@ -115,10 +154,7 @@ export function Notification(props: NotificationProps) {
             aria-atomic="true"
             aria-label={props.data.title || "Notification"}
             data-notification-id={props.data.id}
-            onMouseEnter={pauseProgress}
-            onMouseLeave={resumeProgress}
-            onFocus={pauseProgress}
-            onBlur={resumeProgress}
+            data-is-front={props.isFront}
             tabIndex={0}
         >
             <Show
@@ -149,15 +185,15 @@ export function Notification(props: NotificationProps) {
 
             {/* Progress indicator for auto-dismiss notifications */}
             <Show when={props.data.duration && !props.data.persisted}>
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
+                <div class={getProgressBarClass()}>
                     <div
-                        class="h-full bg-current opacity-30 transition-all duration-50"
+                        class={getProgressFillClass()}
                         style={{ width: `${progress()}%` }}
                     />
                 </div>
             </Show>
 
-            {/* Close button for all notification types */}
+            {/* Close button */}
             <div
                 class="absolute top-2 right-2 z-10"
                 onClick={(e) => e.stopPropagation()}
@@ -165,7 +201,7 @@ export function Notification(props: NotificationProps) {
                 <Button
                     variant="text"
                     size="sm"
-                    class="p-1! h-6 w-6 min-h-0 min-w-0 flex items-center justify-center opacity-60 hover:opacity-100 focus:opacity-100"
+                    class="p-1! h-6 w-6 min-h-0 min-w-0 flex items-center justify-center opacity-60 hover:opacity-100 focus:opacity-100 transition-opacity"
                     onClick={handleDismiss}
                     aria-label={`Close ${props.data.title ? props.data.title : "notification"}`}
                 >
