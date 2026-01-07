@@ -2,7 +2,25 @@ import { createSignal, createEffect } from "solid-js";
 import { fn } from "storybook/test";
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { PinInput, type PinInputProps } from "./PinInput";
-import { Alert } from "../Alert";
+
+const PinInputWithState = (props: PinInputProps) => {
+    const [value, setValue] = createSignal<string[]>([]);
+
+    createEffect(() => {
+        setValue(props.value);
+    });
+
+    return (
+        <PinInput
+            {...props}
+            value={value()}
+            onChange={(v) => {
+                setValue(v);
+                props.onChange?.(v);
+            }}
+        />
+    );
+};
 
 /**
  * Pin input component for entering verification codes or PINs.
@@ -80,6 +98,7 @@ const meta = {
         onChange: fn(),
         onComplete: fn(),
     },
+    render: (args) => <PinInputWithState {...(args as PinInputProps)} />,
 } satisfies Meta<typeof PinInput>;
 
 export default meta;
@@ -218,7 +237,7 @@ export const WithDescription: Story = {
     },
     render: (args: Story["args"]) => (
         <div class="flex flex-col gap-2">
-            <PinInput {...(args as PinInputProps)} />
+            <PinInputWithState {...(args as PinInputProps)} />
             <p id="pin-help" class="text-sm text-fg-muted">
                 Enter the 4-digit code sent to your phone
             </p>
@@ -241,7 +260,7 @@ export const InForm: Story = {
                 <label class="block text-sm font-medium mb-2 text-fg-main">
                     Verification Code
                 </label>
-                <PinInput
+                <PinInputWithState
                     {...(args as PinInputProps)}
                     aria-label="Verification code"
                     aria-describedby="code-help"
@@ -271,7 +290,7 @@ export const WithCompletion: Story = {
     render: (args: Story["args"]) => {
         return (
             <div class="flex flex-col gap-4">
-                <PinInput {...(args as PinInputProps)} />
+                <PinInputWithState {...(args as PinInputProps)} />
             </div>
         );
     },
@@ -296,36 +315,29 @@ export const Interactive: Story = {
         createEffect(() => setInternalValue(args?.value || []));
 
         return (
-            <>
-                <div class="mb-5">
-                    <Alert color="warning" variant="subtle">
-                        🚧 Pasting a code might not be working as expected.
-                    </Alert>
+            <div class="flex flex-col gap-4 items-center">
+                <h3 class="text-lg font-semibold text-fg-main">
+                    Try the Pin Input
+                </h3>
+                <p class="text-sm text-fg-muted text-center max-w-75">
+                    Type numbers or paste a code. Use arrow keys to navigate,
+                    Backspace to delete.
+                </p>
+                <PinInput
+                    {...args}
+                    value={internalValue()}
+                    onChange={(v) => {
+                        setInternalValue(v);
+                        args.onChange?.(v);
+                    }}
+                />
+                <div class="text-xs text-fg-muted text-center">
+                    <p>• Auto-focus on input</p>
+                    <p>• Paste support (Ctrl+V / Cmd+V)</p>
+                    <p>• Keyboard navigation</p>
+                    <p>• Screen reader friendly</p>
                 </div>
-                <div class="flex flex-col gap-4 items-center">
-                    <h3 class="text-lg font-semibold text-fg-main">
-                        Try the Pin Input
-                    </h3>
-                    <p class="text-sm text-fg-muted text-center max-w-[300px]">
-                        Type numbers or paste a code. Use arrow keys to
-                        navigate, Backspace to delete.
-                    </p>
-                    <PinInput
-                        {...args}
-                        value={internalValue()}
-                        onChange={(v) => {
-                            setInternalValue(v);
-                            args.onChange?.(v);
-                        }}
-                    />
-                    <div class="text-xs text-fg-muted text-center">
-                        <p>• Auto-focus on input</p>
-                        <p>• Paste support (Ctrl+V / Cmd+V)</p>
-                        <p>• Keyboard navigation</p>
-                        <p>• Screen reader friendly</p>
-                    </div>
-                </div>
-            </>
+            </div>
         );
     },
     args: {

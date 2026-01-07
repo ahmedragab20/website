@@ -159,7 +159,7 @@ export const Group: Story = {
 
 export const InUserCard: Story = {
     render: () => (
-        <div class="p-6 rounded-lg bg-secondary border border-ui-border w-[300px]">
+        <div class="p-6 rounded-lg bg-secondary border border-ui-border w-75">
             <div class="flex gap-4">
                 <Avatar alt="John Doe" size="lg" />
                 <div class="flex-1">

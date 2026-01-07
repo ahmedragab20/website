@@ -1,4 +1,4 @@
-import { splitProps, createSignal, For } from "solid-js";
+import { splitProps, createSignal, Index, batch } from "solid-js";
 import { tv } from "tailwind-variants";
 
 const pinInput = tv({
@@ -213,16 +213,16 @@ export function PinInput(props: PinInputProps) {
             dataIndex++;
         }
 
-        local.onChange(updatedValue);
-
         // Calculate focus position (after the last pasted digit)
         const nextIndex = Math.min(index + numericData.length, pinLength() - 1);
 
-        setFocusedIndex(nextIndex);
-        inputRefs[nextIndex]?.focus();
+        batch(() => {
+            local.onChange(updatedValue);
+            setFocusedIndex(nextIndex);
+        });
 
-        // If we filled the last digit, select it? Or just focus?
-        // Existing behavior was select.
+        // Focus the next input
+        inputRefs[nextIndex]?.focus();
         inputRefs[nextIndex]?.select();
 
         // Call onComplete when all fields are filled
@@ -251,40 +251,40 @@ export function PinInput(props: PinInputProps) {
             aria-describedby={local["aria-describedby"]}
             aria-invalid={local.error || local["aria-invalid"]}
         >
-            <For each={Array(pinLength()).fill(null)}>
+            <Index each={Array(pinLength()).fill(null)}>
                 {(_, index) => (
                     <input
-                        ref={(el) => (inputRefs[index()] = el)}
+                        ref={(el) => (inputRefs[index] = el)}
                         type="text"
                         inputmode="numeric"
                         pattern="[0-9]*"
                         maxlength="1"
                         autocomplete={local.autocomplete || "one-time-code"}
-                        value={local.value[index()] || ""}
-                        onInput={[handleInput, index()]}
-                        onKeyDown={[handleKeyDown, index()]}
-                        onFocus={[handleFocus, index()]}
+                        value={local.value[index] || ""}
+                        onInput={[handleInput, index]}
+                        onKeyDown={[handleKeyDown, index]}
+                        onFocus={[handleFocus, index]}
                         onBlur={handleBlur}
-                        onPaste={[handlePaste, index()]}
+                        onPaste={[handlePaste, index]}
                         disabled={local.disabled}
                         placeholder={local.placeholder}
-                        aria-label={`Digit ${index() + 1} of ${pinLength()}`}
+                        aria-label={`Digit ${index + 1} of ${pinLength()}`}
                         aria-required="true"
                         aria-invalid={
                             local.error ||
                             local["aria-invalid"] ||
-                            !local.value[index()]
+                            !local.value[index]
                         }
                         class={pinInputField({
                             size: local.size,
                             state: inputState(),
                         })}
-                        data-index={index()}
-                        data-filled={!!local.value[index()]}
-                        data-focused={focusedIndex() === index()}
+                        data-index={index}
+                        data-filled={!!local.value[index]}
+                        data-focused={focusedIndex() === index}
                     />
                 )}
-            </For>
+            </Index>
         </div>
     );
 }
