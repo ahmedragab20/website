@@ -161,18 +161,19 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 
 **CRITICAL RULE:** When updating a store, **ALWAYS use path syntax** (`setStore('key', 'nested', value)`). **NEVER** use object spreading (`...`) to update the store at the top level or nested levels unless absolutely necessary for replacing an entire structure. Path syntax allows Solid to pinpoint exactly which property changed, ensuring fine-grained reactivity.
 
-- **Why:** 
-    - Spreading (`{ ...state, count: 5 }`) creates a new object reference. This notifies *all* observers of the parent object, even if they only cared about unrelated properties.
-    - Path syntax (`setStore('count', 5)`) updates *only* the specific property, triggering *only* the effects that depend on that specific leaf node.
+- **Why:**
+    - Spreading (`{ ...state, count: 5 }`) creates a new object reference. This notifies _all_ observers of the parent object, even if they only cared about unrelated properties.
+    - Path syntax (`setStore('count', 5)`) updates _only_ the specific property, triggering _only_ the effects that depend on that specific leaf node.
 
 - **Correct (Path Syntax):**
+
     ```tsx
-    const [state, setState] = createStore({ 
-        user: { 
-            name: "John", 
-            settings: { theme: "dark", notifications: true } 
+    const [state, setState] = createStore({
+        user: {
+            name: "John",
+            settings: { theme: "dark", notifications: true },
         },
-        todos: [{ id: 1, text: "Buy milk", done: false }]
+        todos: [{ id: 1, text: "Buy milk", done: false }],
     });
 
     // Update nested property directly
@@ -186,15 +187,18 @@ This guide outlines strict rules and best practices for generating SolidJS code.
     ```
 
 - **Incorrect (Spreading):**
+
     ```tsx
     // BAD: Triggers updates for 'user' and everything inside it, even if only 'age' changed
-    setState({ 
-        ...state, 
-        user: { 
-            ...state.user, 
-            settings: { ...state.user.settings, theme: "light" } 
-        } 
+    setState({
+        ...state,
+        user: {
+            ...state.user,
+            settings: { ...state.user.settings, theme: "light" },
+        },
     });
+    ```
+
     ```
 
     ```
@@ -204,31 +208,38 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 **Rule:** Use these utilities to handle complex store updates more efficiently.
 
 #### 9.2.1. `produce`
+
 - **Use when:** You want to modify a store using mutable style (like Immer), or need to update multiple properties at once without multiple path-setter calls.
 - **Example:**
     ```tsx
     import { produce } from "solid-js/store";
-    setState("users", index, produce((user) => {
-        user.name = "New Name";
-        user.active = true;
-    }));
+    setState(
+        "users",
+        index,
+        produce((user) => {
+            user.name = "New Name";
+            user.active = true;
+        })
+    );
     ```
 
 #### 9.2.2. `reconcile`
+
 - **Use when:** You are replacing a large part of the store (e.g., from an API response) and want to keep references stable where data hasn't changed. This avoids recreating DOM nodes for unchanged items in a list.
 - **Example:**
     ```tsx
     import { reconcile } from "solid-js/store";
     // Only updates 'animals' that actually changed/added/removed
-    setState("animals", reconcile(apiResponseList)); 
+    setState("animals", reconcile(apiResponseList));
     ```
 
 #### 9.2.3. `unwrap`
+
 - **Use when:** You need a non-reactive, raw JavaScript object snapshot of the store (e.g., for logging or passing to a 3rd party non-reactive library).
 - **Example:**
     ```tsx
     import { unwrap } from "solid-js/store";
-    console.log(unwrap(store.data)); 
+    console.log(unwrap(store.data));
     ```
 
 ### 9.3. `batch` for Performance
@@ -304,9 +315,13 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 
 - **Why:** `createResource` manages the loading state, error state, and value automatically. It also handles race conditions (latest request wins) and integrates with Solid's SSR and hydration.
 - **Example:**
+
     ```tsx
-    const [data, { mutate, refetch }] = createResource(sourceSignal, fetchDataFunction);
-    
+    const [data, { mutate, refetch }] = createResource(
+        sourceSignal,
+        fetchDataFunction
+    );
+
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <ErrorBoundary fallback={(err) => <div>Error: {err.message}</div>}>
@@ -320,17 +335,19 @@ This guide outlines strict rules and best practices for generating SolidJS code.
 
 **Rule:** `createEffect` functions are synchronous by default. If you need to perform async operations (that are NOT data fetching - for data fetching use Resources), be very careful about dependencies and cleanup.
 
-- **Warning:** `await` inside a `createEffect` breaks the tracking scope. Signals accessed *after* the `await` keyword will NOT be tracked as dependencies of the effect.
-- **Solution:** 
-    1. Read all necessary signals *synchronously* at the start of the effect.
+- **Warning:** `await` inside a `createEffect` breaks the tracking scope. Signals accessed _after_ the `await` keyword will NOT be tracked as dependencies of the effect.
+- **Solution:**
+    1. Read all necessary signals _synchronously_ at the start of the effect.
     2. Use `onCleanup` to handle cancellations or resetting state.
     3. Use `on` (from `solid-js`) to make dependencies explicit if logic gets complex.
 
 - **Example (Explicit Dependencies with `on`):**
     ```tsx
-    createEffect(on(userId, async (id) => {
-        // 'userId' is strictly tracked. 
-        // Anything accessed inside the async function is NOT tracked, which is often desired for async side-effects.
-        await doAsyncWork(id);
-    }));
+    createEffect(
+        on(userId, async (id) => {
+            // 'userId' is strictly tracked.
+            // Anything accessed inside the async function is NOT tracked, which is often desired for async side-effects.
+            await doAsyncWork(id);
+        })
+    );
     ```
