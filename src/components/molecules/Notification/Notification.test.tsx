@@ -5,6 +5,9 @@ import type { NotificationData } from "./types";
 
 describe("Notification", () => {
     const mockDismiss = vi.fn();
+    // ...
+    // deleted duplicate test
+
     const mockExpand = vi.fn();
     const mockCloseIcon = <span>×</span>;
 
@@ -28,7 +31,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -46,7 +50,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -61,7 +66,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -72,10 +78,10 @@ describe("Notification", () => {
 
     describe("Variants", () => {
         const variantMap = {
-            info: "border-l-accent",
-            success: "border-l-success",
-            warning: "border-l-warning",
-            error: "border-l-error",
+            info: "bg-secondary/95",
+            success: "bg-success/5",
+            warning: "bg-warning/5",
+            error: "bg-error/5",
         } as const;
 
         Object.entries(variantMap).forEach(([variant, expectedClass]) => {
@@ -88,7 +94,8 @@ describe("Notification", () => {
                         data={data}
                         onDismiss={mockDismiss}
                         onExpand={mockExpand}
-                        isFront={true}
+                        stackIndex={0}
+                        isExpanded={false}
                         closeIcon={mockCloseIcon}
                     />
                 ));
@@ -112,12 +119,13 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
 
-            const progressBar = container.querySelector(".bg-fg-main\\/10");
+            const progressBar = container.querySelector(".bg-fg-main\\/5");
             expect(progressBar).toBeInTheDocument();
         });
 
@@ -131,12 +139,13 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
 
-            const progressBar = container.querySelector(".bg-fg-main\\/10");
+            const progressBar = container.querySelector(".bg-fg-main\\/5");
             expect(progressBar).not.toBeInTheDocument();
         });
 
@@ -149,25 +158,27 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
 
-            const progressBar = container.querySelector(".bg-fg-main\\/10");
+            const progressBar = container.querySelector(".bg-fg-main\\/5");
             expect(progressBar).not.toBeInTheDocument();
         });
     });
 
     describe("Interactions", () => {
-        it("calls onExpand when clicked and isFront is true", () => {
+        it("calls onExpand when clicked and stackIndex is 0", () => {
             const data = createNotificationData();
             render(() => (
                 <Notification
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -178,7 +189,7 @@ describe("Notification", () => {
             expect(mockExpand).toHaveBeenCalledTimes(1);
         });
 
-        it("does not call onExpand when clicked and isFront is false", () => {
+        it("does not call onExpand when clicked and stackIndex is 1", () => {
             const localMockExpand = vi.fn();
             const data = createNotificationData();
             render(() => (
@@ -186,7 +197,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={localMockExpand}
-                    isFront={false}
+                    stackIndex={1}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -198,14 +210,14 @@ describe("Notification", () => {
         });
 
         it("calls onDismiss when close button is clicked", () => {
-            vi.useFakeTimers();
             const data = createNotificationData();
             render(() => (
                 <Notification
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -215,11 +227,8 @@ describe("Notification", () => {
             });
             closeButton.click();
 
-            // Wait for animation duration
-            vi.advanceTimersByTime(300);
-
+            // Should be called immediately now
             expect(mockDismiss).toHaveBeenCalledTimes(1);
-            vi.useRealTimers();
         });
     });
 
@@ -231,7 +240,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -249,7 +259,8 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
@@ -265,13 +276,14 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
 
             const closeButton = screen.getByRole("button", {
-                name: "Close Important",
+                name: /Close Important/i,
             });
             expect(closeButton).toBeInTheDocument();
         });
@@ -285,13 +297,14 @@ describe("Notification", () => {
                     data={data}
                     onDismiss={mockDismiss}
                     onExpand={mockExpand}
-                    isFront={true}
+                    stackIndex={0}
+                    isExpanded={false}
                     closeIcon={mockCloseIcon}
                 />
             ));
 
             const element = container.querySelector("[data-notification-id]");
-            expect(element?.className).toContain("border-l-accent");
+            expect(element?.className).toContain("bg-secondary/95");
         });
     });
 });

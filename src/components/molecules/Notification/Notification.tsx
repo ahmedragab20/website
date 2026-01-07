@@ -1,8 +1,8 @@
 import {
     Show,
     createEffect,
-    onCleanup,
     createSignal,
+    onCleanup,
     type JSX,
 } from "solid-js";
 import { tv } from "tailwind-variants";
@@ -13,39 +13,35 @@ interface NotificationProps {
     data: NotificationData;
     onDismiss: () => void;
     onExpand: () => void;
-    isFront: boolean;
+    stackIndex: number;
+    isExpanded: boolean;
     closeIcon?: JSX.Element;
 }
 
 const notificationStyles = tv({
     base: [
-        "relative w-full rounded-lg shadow-lg",
-        "border border-ui-border bg-secondary",
-        "text-fg-main cursor-pointer overflow-hidden",
-        "transition-all duration-300 ease-out",
+        "relative w-full rounded-xl overflow-hidden",
+        "border backdrop-blur-md shadow-lg",
+        "cursor-pointer select-none",
+        "transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
         "hover:shadow-xl focus-visible:outline focus-visible:outline-2",
         "focus-visible:outline-accent focus-visible:outline-offset-2",
     ],
     variants: {
         variant: {
-            info: "border-l-4 border-l-accent bg-accent/5",
-            success: "border-l-4 border-l-success bg-success/5",
-            warning: "border-l-4 border-l-warning bg-warning/5",
-            error: "border-l-4 border-l-error bg-error/5",
-        },
-        isExiting: {
-            true: "opacity-0 scale-95 translate-x-4",
-            false: "opacity-100 scale-100 translate-x-0",
+            info: "bg-secondary/95 border-ui-border text-fg-main",
+            success: "bg-success/5 border-success/20 text-fg-main",
+            warning: "bg-warning/5 border-warning/20 text-fg-main",
+            error: "bg-error/5 border-error/20 text-fg-main",
         },
     },
     defaultVariants: {
         variant: "info",
-        isExiting: false,
     },
 });
 
 const progressBarStyles = tv({
-    base: "absolute bottom-0 left-0 right-0 h-1 bg-fg-main/10",
+    base: "absolute bottom-0 left-0 right-0 h-1 bg-fg-main/5",
     variants: {
         variant: {
             info: "",
@@ -60,21 +56,30 @@ const progressFillStyles = tv({
     base: "h-full transition-all duration-100 ease-linear",
     variants: {
         variant: {
-            info: "bg-accent/30",
-            success: "bg-success/30",
-            warning: "bg-warning/30",
-            error: "bg-error/30",
+            info: "bg-accent",
+            success: "bg-success",
+            warning: "bg-warning",
+            error: "bg-error",
         },
     },
 });
 
 export function Notification(props: NotificationProps) {
     const [progress, setProgress] = createSignal(100);
-    const [isExiting, setIsExiting] = createSignal(false);
+    // Track the last valid stack index for smooth exit animations
+    const [lastStackIndex, setLastStackIndex] = createSignal(0);
+
+    createEffect(() => {
+        if (props.stackIndex !== -1) {
+            setLastStackIndex(props.stackIndex);
+        }
+    });
+
+    const isTop = () => props.stackIndex === 0;
 
     const handleClick = (e: MouseEvent) => {
         e.stopPropagation();
-        if (props.isFront) {
+        if (isTop() && !props.isExpanded) {
             props.onExpand();
         }
     };
@@ -82,28 +87,21 @@ export function Notification(props: NotificationProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            if (props.isFront) {
+            if (isTop() && !props.isExpanded) {
                 props.onExpand();
             }
-        }
-    };
-
-    const handleDismiss = () => {
-        setIsExiting(true);
-        // Match CSS transition duration (300ms)
-        if (typeof window !== "undefined") {
-            window.setTimeout(() => {
-                props.onDismiss();
-            }, 300);
-        } else {
-            props.onDismiss();
         }
     };
 
     // Auto-dismiss logic with SSR guard
     createEffect(() => {
         if (typeof window === "undefined") return;
-        if (!props.data.duration || props.data.persisted) return;
+        if (
+            !props.data.duration ||
+            props.data.persisted ||
+            props.data.isExiting
+        )
+            return;
 
         const duration = props.data.duration;
         const startTime = Date.now();
@@ -118,7 +116,7 @@ export function Notification(props: NotificationProps) {
 
             if (remaining <= 0) {
                 window.clearInterval(intervalId);
-                handleDismiss();
+                props.onDismiss();
             }
         }, interval);
 
@@ -129,24 +127,58 @@ export function Notification(props: NotificationProps) {
         });
     });
 
-    const getVariantClass = () => {
-        return notificationStyles({
-            variant: props.data.variant,
-            isExiting: isExiting(),
-        });
-    };
+    // Dynamic styles for stack animation
+    const getStyle = () => {
+        // Expanded state: no transforms, just normal flow
+        if (props.isExpanded && !props.data.isExiting) {
+            return {
+                transform: "none",
+                opacity: 1,
+                "pointer-events": "auto",
+            };
+        }
 
-    const getProgressBarClass = () => {
-        return progressBarStyles({ variant: props.data.variant });
-    };
+        const isExiting = props.data.isExiting;
+        // Use current index if valid, otherwise use last known index
+        const index = isExiting ? lastStackIndex() : props.stackIndex;
 
-    const getProgressFillClass = () => {
-        return progressFillStyles({ variant: props.data.variant });
+        // Stack visual parameters
+        const yOffset = isExiting ? index * 12 : index * 12; // 12px gap
+        const scale = 1 - index * 0.05;
+        const opacity = Math.max(0, 1 - index * 0.2);
+
+        // CSS transforms
+        let transform = `translateY(-${yOffset}px) scale(${scale})`;
+
+        // Exit animation override
+        if (isExiting) {
+            transform = `translateY(-${yOffset}px) translateX(20px) scale(${scale * 0.9})`;
+            return {
+                transform,
+                opacity: 0,
+                "pointer-events": "none",
+            };
+        }
+
+        // Hidden items deep in stack
+        if (index > 2) {
+            return {
+                transform: `translateY(-${3 * 12}px) scale(${1 - 3 * 0.05})`,
+                opacity: 0,
+                "pointer-events": "none",
+            };
+        }
+
+        return {
+            transform,
+            opacity,
+        };
     };
 
     return (
         <div
-            class={getVariantClass()}
+            class={notificationStyles({ variant: props.data.variant })}
+            style={getStyle() as JSX.CSSProperties}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             role="alert"
@@ -154,60 +186,75 @@ export function Notification(props: NotificationProps) {
             aria-atomic="true"
             aria-label={props.data.title || "Notification"}
             data-notification-id={props.data.id}
-            data-is-front={props.isFront}
             tabIndex={0}
         >
-            <Show
-                when={props.data.children}
-                fallback={
-                    <div class="p-4 pr-10">
-                        <Show when={props.data.title}>
-                            <h4
-                                class="text-sm font-semibold mb-1"
-                                id={`notification-title-${props.data.id}`}
-                            >
-                                {props.data.title}
-                            </h4>
-                        </Show>
-                        <Show when={props.data.description}>
-                            <p
-                                class="text-sm opacity-90"
-                                id={`notification-desc-${props.data.id}`}
-                            >
-                                {props.data.description}
-                            </p>
-                        </Show>
-                    </div>
-                }
-            >
-                {props.data.children}
-            </Show>
+            <div class="flex items-start gap-3 p-4">
+                {/* Icon based on variant could go here */}
 
-            {/* Progress indicator for auto-dismiss notifications */}
+                <div class="flex-1 min-w-0">
+                    <Show when={props.data.title}>
+                        <h4
+                            class="text-sm font-semibold mb-1 leading-none"
+                            id={`notification-title-${props.data.id}`}
+                        >
+                            {props.data.title}
+                        </h4>
+                    </Show>
+                    <Show when={props.data.description}>
+                        <p
+                            class="text-sm opacity-90 leading-relaxed"
+                            id={`notification-desc-${props.data.id}`}
+                        >
+                            {props.data.description}
+                        </p>
+                    </Show>
+                    <Show when={props.data.children}>
+                        <div class="pt-1">{props.data.children}</div>
+                    </Show>
+                </div>
+
+                <div
+                    class="shrink-0 -mr-1 -mt-1"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <Button
+                        variant="text"
+                        size="sm"
+                        class="h-6 w-6 p-0 rounded-full hover:bg-fg-main/10"
+                        onClick={() => props.onDismiss()}
+                        aria-label={`Close ${props.data.title || "notification"}`}
+                    >
+                        {props.closeIcon || (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                        )}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Progress indicator */}
             <Show when={props.data.duration && !props.data.persisted}>
-                <div class={getProgressBarClass()}>
+                <div class={progressBarStyles({ variant: props.data.variant })}>
                     <div
-                        class={getProgressFillClass()}
+                        class={progressFillStyles({
+                            variant: props.data.variant,
+                        })}
                         style={{ width: `${progress()}%` }}
                     />
                 </div>
             </Show>
-
-            {/* Close button */}
-            <div
-                class="absolute top-2 right-2 z-10"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <Button
-                    variant="text"
-                    size="sm"
-                    class="p-1! h-6 w-6 min-h-0 min-w-0 flex items-center justify-center opacity-60 hover:opacity-100 focus:opacity-100 transition-opacity"
-                    onClick={handleDismiss}
-                    aria-label={`Close ${props.data.title ? props.data.title : "notification"}`}
-                >
-                    {props.closeIcon}
-                </Button>
-            </div>
         </div>
     );
 }

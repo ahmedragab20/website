@@ -5,42 +5,39 @@
    ============================================ */
 
 .notification-viewport {
-    position: fixed !important;
+    /* Popover Top Layer positioning */
+    inset: auto 1.5rem 1.5rem auto; /* bottom-right */
+    margin: 0 !important; /* Reset browser default */
+    border: none;
+    padding: 0;
+    
+    /* Layout */
+    position: fixed;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column; /* Oldest (top) to Newest (bottom) */
+    justify-content: flex-end;
+    
+    /* Sizing */
     width: 24rem; /* w-96 */
     max-width: 100vw;
-    /* Bottom-right placement always */
-    bottom: 1.5rem; /* 24px */
-    right: 1.5rem; /* 24px */
-    /* Ensure it grows upwards */
     height: auto;
-    max-height: calc(100vh - 3rem); /* Account for top and bottom inset */
-
+    max-height: calc(100vh - 3rem);
+    
+    /* Behavior */
     pointer-events: none;
-    contain: layout style;
-    margin: 0 !important;
-    border: none;
     background: transparent;
     overflow: visible;
-    z-index: 9999;
-    padding: 0;
-
-    /* Override popover default positioning */
-    inset: unset !important;
-    top: auto !important;
-    left: auto !important;
-
-    /* Transition for smooth layout changes */
-    transition: gap 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    contain: layout style;
+    
+    /* Transition */
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* Responsive design */
 @media (max-width: 480px) {
     .notification-viewport {
         width: calc(100vw - 2rem);
-        bottom: 1rem;
-        right: 1rem;
+        inset: auto 1rem 1rem auto;
         max-height: calc(100vh - 2rem);
     }
 }
@@ -49,21 +46,30 @@
 .notification-viewport:not(.expanded) {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 7.5rem; /* 120px stack height */
-    gap: 0;
+    grid-template-rows: 1fr;
+    /* Align stack to bottom-right */
     align-items: end;
     justify-items: end;
 }
 
 /* Expanded state - scrollable list */
 .notification-viewport.expanded {
+    /* Reset grid to flex */
+    display: flex;
     gap: 0.625rem; /* 10px */
+    
     pointer-events: auto;
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 0.625rem;
+    
+    /* Adjust for scrollbar spacing */
     margin-right: -0.625rem;
     margin-bottom: -0.625rem;
+
+    /* Reveal scrollbar gently */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 /* ============================================
@@ -74,25 +80,23 @@
     pointer-events: auto;
     position: relative;
     width: 100%;
-    /* Ensure it sits in the layout correctly */
-    transform-origin: bottom right;
+    transform-origin: bottom center;
+    /* Transitions are handled by component style prop */
+    will-change: transform, opacity;
+    
+    /* Entry animation */
+    animation: notification-entry 0.4s cubic-bezier(0.25, 1, 0.5, 1) backwards;
 }
 
-/* Entry animation using @starting-style */
-@starting-style {
-    .notification-item {
+@keyframes notification-entry {
+    from {
         opacity: 0;
-        transform: translateX(1.25rem) translateY(0.625rem) scale(0.95);
+        transform: translateY(20px) scale(0.95);
     }
-}
-
-/* Hover and focus states */
-.notification-item:hover,
-.notification-item:focus-visible {
-    box-shadow:
-        0 0.5rem 0.75rem -0.0625rem rgba(0, 0, 0, 0.15),
-        0 0.25rem 0.5rem -0.0625rem rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* ============================================
@@ -100,64 +104,16 @@
    ============================================ */
 
 /* All items in same grid cell for stacking */
-.notification-viewport:not(.expanded) .notification-item {
+.notification-viewport:not(.expanded) > div {
     grid-row: 1;
     grid-column: 1;
-    align-self: end;
-    justify-self: end;
-}
-
-/* Stack transforms - newest on top */
-/* 1. The Top Card (Newest) */
-.notification-viewport:not(.expanded) .notification-item:nth-last-child(1) {
-    z-index: 4;
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
-/* 2. The Second Card */
-.notification-viewport:not(.expanded) .notification-item:nth-last-child(2) {
-    z-index: 3;
-    transform: translateY(-0.875rem) translateX(-0.25rem) scale(0.96);
-    opacity: 1;
-}
-
-/* 3. The Third Card */
-.notification-viewport:not(.expanded) .notification-item:nth-last-child(3) {
-    z-index: 2;
-    transform: translateY(-1.75rem) translateX(-0.5rem) scale(0.92);
-    opacity: 1;
-}
-
-/* 4. Rest are hidden */
-.notification-viewport:not(.expanded) .notification-item:nth-last-child(n + 4) {
-    z-index: 1;
-    transform: translateY(-2.625rem) scale(0.85);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* ============================================
-   EXPANDED STATE
-   ============================================ */
-
-.notification-viewport.expanded .notification-item {
-    /* Reset transforms from stacked state */
-    transform: none;
-    opacity: 1;
-    z-index: auto;
-    margin-bottom: 0;
+    /* Alignment handled by self */
+    width: 100%;
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
-
-/* Focus styles for keyboard navigation */
-.notification-item button:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 1px;
-}
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
@@ -165,13 +121,6 @@
     .notification-viewport {
         animation: none !important;
         transition: opacity 0.2s ease !important;
-    }
-
-    @starting-style {
-        .notification-item {
-            opacity: 0;
-            transform: none;
-        }
     }
 }
 

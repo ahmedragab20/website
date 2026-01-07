@@ -134,6 +134,7 @@ describe("NotificationProvider", () => {
 
     describe("Removing Notifications", () => {
         it("removes notification when removeNotification is called", () => {
+            vi.useFakeTimers();
             let notificationId: string | undefined;
 
             function TestRemoveComponent() {
@@ -174,7 +175,12 @@ describe("NotificationProvider", () => {
             expect(screen.getByText("Test")).toBeInTheDocument();
 
             screen.getByText("Remove").click();
+
+            // Advance past the exit animation duration (400ms)
+            vi.advanceTimersByTime(500);
+
             expect(screen.queryByText("Test")).not.toBeInTheDocument();
+            vi.useRealTimers();
         });
     });
 

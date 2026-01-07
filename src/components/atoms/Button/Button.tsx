@@ -1,4 +1,4 @@
-import { splitProps, untrack, type JSX } from "solid-js";
+import { splitProps, type JSX, Show } from "solid-js";
 import { tv } from "tailwind-variants";
 
 const button = tv({
@@ -172,7 +172,6 @@ export function Button(props: ButtonProps) {
         "aria-label",
     ]);
 
-    const isLink = () => !!local.href;
     const buttonState = () => {
         if (local.disabled) return "disabled";
         return "default";
@@ -185,58 +184,60 @@ export function Button(props: ButtonProps) {
         }
     };
 
-    if (untrack(() => isLink())) {
-        return (
-            <a
-                class={button({
-                    variant: local.variant,
-                    color: local.color,
-                    size: local.size,
-                    state: buttonState(),
-                    class: local.class,
-                })}
-                href={local.href}
-                target={local.target}
-                rel={
-                    local.rel ||
-                    (local.target === "_blank"
-                        ? "noopener noreferrer"
-                        : undefined)
-                }
-                onClick={(e) => {
-                    if (local.disabled) {
-                        e.preventDefault();
-                        return;
-                    }
-                    local.onClick?.();
-                }}
-                aria-label={local["aria-label"]}
-                aria-disabled={local.disabled}
-                {...others}
-            >
-                {local.children}
-            </a>
-        );
-    }
-
     return (
-        <button
-            class={button({
-                variant: local.variant,
-                color: local.color,
-                size: local.size,
-                state: buttonState(),
-                class: local.class,
-            })}
-            type={others.type || "button"}
-            disabled={local.disabled}
-            onClick={() => local.onClick?.()}
-            onKeyDown={handleKeyDown}
-            aria-label={local["aria-label"]}
-            aria-disabled={local.disabled}
-            {...others}
-        >
-            {local.children}
-        </button>
+        <>
+            <Show when={local.href}>
+                <a
+                    class={button({
+                        variant: local.variant,
+                        color: local.color,
+                        size: local.size,
+                        state: buttonState(),
+                        class: local.class,
+                    })}
+                    href={local.href}
+                    target={local.target}
+                    rel={
+                        local.rel ||
+                        (local.target === "_blank"
+                            ? "noopener noreferrer"
+                            : undefined)
+                    }
+                    onClick={(e) => {
+                        if (local.disabled) {
+                            e.preventDefault();
+                            return;
+                        }
+                        local.onClick?.();
+                    }}
+                    aria-label={local["aria-label"]}
+                    aria-disabled={local.disabled}
+                    {...others}
+                >
+                    {local.children}
+                </a>
+            </Show>
+
+            <Show when={!local.href}>
+                <button
+                    class={button({
+                        variant: local.variant,
+                        color: local.color,
+                        size: local.size,
+                        state: buttonState(),
+                        class: local.class,
+                    })}
+                    type={others.type || "button"}
+                    disabled={local.disabled}
+                    onClick={() => local.onClick?.()}
+                    onKeyDown={handleKeyDown}
+                    aria-label={local["aria-label"]}
+                    aria-disabled={local.disabled}
+                    {...others}
+                >
+                    {local.children}
+                </button>
+            </Show>
+        </>
     );
 }

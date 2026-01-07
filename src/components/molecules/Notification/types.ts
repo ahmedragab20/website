@@ -23,6 +23,8 @@ export interface NotificationData {
     persisted?: boolean;
     /** Visual variant (default: "info") */
     variant?: NotificationVariant;
+    /** Internal state for exit animation */
+    isExiting?: boolean;
 }
 
 /**

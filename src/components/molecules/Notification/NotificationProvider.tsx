@@ -5,10 +5,12 @@ import {
     For,
     Show,
     createEffect,
+    createMemo,
     onMount,
     onCleanup,
     type JSX,
 } from "solid-js";
+import { createStore } from "solid-js/store";
 import type {
     NotificationData,
     AddNotificationOptions,
@@ -27,7 +29,7 @@ export interface NotificationProviderProps {
 }
 
 export function NotificationProvider(props: NotificationProviderProps) {
-    const [notifications, setNotifications] = createSignal<NotificationData[]>(
+    const [notifications, setNotifications] = createStore<NotificationData[]>(
         []
     );
     const [isExpanded, setIsExpanded] = createSignal(false);
@@ -41,28 +43,54 @@ export function NotificationProvider(props: NotificationProviderProps) {
 
     const addNotification = (options: AddNotificationOptions) => {
         const id = generateId();
-        const duration = options.duration ?? props.defaultDuration ?? 10000;
-        const persisted = options.persisted ?? props.defaultPersisted ?? false;
 
         const notification: NotificationData = {
             id,
             ...options,
-            duration,
-            persisted,
+            variant: options.variant || "info",
+            duration: options.duration || 5000,
+            persisted: options.persisted ?? false,
+            isExiting: false,
         };
 
         setNotifications((prev) => [...prev, notification]);
-
         return id;
     };
 
     const removeNotification = (id: string) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        // Mark as exiting first
+        setNotifications((n) => n.id === id, "isExiting", true);
+
+        // Remove after animation (400ms to be safe)
+        setTimeout(() => {
+            setNotifications((prev) => prev.filter((n) => n.id !== id));
+        }, 400);
     };
 
     const toggleExpanded = () => {
         setIsExpanded((prev) => !prev);
     };
+
+    // Calculate stack indices for stable animations
+    // We iterate backwards (newest first) to assign stack positions (0 = top)
+    const stackIndices = () => {
+        const indices: Record<string, number> = {};
+        let count = 0;
+        // Access store directly
+        const list = notifications;
+        for (let i = list.length - 1; i >= 0; i--) {
+            const item = list[i];
+            if (!item.isExiting) {
+                indices[item.id] = count++;
+            } else {
+                indices[item.id] = -1; // Exiting items
+            }
+        }
+        return indices;
+    };
+
+    // Derived signal for performance
+    const getStackIndices = createMemo(stackIndices);
 
     // Manage popover with SSR guard
     onMount(() => {
@@ -129,7 +157,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
 
     // Auto-collapse when no notifications
     createEffect(() => {
-        if (notifications().length === 0 && isExpanded()) {
+        if (notifications.length === 0 && isExpanded()) {
             setIsExpanded(false);
         }
     });
@@ -141,7 +169,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
             {props.children}
             {/* ARIA live region for screen readers */}
             <div aria-live="polite" aria-atomic="true" class="sr-only">
-                <For each={notifications()}>
+                <For each={notifications}>
                     {(notification) => (
                         <div
                             role="status"
@@ -157,7 +185,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
                     )}
                 </For>
             </div>
-            <Show when={notifications().length > 0}>
+            <Show when={notifications.length > 0}>
                 <div
                     ref={(el) => (viewportRef = el)}
                     popover="manual"
@@ -173,7 +201,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
                         }
                     }}
                 >
-                    <For each={notifications()}>
+                    <For each={notifications}>
                         {(notification) => (
                             <Notification
                                 data={notification}
@@ -181,7 +209,8 @@ export function NotificationProvider(props: NotificationProviderProps) {
                                     removeNotification(notification.id)
                                 }
                                 onExpand={() => toggleExpanded()}
-                                isFront={true}
+                                stackIndex={getStackIndices()[notification.id]}
+                                isExpanded={isExpanded()}
                                 closeIcon={props.closeIcon}
                             />
                         )}
