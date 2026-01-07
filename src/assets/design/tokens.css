@@ -1356,7 +1356,9 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
-        font-feature-settings: "kern" 1, "liga" 1;
+        font-feature-settings:
+            "kern" 1,
+            "liga" 1;
     }
 
     code,
@@ -1480,7 +1482,21 @@
     }
 
     /* ===== Dark Mode Image Adjustments ===== */
-    [data-theme]:not([data-theme="dayfox"]):not([data-theme="solarized-light"]):not([data-theme="catppuccin-latte"]):not([data-theme="ayu-light"]):not([data-theme="github-light"]):not([data-theme="everforest-light"]):not([data-theme="rose-pine-dawn"]):not([data-theme="tokyo-night-day"]):not([data-theme="one-light"]):not([data-theme="papercolor-light"]):not([data-theme="intellij-light"]):not([data-theme="flat-light"]):not([data-theme="linear-light"]):not([data-theme="nord-snow-storm"]):not([data-theme="night-owl-light"])
+    [data-theme]:not([data-theme="dayfox"]):not(
+            [data-theme="solarized-light"]
+        ):not([data-theme="catppuccin-latte"]):not(
+            [data-theme="ayu-light"]
+        ):not([data-theme="github-light"]):not(
+            [data-theme="everforest-light"]
+        ):not([data-theme="rose-pine-dawn"]):not(
+            [data-theme="tokyo-night-day"]
+        ):not([data-theme="one-light"]):not(
+            [data-theme="papercolor-light"]
+        ):not([data-theme="intellij-light"]):not([data-theme="flat-light"]):not(
+            [data-theme="linear-light"]
+        ):not([data-theme="nord-snow-storm"]):not(
+            [data-theme="night-owl-light"]
+        )
         img {
         filter: brightness(0.9) contrast(1.1);
     }
