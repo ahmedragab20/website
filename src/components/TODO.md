@@ -1,3 +1,4 @@
+- [ ] Textarea
 - [ ] Switch
 - [ ] Pin Input
 - [ ] Avatar

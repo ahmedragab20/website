@@ -7,6 +7,9 @@ export type { InputProps } from "./Input";
 export { Label } from "./Label";
 export type { LabelProps } from "./Label";
 
+export { Textarea } from "./Textarea";
+export type { TextareaProps } from "./Textarea";
+
 export { Text } from "./Text";
 export type { TextProps } from "./Text";
 
