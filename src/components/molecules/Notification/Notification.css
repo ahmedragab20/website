@@ -10,25 +10,25 @@
     margin: 0 !important; /* Reset browser default */
     border: none;
     padding: 0;
-    
+
     /* Layout */
     position: fixed;
     display: flex;
     flex-direction: column; /* Oldest (top) to Newest (bottom) */
     justify-content: flex-end;
-    
+
     /* Sizing */
     width: 24rem; /* w-96 */
     max-width: 100vw;
     height: auto;
     max-height: calc(100vh - 3rem);
-    
+
     /* Behavior */
     pointer-events: none;
     background: transparent;
     overflow: visible;
     contain: layout style;
-    
+
     /* Transition */
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
@@ -57,12 +57,12 @@
     /* Reset grid to flex */
     display: flex;
     gap: 0.625rem; /* 10px */
-    
+
     pointer-events: auto;
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 0.625rem;
-    
+
     /* Adjust for scrollbar spacing */
     margin-right: -0.625rem;
     margin-bottom: -0.625rem;
@@ -83,7 +83,7 @@
     transform-origin: bottom center;
     /* Transitions are handled by component style prop */
     will-change: transform, opacity;
-    
+
     /* Entry animation */
     animation: notification-entry 0.4s cubic-bezier(0.25, 1, 0.5, 1) backwards;
 }
