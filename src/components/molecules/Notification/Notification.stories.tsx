@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { NotificationProvider, useNotification } from "./NotificationProvider";
 import { Button } from "../../atoms/Button";
-import X from "../../icons/x";
+import X from "../../icons/XMark";
 import { Alert, Text } from "../../atoms";
 
 /**

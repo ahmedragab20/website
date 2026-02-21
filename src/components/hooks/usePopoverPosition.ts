@@ -14,7 +14,11 @@ export type Placement =
     | "top"
     | "bottom"
     | "left"
-    | "right";
+    | "left-start"
+    | "left-end"
+    | "right"
+    | "right-start"
+    | "right-end";
 
 export interface UsePopoverPositionOptions {
     triggerRef: Accessor<HTMLElement | undefined>;
@@ -203,7 +207,15 @@ const calculateDropdownPositionComplete = (
 };
 
 const checkTooltipFit = (
-    placement: "top" | "bottom" | "left" | "right",
+    placement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end",
     context: PositionContext
 ): boolean => {
     const { triggerRect, popoverRect, viewport, spacing } = context;
@@ -228,7 +240,9 @@ const checkTooltipFit = (
                     viewport.height
             );
         }
-        case "left": {
+        case "left":
+        case "left-start":
+        case "left-end": {
             const halfHeight = popoverRect.height / 2;
             return (
                 triggerCenterY - halfHeight >= 0 &&
@@ -236,7 +250,9 @@ const checkTooltipFit = (
                 triggerRect.left - popoverRect.width - spacing >= 0
             );
         }
-        case "right": {
+        case "right":
+        case "right-start":
+        case "right-end": {
             const halfHeight = popoverRect.height / 2;
             return (
                 triggerCenterY - halfHeight >= 0 &&
@@ -249,7 +265,15 @@ const checkTooltipFit = (
 };
 
 const calculateTooltipPosition = (
-    placement: "top" | "bottom" | "left" | "right",
+    placement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end",
     context: PositionContext
 ): Position => {
     const { triggerRect, viewport, spacing } = context;
@@ -270,29 +294,86 @@ const calculateTooltipPosition = (
                 transform: "translateX(-50%)",
             };
         case "left":
+        case "left-start":
+        case "left-end":
             return {
-                top: `${triggerCenterY}px`,
+                top:
+                    placement === "left-start"
+                        ? `${triggerRect.top}px`
+                        : placement === "left-end"
+                          ? `${triggerRect.bottom}px`
+                          : `${triggerCenterY}px`,
                 right: `${viewport.width - triggerRect.left + spacing}px`,
-                transform: "translateY(-50%)",
+                transform:
+                    placement === "left-end"
+                        ? "translateY(-100%)"
+                        : placement === "left-start"
+                          ? "translateY(0)"
+                          : "translateY(-50%)",
             };
         case "right":
+        case "right-start":
+        case "right-end":
             return {
-                top: `${triggerCenterY}px`,
+                top:
+                    placement === "right-start"
+                        ? `${triggerRect.top}px`
+                        : placement === "right-end"
+                          ? `${triggerRect.bottom}px`
+                          : `${triggerCenterY}px`,
                 left: `${triggerRect.right + spacing}px`,
-                transform: "translateY(-50%)",
+                transform:
+                    placement === "right-end"
+                        ? "translateY(-100%)"
+                        : placement === "right-start"
+                          ? "translateY(0)"
+                          : "translateY(-50%)",
             };
     }
 };
 
 const findBestTooltipPlacement = (
-    preferredPlacement: "top" | "bottom" | "left" | "right",
+    preferredPlacement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end",
     context: PositionContext
 ): {
-    placement: "top" | "bottom" | "left" | "right";
+    placement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end";
     position: Position;
 } => {
-    const tooltipPlacements: readonly ("top" | "bottom" | "left" | "right")[] =
-        ["top", "bottom", "left", "right"];
+    const tooltipPlacements: readonly (
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end"
+    )[] = [
+        "top",
+        "bottom",
+        "left",
+        "left-start",
+        "left-end",
+        "right",
+        "right-start",
+        "right-end",
+    ];
 
     const placementOrder = [
         preferredPlacement,
@@ -315,7 +396,15 @@ const findBestTooltipPlacement = (
 };
 
 const adjustTooltipBoundaries = (
-    placement: "top" | "bottom" | "left" | "right",
+    placement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end",
     pos: Position,
     context: PositionContext
 ): Position => {
@@ -367,7 +456,15 @@ const adjustTooltipBoundaries = (
 };
 
 const calculateTooltipPositionComplete = (
-    preferredPlacement: "top" | "bottom" | "left" | "right",
+    preferredPlacement:
+        | "top"
+        | "bottom"
+        | "left"
+        | "left-start"
+        | "left-end"
+        | "right"
+        | "right-start"
+        | "right-end",
     context: PositionContext
 ): Position => {
     const result = findBestTooltipPlacement(preferredPlacement, context);
@@ -385,13 +482,24 @@ const calculatePosition = (
     if (
         placement !== "top" &&
         placement !== "bottom" &&
-        placement !== "left" &&
-        placement !== "right"
+        !placement.startsWith("left") &&
+        !placement.startsWith("right")
     ) {
         return {};
     }
 
-    return calculateTooltipPositionComplete(placement, context);
+    return calculateTooltipPositionComplete(
+        placement as
+            | "top"
+            | "bottom"
+            | "left"
+            | "left-start"
+            | "left-end"
+            | "right"
+            | "right-start"
+            | "right-end",
+        context
+    );
 };
 
 const positionsEqual = (

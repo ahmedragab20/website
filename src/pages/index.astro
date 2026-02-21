@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import ThemeToggle from "../components/app/ThemeToggle/ThemeToggle";
 import { Button } from "../components/atoms/Button";
 import {
     Card,
@@ -22,9 +21,7 @@ import { Text } from "../components/atoms/Text";
                     <Text as="h1" size="xl" weight="bold" class="text-accent">
                         Ahmed Ragab
                     </Text>
-                    <div class="flex items-center gap-3">
-                        <ThemeToggle client:idle />
-                    </div>
+                    <div class="flex items-center gap-3"></div>
                 </div>
             </div>
         </header>

@@ -1,5 +1,4 @@
 import type { StoryObj, Meta } from "storybook-solidjs-vite";
-import ThemeToggle from "../components/app/ThemeToggle/ThemeToggle";
 
 const meta: Meta = {
     title: "Design System/Overview",
@@ -57,12 +56,10 @@ export const Showcase: Story = {
                         </h1>
                         <p class="text-fg-muted text-lg leading-relaxed">
                             A showcase of the design tokens, including color
-                            palettes, typography, and UI states. Use the toggle
-                            to preview different themes.
+                            palettes, typography, and UI states. Use the theme
+                            switcher in the Storybook toolbar to preview
+                            different themes.
                         </p>
-                    </div>
-                    <div class="w-full md:w-auto">
-                        <ThemeToggle />
                     </div>
                 </header>
 
@@ -314,10 +311,12 @@ export const NativeBehaviors: Story = {
                         automatically applied across all themes. These
                         enhancements provide better accessibility, platform
                         integration, and user experience.
+                        <br />
+                        <i class="bg-fg-main/10">
+                            Use the theme switcher in the Storybook toolbar to
+                            preview different themes.
+                        </i>
                     </p>
-                    <div class="w-full md:w-auto">
-                        <ThemeToggle />
-                    </div>
                 </header>
 
                 {/* Scrollbar Demo */}
@@ -514,13 +513,6 @@ export const NativeBehaviors: Story = {
                                 autocomplete="email"
                                 class="w-full px-4 py-2 bg-primary border border-ui-border rounded-lg"
                             />
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder="Password (try autofill)"
-                                autocomplete="current-password"
-                                class="w-full px-4 py-2 bg-primary border border-ui-border rounded-lg"
-                            />
                         </form>
                     </div>
                 </section>
@@ -677,20 +669,20 @@ export const HighContrastAccessibility: Story = {
                             /* Override to simulate high-contrast mode */
                             --high-contrast-override: true;
                         }
-                        
+
                         /* Apply high-contrast styles */
                         * {
                             border-width: 2px !important;
                         }
-                        
+
                         .border {
                             border-color: var(--color-fg-main) !important;
                         }
-                        
+
                         button, input, select, textarea {
                             border: 2px solid var(--color-fg-main) !important;
                         }
-                        
+
                         a {
                             text-decoration: underline !important;
                             text-decoration-thickness: 2px !important;
@@ -709,11 +701,9 @@ export const HighContrastAccessibility: Story = {
                             This page simulates high-contrast mode to test
                             accessibility features. All borders are enhanced,
                             links are underlined, and contrast is maximized for
-                            better visibility.
+                            better visibility. Use the theme switcher in the
+                            Storybook toolbar to preview different themes.
                         </p>
-                        <div class="w-full md:w-auto">
-                            <ThemeToggle />
-                        </div>
                     </header>
 
                     {/* High Contrast Info */}

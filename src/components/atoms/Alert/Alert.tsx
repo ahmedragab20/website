@@ -1,6 +1,7 @@
-import { splitProps, type JSX, Show } from "solid-js";
+import { splitProps, type JSX, Show, lazy } from "solid-js";
 import { tv } from "tailwind-variants";
-import X from "../../icons/x";
+
+const X = lazy(() => import("../../icons/XMark"));
 
 const alert = tv({
     base: "flex gap-3 p-4 rounded-lg border transition-all",

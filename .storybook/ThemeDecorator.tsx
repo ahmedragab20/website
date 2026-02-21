@@ -1,11 +1,77 @@
-import { THEMES } from "../src/hooks/useTheme";
-import type { Theme } from "../src/hooks/useTheme";
+// Storybook Theme Decorator - Applies theme via CSS data attributes only
+// No dependencies on app's useTheme hook
 
-const themes = THEMES;
+const THEMES = [
+    "nordfox",
+    "nightfox",
+    "carbonfox",
+    "dayfox",
+    "dracula",
+    "onedark",
+    "gruvbox",
+    "material",
+    "monokai",
+    "solarized-dark",
+    "solarized-light",
+    "tokyo-night",
+    "catppuccin-mocha",
+    "catppuccin-latte",
+    "rose-pine",
+    "ayu-dark",
+    "ayu-light",
+    "github-dark",
+    "github-light",
+    "github-dimmed",
+    "nord",
+    "everforest-dark",
+    "everforest-light",
+    "kanagawa",
+    "oxocarbon",
+    "poimandres",
+    "tokyo-night-storm",
+    "shades-of-purple",
+    "synthwave",
+    "horizon",
+    "sonokai",
+    "material-ocean",
+    "vscode-dark-plus",
+    "palenight",
+    "night-owl",
+    "ayu-mirage",
+    "rose-pine-dawn",
+    "tokyo-night-day",
+    "one-light",
+    "linear-light",
+    "nord-snow-storm",
+    "zenburn",
+    "panda",
+    "darcula",
+    "papercolor-light",
+    "intellij-light",
+    "flat-light",
+    "cobalt2",
+    "monokai-pro",
+    "winter-is-coming",
+    "night-owl-light",
+    "oceanic-next",
+    "city-lights",
+    "andromeda",
+    "cyberpunk",
+    "jellybeans",
+    "tomorrow-night",
+    "tomorrow-night-eighties",
+    "tomorrow-night-blue",
+    "twilight",
+    "espresso",
+    "kimbie-dark",
+    "gruvbox-material",
+] as const;
+
+type Theme = (typeof THEMES)[number];
 
 // Function to apply theme to document
 const applyTheme = (theme: string) => {
-    if (themes.includes(theme as Theme)) {
+    if (THEMES.includes(theme as Theme)) {
         // Apply to current document
         document.documentElement.setAttribute("data-theme", theme);
 
@@ -39,7 +105,7 @@ if (typeof window !== "undefined") {
     // Apply theme on initial load
     const savedTheme = localStorage.getItem("storybook-theme");
     const initialTheme =
-        savedTheme && themes.includes(savedTheme as Theme)
+        savedTheme && THEMES.includes(savedTheme as Theme)
             ? savedTheme
             : "nordfox";
     applyTheme(initialTheme);
@@ -64,7 +130,7 @@ export const ThemeDecorator = (Story: any, context: any) => {
     const themeFromGlobals = context.globals?.theme;
     const themeFromStorage = localStorage.getItem("storybook-theme");
     const themeValue = themeFromGlobals || themeFromStorage || "nordfox";
-    const theme = themes.includes(themeValue as Theme) ? themeValue : "nordfox";
+    const theme = THEMES.includes(themeValue as Theme) ? themeValue : "nordfox";
 
     // Apply theme immediately
     applyTheme(theme);
@@ -78,6 +144,6 @@ export const ThemeDecorator = (Story: any, context: any) => {
         );
     }
 
-    // Just render the story without any UI overlay
+    // Just render the story - no provider needed since we rely on CSS data-theme
     return Story(context);
 };

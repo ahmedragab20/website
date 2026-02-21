@@ -1,6 +1,6 @@
 import { splitProps, type JSX, Show } from "solid-js";
 import { tv } from "tailwind-variants";
-import X from "../../icons/x";
+import X from "../../icons/XMark";
 
 const badge = tv({
     base: "inline-flex gap-x-3 items-center justify-between font-medium border transition-colors cursor-default max-w-fit",

@@ -1,6 +1,6 @@
 import type { ComponentProps } from "solid-js";
 
-export default function X(props: ComponentProps<"svg">) {
+export default function XMark(props: ComponentProps<"svg">) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
