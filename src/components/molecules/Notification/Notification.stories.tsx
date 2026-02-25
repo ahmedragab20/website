@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { NotificationProvider, useNotification } from "./NotificationProvider";
 import { Button } from "../../atoms/Button";
-import X from "../../icons/XMark";
 import { Alert, Text } from "../../atoms";
+import XMark from "../../icons/XMark";
 
 /**
  * Notification system for displaying toast messages.
@@ -23,8 +23,6 @@ import { Alert, Text } from "../../atoms";
  * });
  * ```
  */
-
-const CloseIcon = () => <X />;
 
 const meta = {
     title: "Molecules/Notification",
@@ -74,7 +72,7 @@ const meta = {
     decorators: [
         (Story, context) => (
             // eslint-disable-next-line solid/no-proxy-apis
-            <NotificationProvider closeIcon={<CloseIcon />} {...context.args}>
+            <NotificationProvider closeIcon={<XMark />} {...context.args}>
                 <div class="min-h-100 w-full p-6 relative flex flex-col items-start gap-4">
                     <Story />
                 </div>
