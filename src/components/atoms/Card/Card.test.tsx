@@ -26,11 +26,11 @@ describe("Card", () => {
     });
 
     describe("Padding Variants", () => {
-        // Default is now none
-        it("uses default padding (none) when not specified", () => {
+        // Default is now md
+        it("uses default padding (md) when not specified", () => {
             const { container } = render(() => <Card>Test</Card>);
             const div = container.querySelector("div");
-            expect(div?.className).toContain("p-0");
+            expect(div?.className).toContain("p-6");
         });
 
         const paddingMap = {

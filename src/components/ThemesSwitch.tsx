@@ -30,28 +30,32 @@ export default function ThemesSwitch(props: {
             }
             placement={props.placement}
         >
-            <For each={themes}>
-                {(themeOption) => (
-                    <DropdownItem
-                        onClick={() => setTheme(themeOption)}
-                        class="justify-between"
-                        aria-label={`Select ${formatThemeName(themeOption)} theme`}
-                    >
-                        <>
-                            <span
-                                class={
-                                    theme() === themeOption ? "font-medium" : ""
-                                }
-                            >
-                                {formatThemeName(themeOption)}
-                            </span>
-                            <Show when={theme() === themeOption}>
-                                <Check class="size-4" />
-                            </Show>
-                        </>
-                    </DropdownItem>
-                )}
-            </For>
+            <div class="max-h-96">
+                <For each={themes}>
+                    {(themeOption) => (
+                        <DropdownItem
+                            onClick={() => setTheme(themeOption)}
+                            class="justify-between"
+                            aria-label={`Select ${formatThemeName(themeOption)} theme`}
+                        >
+                            <>
+                                <span
+                                    class={
+                                        theme() === themeOption
+                                            ? "font-medium"
+                                            : ""
+                                    }
+                                >
+                                    {formatThemeName(themeOption)}
+                                </span>
+                                <Show when={theme() === themeOption}>
+                                    <Check class="size-4" />
+                                </Show>
+                            </>
+                        </DropdownItem>
+                    )}
+                </For>
+            </div>
         </Dropdown>
     );
 }

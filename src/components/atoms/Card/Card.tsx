@@ -16,7 +16,7 @@ const card = tv({
         },
     },
     defaultVariants: {
-        padding: "none", // Default to none so sub-components handle spacing
+        padding: "md", // Default to none so sub-components handle spacing
         elevation: "flat",
     },
 });

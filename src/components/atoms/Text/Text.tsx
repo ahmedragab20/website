@@ -1,4 +1,5 @@
 import { splitProps, type JSX } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { tv } from "tailwind-variants";
 
 const text = tv({
@@ -50,26 +51,6 @@ export interface TextProps {
     "aria-label"?: string;
 }
 
-const createTextElement = (
-    tag: string,
-    props: Record<string, any>,
-    children: JSX.Element
-) => {
-    const elementMap = {
-        p: <p {...props}>{children}</p>,
-        span: <span {...props}>{children}</span>,
-        div: <div {...props}>{children}</div>,
-        h1: <h1 {...props}>{children}</h1>,
-        h2: <h2 {...props}>{children}</h2>,
-        h3: <h3 {...props}>{children}</h3>,
-        h4: <h4 {...props}>{children}</h4>,
-        h5: <h5 {...props}>{children}</h5>,
-        h6: <h6 {...props}>{children}</h6>,
-    } as const;
-
-    return elementMap[tag as keyof typeof elementMap] || elementMap.p;
-};
-
 export function Text(props: TextProps) {
     const [local, others] = splitProps(props, [
         "children",
@@ -82,27 +63,19 @@ export function Text(props: TextProps) {
     ]);
 
     return (
-        <>
-            {(() => {
-                const tag = local.as || "p";
-                const className = text({
-                    size: local.size,
-                    weight: local.weight,
-                    color: local.color,
-                    font: local.font,
-                    class: local.class,
-                });
-
-                return createTextElement(
-                    tag,
-                    {
-                        class: className,
-                        "aria-label": others["aria-label"],
-                        ...others,
-                    },
-                    local.children
-                );
-            })()}
-        </>
+        <Dynamic
+            component={local.as || "p"}
+            class={text({
+                size: local.size,
+                weight: local.weight,
+                color: local.color,
+                font: local.font,
+                class: local.class,
+            })}
+            aria-label={others["aria-label"]}
+            {...others}
+        >
+            {local.children}
+        </Dynamic>
     );
 }
