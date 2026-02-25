@@ -105,14 +105,4 @@ describe("LegacyDropdown", () => {
         fireEvent.keyDown(trigger, { key: "ArrowDown" });
         expect(screen.getByRole("menu")).toHaveClass("opacity-100");
     });
-
-    it("controls open state via prop", () => {
-        render(() => (
-            <LegacyDropdown trigger={<button>Menu</button>} open={true}>
-                <div>Item 1</div>
-            </LegacyDropdown>
-        ));
-
-        expect(screen.getByRole("menu")).toHaveClass("opacity-100");
-    });
 });

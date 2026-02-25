@@ -6,10 +6,10 @@ import {
     Show,
     createEffect,
     createMemo,
-    onMount,
     onCleanup,
     type JSX,
 } from "solid-js";
+// eslint-disable-next-line solid/no-proxy-apis
 import { createStore } from "solid-js/store";
 import type {
     NotificationData,
@@ -26,6 +26,7 @@ export interface NotificationProviderProps {
     closeIcon?: JSX.Element;
     defaultDuration?: number;
     defaultPersisted?: boolean;
+    limit?: number;
 }
 
 export function NotificationProvider(props: NotificationProviderProps) {
@@ -33,7 +34,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
         []
     );
     const [isExpanded, setIsExpanded] = createSignal(false);
-    let viewportRef: HTMLDivElement | undefined;
+    const [heights, setHeights] = createSignal<Record<string, number>>({});
 
     const generateId = () => {
         return (
@@ -47,23 +48,41 @@ export function NotificationProvider(props: NotificationProviderProps) {
         const notification: NotificationData = {
             id,
             ...options,
-            variant: options.variant || "info",
-            duration: options.duration || 5000,
-            persisted: options.persisted ?? false,
+            variant: options.variant || "accent",
+            duration: options.duration || props.defaultDuration || 5000,
+            persisted: options.persisted ?? props.defaultPersisted ?? false,
             isExiting: false,
         };
 
         setNotifications((prev) => [...prev, notification]);
+
+        const limit = props.limit || 5;
+        const activeItems = notifications.filter((n) => !n.isExiting);
+        if (activeItems.length > limit) {
+            const excess = activeItems.length - limit;
+            let removedCount = 0;
+            for (const n of activeItems) {
+                if (!n.persisted) {
+                    removeNotification(n.id!);
+                    removedCount++;
+                    if (removedCount >= excess) break;
+                }
+            }
+        }
+
         return id;
     };
 
     const removeNotification = (id: string) => {
-        // Mark as exiting first
         setNotifications((n) => n.id === id, "isExiting", true);
 
-        // Remove after animation (400ms to be safe)
         setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== id));
+            setHeights((prev) => {
+                const next = { ...prev };
+                delete next[id];
+                return next;
+            });
         }, 400);
     };
 
@@ -71,53 +90,28 @@ export function NotificationProvider(props: NotificationProviderProps) {
         setIsExpanded((prev) => !prev);
     };
 
-    // Calculate stack indices for stable animations
-    // We iterate backwards (newest first) to assign stack positions (0 = top)
-    const stackIndices = () => {
+    const stackState = createMemo(() => {
         const indices: Record<string, number> = {};
+        const offsets: Record<string, number> = {};
+
         let count = 0;
-        // Access store directly
-        const list = notifications;
-        for (let i = list.length - 1; i >= 0; i--) {
-            const item = list[i];
+        let cumulativeHeight = 0;
+        const GAP = 12; // 12px gap
+
+        for (let i = notifications.length - 1; i >= 0; i--) {
+            const item = notifications[i];
             if (!item.isExiting) {
-                indices[item.id] = count++;
+                indices[item.id!] = count++;
+                offsets[item.id!] = cumulativeHeight;
+                cumulativeHeight += (heights()[item.id!] || 0) + GAP;
             } else {
-                indices[item.id] = -1; // Exiting items
+                indices[item.id!] = -1;
+                offsets[item.id!] = 0;
             }
         }
-        return indices;
-    };
-
-    // Derived signal for performance
-    const getStackIndices = createMemo(stackIndices);
-
-    // Manage popover with SSR guard
-    onMount(() => {
-        if (typeof window === "undefined") return;
-
-        const viewport = viewportRef;
-        if (viewport && "showPopover" in viewport) {
-            try {
-                viewport.showPopover();
-            } catch {
-                // Fallback for browsers without Popover API
-            }
-        }
-
-        onCleanup(() => {
-            if (typeof window === "undefined") return;
-            if (viewport && "hidePopover" in viewport) {
-                try {
-                    viewport.hidePopover();
-                } catch {
-                    // Ignore
-                }
-            }
-        });
+        return { indices, offsets };
     });
 
-    // Handle Escape key to collapse
     createEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -135,27 +129,6 @@ export function NotificationProvider(props: NotificationProviderProps) {
         });
     });
 
-    // Handle click outside to collapse
-    createEffect(() => {
-        if (typeof window === "undefined") return;
-
-        const handleClick = (e: MouseEvent) => {
-            if (!isExpanded()) return;
-            const viewport = viewportRef;
-            if (viewport && !viewport.contains(e.target as Node)) {
-                setIsExpanded(false);
-            }
-        };
-
-        document.addEventListener("click", handleClick);
-
-        onCleanup(() => {
-            if (typeof document === "undefined") return;
-            document.removeEventListener("click", handleClick);
-        });
-    });
-
-    // Auto-collapse when no notifications
     createEffect(() => {
         if (notifications.length === 0 && isExpanded()) {
             setIsExpanded(false);
@@ -173,7 +146,7 @@ export function NotificationProvider(props: NotificationProviderProps) {
                     {(notification) => (
                         <div
                             role="status"
-                            aria-label={`${notification.variant || "info"} notification`}
+                            aria-label={`${notification.variant || "accent"} notification`}
                         >
                             {notification.title && `${notification.title}. `}
                             {notification.description &&
@@ -187,29 +160,33 @@ export function NotificationProvider(props: NotificationProviderProps) {
             </div>
             <Show when={notifications.length > 0}>
                 <div
-                    ref={(el) => (viewportRef = el)}
-                    popover="manual"
-                    class={`notification-viewport ${isExpanded() ? "expanded" : ""}`}
-                    role={isExpanded() ? "dialog" : "region"}
-                    aria-label={`Notifications${isExpanded() ? ", expanded view" : ""}`}
-                    aria-expanded={isExpanded()}
-                    aria-modal={isExpanded()}
-                    onClick={(e) => {
-                        // Only close if clicking the background in expanded state
-                        if (isExpanded() && e.target === e.currentTarget) {
-                            toggleExpanded();
-                        }
-                    }}
+                    class="notification-viewport"
+                    data-expanded={isExpanded()}
+                    onMouseEnter={() => setIsExpanded(true)}
+                    onMouseLeave={() => setIsExpanded(false)}
+                    onFocusIn={() => setIsExpanded(true)}
+                    onFocusOut={() => setIsExpanded(false)}
+                    role="region"
+                    aria-label="Notifications"
                 >
                     <For each={notifications}>
                         {(notification) => (
                             <Notification
                                 data={notification}
                                 onDismiss={() =>
-                                    removeNotification(notification.id)
+                                    removeNotification(notification.id!)
                                 }
                                 onExpand={() => toggleExpanded()}
-                                stackIndex={getStackIndices()[notification.id]}
+                                onHeight={(h) =>
+                                    setHeights((prev) => ({
+                                        ...prev,
+                                        [notification.id!]: h,
+                                    }))
+                                }
+                                stackIndex={
+                                    stackState().indices[notification.id!]
+                                }
+                                offset={stackState().offsets[notification.id!]}
                                 isExpanded={isExpanded()}
                                 closeIcon={props.closeIcon}
                             />

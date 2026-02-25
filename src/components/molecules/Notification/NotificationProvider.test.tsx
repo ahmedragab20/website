@@ -214,6 +214,45 @@ describe("NotificationProvider", () => {
             expect(screen.getByText("Second")).toBeInTheDocument();
             expect(screen.getByText("Third")).toBeInTheDocument();
         });
+
+        it("respects the limit prop", () => {
+            vi.useFakeTimers();
+            function TestLimitComponent() {
+                const { addNotification } = useNotification();
+
+                return (
+                    <button
+                        onClick={() => {
+                            addNotification({ title: "1" });
+                            addNotification({ title: "2" });
+                            addNotification({ title: "3" });
+                            addNotification({ title: "4" });
+                        }}
+                    >
+                        Add Limit Test
+                    </button>
+                );
+            }
+
+            render(() => (
+                <NotificationProvider limit={2} closeIcon={<span>×</span>}>
+                    <TestLimitComponent />
+                </NotificationProvider>
+            ));
+
+            screen.getByText("Add Limit Test").click();
+
+            // Initial render - all might be physically rendered but oldest ones start exiting
+            // Because our setTimeout 0 removes them async
+            vi.advanceTimersByTime(500); // Wait for exit animation (400ms) to unmount
+
+            expect(screen.queryByText("1")).not.toBeInTheDocument();
+            expect(screen.queryByText("2")).not.toBeInTheDocument();
+            expect(screen.getByText("3")).toBeInTheDocument();
+            expect(screen.getByText("4")).toBeInTheDocument();
+
+            vi.useRealTimers();
+        });
     });
 
     describe("Accessibility", () => {

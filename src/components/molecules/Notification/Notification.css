@@ -1,130 +1,64 @@
 /* src/components/molecules/Notification/Notification.css */
 
 /* ============================================
-   VIEWPORT CONTAINER
+   VIEWPORT CONTAINER (TOASTER)
    ============================================ */
 
 .notification-viewport {
-    /* Popover Top Layer positioning */
-    inset: auto 1.5rem 1.5rem auto; /* bottom-right */
-    margin: 0 !important; /* Reset browser default */
-    border: none;
-    padding: 0;
-
-    /* Layout */
     position: fixed;
-    display: flex;
-    flex-direction: column; /* Oldest (top) to Newest (bottom) */
-    justify-content: flex-end;
-
-    /* Sizing */
+    z-index: 9999;
+    bottom: 1.5rem;
+    inset-inline-end: 1.5rem; /* Logical property for right in LTR, left in RTL */
     width: 24rem; /* w-96 */
-    max-width: 100vw;
-    height: auto;
-    max-height: calc(100vh - 3rem);
-
-    /* Behavior */
+    max-width: calc(100vw - 3rem);
     pointer-events: none;
-    background: transparent;
-    overflow: visible;
-    contain: layout style;
-
-    /* Transition */
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    outline: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
-/* Responsive design */
 @media (max-width: 480px) {
     .notification-viewport {
-        width: calc(100vw - 2rem);
-        inset: auto 1rem 1rem auto;
-        max-height: calc(100vh - 2rem);
+        inset-inline-end: 1rem;
+        bottom: 1rem;
+        max-width: calc(100vw - 2rem);
     }
-}
-
-/* Collapsed state - stacked notifications */
-.notification-viewport:not(.expanded) {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    /* Align stack to bottom-right */
-    align-items: end;
-    justify-items: end;
-}
-
-/* Expanded state - scrollable list */
-.notification-viewport.expanded {
-    /* Reset grid to flex */
-    display: flex;
-    gap: 0.625rem; /* 10px */
-
-    pointer-events: auto;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 0.625rem;
-
-    /* Adjust for scrollbar spacing */
-    margin-right: -0.625rem;
-    margin-bottom: -0.625rem;
-
-    /* Reveal scrollbar gently */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 /* ============================================
    NOTIFICATION ITEMS
    ============================================ */
-
-.notification-item {
-    pointer-events: auto;
-    position: relative;
-    width: 100%;
-    transform-origin: bottom center;
-    /* Transitions are handled by component style prop */
-    will-change: transform, opacity;
-
-    /* Entry animation */
-    animation: notification-entry 0.4s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+/* Target all notifications directly inside the viewport */
+.notification-viewport > div {
+    /* Base animation on mount */
+    animation: notification-entry 0.4s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    /* We ensure they don't break viewport width */
+    max-width: 100%;
 }
 
 @keyframes notification-entry {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.95);
+        transform: translate3d(0, 20px, 0) scale(0.95);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        /* The end transform is controlled by JS inline styles */
     }
-}
-
-/* ============================================
-   STACKING IN COLLAPSED STATE
-   ============================================ */
-
-/* All items in same grid cell for stacking */
-.notification-viewport:not(.expanded) > div {
-    grid-row: 1;
-    grid-column: 1;
-    /* Alignment handled by self */
-    width: 100%;
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-    .notification-item,
-    .notification-viewport {
+    .notification-viewport > div {
         animation: none !important;
         transition: opacity 0.2s ease !important;
     }
 }
 
-/* Screen reader only utility */
 .sr-only {
     position: absolute;
     width: 1px;

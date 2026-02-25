@@ -17,7 +17,7 @@ describe("Notification", () => {
         id: "test-id",
         title: "Test Title",
         description: "Test Description",
-        variant: "info",
+        variant: "accent",
         duration: 5000,
         persisted: false,
         ...overrides,
@@ -78,10 +78,10 @@ describe("Notification", () => {
 
     describe("Variants", () => {
         const variantMap = {
-            info: "bg-secondary/95",
-            success: "bg-success/5",
-            warning: "bg-warning/5",
-            error: "bg-error/5",
+            accent: "border-ui-border",
+            success: "border-success/30",
+            warning: "border-warning/30",
+            error: "border-error/30",
         } as const;
 
         Object.entries(variantMap).forEach(([variant, expectedClass]) => {
@@ -290,7 +290,7 @@ describe("Notification", () => {
     });
 
     describe("Default Values", () => {
-        it("uses info variant by default", () => {
+        it("uses accent variant by default", () => {
             const data = createNotificationData({ variant: undefined });
             const { container } = render(() => (
                 <Notification
@@ -304,7 +304,7 @@ describe("Notification", () => {
             ));
 
             const element = container.querySelector("[data-notification-id]");
-            expect(element?.className).toContain("bg-secondary/95");
+            expect(element?.className).toContain("border-ui-border");
         });
     });
 });

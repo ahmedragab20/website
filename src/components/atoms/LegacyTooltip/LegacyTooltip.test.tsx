@@ -106,14 +106,4 @@ describe("LegacyTooltip", () => {
             expect(screen.getByRole("tooltip")).toHaveClass("opacity-0");
         });
     });
-
-    it("supports controlled state", () => {
-        render(() => (
-            <LegacyTooltip content="Controlled" open={true}>
-                <button>Trigger</button>
-            </LegacyTooltip>
-        ));
-
-        expect(screen.getByRole("tooltip")).toBeInTheDocument();
-    });
 });

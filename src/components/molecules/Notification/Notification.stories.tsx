@@ -26,254 +26,28 @@ import { Alert, Text } from "../../atoms";
 
 const CloseIcon = () => <X />;
 
-const NotificationDemo = () => {
-    const { addNotification } = useNotification();
-
-    return (
-        <div class="flex flex-col gap-4 p-6 items-start min-h-screen">
-            <div class="max-w-2xl">
-                <h2 class="text-2xl font-bold mb-2">Notification System</h2>
-                <Alert class="mb-2" color="warning" variant="subtle">
-                    <Text as="p" color="main">
-                        ⚠️ Still under development
-                    </Text>
-                </Alert>
-                <p class="text-sm text-fg-muted mb-6">
-                    Notifications always appear in the bottom-right corner. When
-                    multiple notifications are present, they stack visually.
-                    Click the stack to expand into a full list. Click outside or
-                    press Escape to collapse.
-                </p>
-            </div>
-
-            <div class="space-y-6 w-full max-w-2xl">
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Variants</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <Button
-                            onClick={() =>
-                                addNotification({
-                                    title: "Info Notification",
-                                    description:
-                                        "This is an informational message.",
-                                    variant: "info",
-                                })
-                            }
-                            color="accent"
-                        >
-                            Info
-                        </Button>
-                        <Button
-                            onClick={() =>
-                                addNotification({
-                                    title: "Success!",
-                                    description:
-                                        "Operation completed successfully.",
-                                    variant: "success",
-                                })
-                            }
-                            color="success"
-                        >
-                            Success
-                        </Button>
-                        <Button
-                            onClick={() =>
-                                addNotification({
-                                    title: "Warning",
-                                    description: "Please review this action.",
-                                    variant: "warning",
-                                })
-                            }
-                            color="warning"
-                        >
-                            Warning
-                        </Button>
-                        <Button
-                            onClick={() =>
-                                addNotification({
-                                    title: "Error",
-                                    description: "Something went wrong.",
-                                    variant: "error",
-                                })
-                            }
-                            color="error"
-                        >
-                            Error
-                        </Button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Behavior</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    title: "Auto-dismiss (5s)",
-                                    description:
-                                        "This notification will auto-dismiss after 5 seconds.",
-                                    variant: "info",
-                                    duration: 5000,
-                                })
-                            }
-                        >
-                            Auto-dismiss
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    title: "Persisted",
-                                    description:
-                                        "This notification stays until manually closed.",
-                                    variant: "info",
-                                    persisted: true,
-                                })
-                            }
-                        >
-                            Persisted
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    title: "Quick (2s)",
-                                    description: "Auto-dismisses in 2 seconds.",
-                                    variant: "success",
-                                    duration: 2000,
-                                })
-                            }
-                        >
-                            Quick Dismiss
-                        </Button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Custom Content</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    title: "Title Only",
-                                    variant: "info",
-                                })
-                            }
-                        >
-                            Title Only
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    description: "Description only, no title.",
-                                    variant: "info",
-                                })
-                            }
-                        >
-                            Description Only
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                addNotification({
-                                    children: (
-                                        <div class="flex items-center gap-3 p-4">
-                                            <div class="h-10 w-10 rounded-full bg-accent flex items-center justify-center text-primary font-bold">
-                                                !
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-sm">
-                                                    Custom JSX Content
-                                                </h4>
-                                                <p class="text-xs opacity-75">
-                                                    Fully customizable
-                                                    notification body with any
-                                                    JSX.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ),
-                                    variant: "info",
-                                })
-                            }
-                        >
-                            Custom JSX
-                        </Button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Stack Testing</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <Button
-                            onClick={() => {
-                                let count = 0;
-                                const interval = setInterval(() => {
-                                    addNotification({
-                                        title: `Notification ${++count}`,
-                                        description:
-                                            "Watch them stack! Click to expand.",
-                                        duration: 8000,
-                                        variant: [
-                                            "info",
-                                            "success",
-                                            "warning",
-                                            "error",
-                                        ][count % 4] as any,
-                                    });
-                                    if (count >= 5) clearInterval(interval);
-                                }, 300);
-                            }}
-                        >
-                            Add 5 Rapidly
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                for (let i = 1; i <= 10; i++) {
-                                    addNotification({
-                                        title: `Notification ${i}`,
-                                        description: "Testing scroll behavior",
-                                        variant: "info",
-                                        persisted: true,
-                                    });
-                                }
-                            }}
-                        >
-                            Add 10 Persisted
-                        </Button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-auto pt-8 text-xs text-fg-muted">
-                <p>
-                    <strong>Tip:</strong> Hover over auto-dismiss notifications
-                    to pause the countdown.
-                </p>
-                <p class="mt-1">
-                    <strong>Note:</strong> In Storybook, fixed positioning may
-                    be constrained by the iframe.
-                </p>
-            </div>
-        </div>
-    );
-};
-
 const meta = {
     title: "Molecules/Notification",
     component: NotificationProvider,
     parameters: {
-        layout: "fullscreen",
+        layout: "padded",
+        a11y: {
+            test: "todo",
+            config: {
+                rules: [
+                    {
+                        id: "color-contrast",
+                        enabled: true,
+                    },
+                ],
+            },
+        },
     },
     tags: ["autodocs"],
     argTypes: {
         defaultDuration: {
             control: "number",
-            description: "Default auto-dismiss duration in milliseconds",
+            description: "Default auto-dismiss duration in milliseconds.",
             table: {
                 type: { summary: "number" },
                 defaultValue: { summary: "10000" },
@@ -281,17 +55,29 @@ const meta = {
         },
         defaultPersisted: {
             control: "boolean",
-            description: "Default persisted state for notifications",
+            description: "Default persisted state for notifications.",
             table: {
                 type: { summary: "boolean" },
                 defaultValue: { summary: "false" },
             },
         },
+        limit: {
+            control: "number",
+            description:
+                "Maximum number of visible notifications in the stack.",
+            table: {
+                type: { summary: "number" },
+                defaultValue: { summary: "5" },
+            },
+        },
     },
     decorators: [
-        (Story) => (
-            <NotificationProvider closeIcon={<CloseIcon />}>
-                <Story />
+        (Story, context) => (
+            // eslint-disable-next-line solid/no-proxy-apis
+            <NotificationProvider closeIcon={<CloseIcon />} {...context.args}>
+                <div class="min-h-100 w-full p-6 relative flex flex-col items-start gap-4">
+                    <Story />
+                </div>
             </NotificationProvider>
         ),
     ],
@@ -301,165 +87,297 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Interactive demo showcasing all notification features.
- * Try adding multiple notifications to see the stacking behavior.
+ * The simplest form of a notification, providing a title and description.
  */
-export const Default: Story = {
-    render: () => <NotificationDemo />,
-};
-
-/**
- * Notification variants for different semantic meanings.
- */
-export const Variants: Story = {
+export const Basic: Story = {
     render: () => {
         const { addNotification } = useNotification();
-
         return (
-            <div class="flex flex-col gap-4 p-6">
-                <h3 class="text-lg font-semibold">Notification Variants</h3>
-                <div class="flex gap-2">
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Info",
-                                description: "Informational message",
-                                variant: "info",
-                            })
-                        }
-                    >
-                        Info
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Success",
-                                description: "Success message",
-                                variant: "success",
-                            })
-                        }
-                        color="success"
-                    >
-                        Success
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Warning",
-                                description: "Warning message",
-                                variant: "warning",
-                            })
-                        }
-                        color="warning"
-                    >
-                        Warning
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Error",
-                                description: "Error message",
-                                variant: "error",
-                            })
-                        }
-                        color="error"
-                    >
-                        Error
-                    </Button>
-                </div>
-            </div>
+            <Button
+                onClick={() =>
+                    addNotification({
+                        title: "Primary Notification",
+                        description: "This is an informational message.",
+                    })
+                }
+                color="accent"
+            >
+                Show Basic Notification
+            </Button>
         );
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Notifications provide brief, non-interruptive feedback. This is a basic example using the default settings.",
+            },
+        },
     },
 };
 
 /**
- * Auto-dismiss notifications with progress indicator.
- * Hover to pause the countdown.
+ * Notifications support multiple semantic variants to convey different states.
  */
-export const AutoDismiss: Story = {
+export const SemanticVariants: Story = {
     render: () => {
         const { addNotification } = useNotification();
 
         return (
-            <div class="flex flex-col gap-4 p-6">
-                <h3 class="text-lg font-semibold">
-                    Auto-dismiss Notifications
-                </h3>
-                <p class="text-sm text-fg-muted max-w-md">
-                    These notifications automatically dismiss after the
-                    specified duration. Hover over them to pause the countdown.
-                </p>
-                <div class="flex gap-2">
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Quick (2s)",
-                                description: "Dismisses in 2 seconds",
-                                variant: "info",
-                                duration: 2000,
-                            })
-                        }
-                    >
-                        2 Seconds
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Normal (5s)",
-                                description: "Dismisses in 5 seconds",
-                                variant: "success",
-                                duration: 5000,
-                            })
-                        }
-                    >
-                        5 Seconds
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            addNotification({
-                                title: "Long (10s)",
-                                description: "Dismisses in 10 seconds",
-                                variant: "warning",
-                                duration: 10000,
-                            })
-                        }
-                    >
-                        10 Seconds
-                    </Button>
-                </div>
-            </div>
-        );
-    },
-};
-
-/**
- * Persisted notifications that stay until manually closed.
- */
-export const Persisted: Story = {
-    render: () => {
-        const { addNotification } = useNotification();
-
-        return (
-            <div class="flex flex-col gap-4 p-6">
-                <h3 class="text-lg font-semibold">Persisted Notifications</h3>
-                <p class="text-sm text-fg-muted max-w-md">
-                    These notifications remain visible until the user manually
-                    closes them.
-                </p>
+            <div class="flex flex-wrap gap-4">
                 <Button
                     onClick={() =>
                         addNotification({
-                            title: "Important Message",
+                            title: "Heads up!",
                             description:
-                                "This notification will stay until you close it.",
-                            variant: "info",
-                            persisted: true,
+                                "Informational message provides context.",
+                            variant: "accent",
                         })
                     }
+                    color="accent"
                 >
-                    Add Persisted Notification
+                    Accent
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Success",
+                            description: "Operation completed successfully.",
+                            variant: "success",
+                        })
+                    }
+                    color="success"
+                >
+                    Success
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Warning",
+                            description:
+                                "Please review this action before proceeding.",
+                            variant: "warning",
+                        })
+                    }
+                    color="warning"
+                >
+                    Warning
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Error",
+                            description:
+                                "Something went wrong. Please try again.",
+                            variant: "error",
+                        })
+                    }
+                    color="error"
+                >
+                    Error
                 </Button>
             </div>
         );
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Different variants (`accent`, `success`, `warning`, `error`) help convey the nature of the message visually. Choose the appropriate visual treatment depending on the context of the notification.",
+            },
+        },
+    },
+};
+
+/**
+ * Notifications can automatically dismiss after a duration, or persist until manually closed.
+ */
+export const DurationAndPersistence: Story = {
+    render: () => {
+        const { addNotification } = useNotification();
+
+        return (
+            <div class="flex flex-wrap gap-4">
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Quick Dismiss",
+                            description:
+                                "This notification dismisses in 2 seconds.",
+                            duration: 2000,
+                        })
+                    }
+                    variant="outline"
+                >
+                    Quick (2s)
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Normal Duration",
+                            description:
+                                "This notification will auto-dismiss after 5 seconds.",
+                            variant: "success",
+                            duration: 5000,
+                        })
+                    }
+                    variant="outline"
+                >
+                    Normal (5s)
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Persisted",
+                            description:
+                                "This notification stays visible until it is manually closed.",
+                            persisted: true,
+                        })
+                    }
+                    variant="outline"
+                >
+                    Persisted
+                </Button>
+            </div>
+        );
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Control how long notifications stay visible on the screen via the `duration` parameter. Auto-dismissing notifications show a progress bar and can be temporarily paused by hovering. By default, auto-dismissal durations apply unless the `persisted` flag makes the notification stay indefinitely.",
+            },
+        },
+    },
+};
+
+/**
+ * Custom JSX can be rendered inside notifications for more complex content.
+ */
+export const CustomContent: Story = {
+    render: () => {
+        const { addNotification } = useNotification();
+
+        return (
+            <div class="flex flex-wrap gap-4">
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            title: "Title Only Alert",
+                        })
+                    }
+                    variant="outline"
+                >
+                    Title Only
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            description:
+                                "This notification features a description and no title.",
+                        })
+                    }
+                    variant="outline"
+                >
+                    Description Only
+                </Button>
+                <Button
+                    onClick={() =>
+                        addNotification({
+                            children: (
+                                <div class="flex items-center gap-3 py-2">
+                                    <div class="h-10 w-10 shrink-0 rounded-full bg-accent flex items-center justify-center text-primary font-bold">
+                                        !
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <h4 class="font-semibold text-sm m-0 p-0 text-accent">
+                                            Custom Profile Alert
+                                        </h4>
+                                        <p class="text-xs text-fg-muted m-0 p-0 mt-1">
+                                            Your profile is 80% complete.
+                                            Continue setting up.
+                                        </p>
+                                    </div>
+                                </div>
+                            ),
+                        })
+                    }
+                    variant="outline"
+                >
+                    Custom JSX Payload
+                </Button>
+            </div>
+        );
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Notifications can accommodate basic text fields (`title`, `description`) or fully custom layouts using the `children` parameter.",
+            },
+        },
+    },
+};
+
+/**
+ * Showcases how multiple notifications interact and stack on top of each other.
+ */
+export const StackingBehavior: Story = {
+    render: () => {
+        const { addNotification } = useNotification();
+
+        return (
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-wrap gap-4">
+                    <Button
+                        onClick={() => {
+                            let count = 0;
+                            const interval = setInterval(() => {
+                                count++;
+                                addNotification({
+                                    title: `Notification ${count}`,
+                                    description:
+                                        "Notifications visually stack as they arrive.",
+                                    duration: 8000,
+                                    variant: [
+                                        "accent",
+                                        "success",
+                                        "warning",
+                                        "error",
+                                    ][count % 4] as any,
+                                });
+                                if (count >= 5) clearInterval(interval);
+                            }, 300);
+                        }}
+                    >
+                        Trigger Rapid Sequence
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            for (let i = 1; i <= 6; i++) {
+                                addNotification({
+                                    title: `Persisted Message ${i}`,
+                                    description:
+                                        "Testing scroll and max-visible behavior when populated quickly.",
+                                    persisted: true,
+                                });
+                            }
+                        }}
+                        variant="outline"
+                    >
+                        Add Multiple Persisted
+                    </Button>
+                </div>
+                <Alert class="max-w-md mt-2" color="warning" variant="subtle">
+                    <Text as="p" color="main" class="text-sm">
+                        Click the stack or use the keyboard (Enter/Space) when
+                        focused to expand the list.
+                    </Text>
+                </Alert>
+            </div>
+        );
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "When multiple notifications are triggered simultaneously, they stack visually. Interacting with the stack by clicking or pressing Enter/Space when focused expands them into a full list.",
+            },
+        },
     },
 };

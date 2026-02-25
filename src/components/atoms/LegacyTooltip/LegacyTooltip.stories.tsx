@@ -2,6 +2,18 @@ import type { Meta, StoryObj } from "storybook-solidjs-vite";
 import { LegacyTooltip } from "./LegacyTooltip";
 import { Button } from "../Button";
 
+/**
+ * LegacyTooltip component using a custom positioning engine.
+ *
+ * Provides a text label that appears on hover or focus.
+ *
+ * @example
+ * ```tsx
+ * <LegacyTooltip content="Additional information">
+ *   <Button>Hover me</Button>
+ * </LegacyTooltip>
+ * ```
+ */
 const meta = {
     title: "Atoms/LegacyTooltip",
     component: LegacyTooltip,

@@ -66,14 +66,6 @@ export interface LegacyTooltipProps extends ParentProps {
      * @default 0
      */
     delay?: number;
-    /**
-     * Controlled open state.
-     */
-    open?: boolean;
-    /**
-     * Callback when open state changes.
-     */
-    onOpenChange?: (open: boolean) => void;
 }
 
 export const LegacyTooltip: Component<LegacyTooltipProps> = (props) => {
@@ -82,17 +74,12 @@ export const LegacyTooltip: Component<LegacyTooltipProps> = (props) => {
         "content",
         "placement",
         "class",
-        "open",
-        "onOpenChange",
         "delay",
     ]);
 
-    const [isOpenState, setIsOpenState] = createSignal(false);
+    const [isOpen, setIsOpen] = createSignal(false);
     const [triggerRef, setTriggerRef] = createSignal<HTMLElement>();
     const [popoverRef, setPopoverRef] = createSignal<HTMLElement>();
-
-    // Derived open state (controlled or uncontrolled)
-    const isOpen = () => local.open ?? isOpenState();
 
     const placement = () => local.placement ?? "top";
     const delay = () => local.delay ?? 0;
@@ -109,27 +96,23 @@ export const LegacyTooltip: Component<LegacyTooltipProps> = (props) => {
         clearTimeouts();
         const currentDelay = delay();
         showTimeout = window.setTimeout(() => {
-            setIsOpenState(true);
-            local.onOpenChange?.(true);
+            setIsOpen(true);
         }, currentDelay);
     };
 
     const handleMouseLeave = () => {
         clearTimeouts();
-        setIsOpenState(false);
-        local.onOpenChange?.(false);
+        setIsOpen(false);
     };
 
     const handleFocus = () => {
         clearTimeouts();
-        setIsOpenState(true);
-        local.onOpenChange?.(true);
+        setIsOpen(true);
     };
 
     const handleBlur = () => {
         clearTimeouts();
-        setIsOpenState(false);
-        local.onOpenChange?.(false);
+        setIsOpen(false);
     };
 
     onCleanup(() => {

@@ -1,42 +1,49 @@
+/** eslint-disable solid/reactivity */
 import {
     Show,
     createEffect,
     createSignal,
+    createUniqueId,
     onCleanup,
     type JSX,
 } from "solid-js";
 import { tv } from "tailwind-variants";
 import type { NotificationData } from "./types";
 import { Button } from "../../atoms/Button";
+import XMark from "../../icons/XMark";
 
 interface NotificationProps {
     data: NotificationData;
-    onDismiss: () => void;
-    onExpand: () => void;
-    stackIndex: number;
-    isExpanded: boolean;
+    onDismiss?: () => void;
+    onExpand?: () => void;
+    onHeight?: (height: number) => void;
+    stackIndex?: number;
+    offset?: number;
+    isExpanded?: boolean;
     closeIcon?: JSX.Element;
 }
 
 const notificationStyles = tv({
     base: [
-        "relative w-full rounded-xl overflow-hidden",
-        "border backdrop-blur-md shadow-lg",
+        "absolute bottom-0 w-full rounded-xl overflow-hidden",
+        "border shadow-lg",
         "cursor-pointer select-none",
-        "transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
+        "transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
         "hover:shadow-xl focus-visible:outline focus-visible:outline-2",
         "focus-visible:outline-accent focus-visible:outline-offset-2",
     ],
     variants: {
         variant: {
-            info: "bg-secondary/95 border-ui-border text-fg-main",
-            success: "bg-success/5 border-success/20 text-fg-main",
-            warning: "bg-warning/5 border-warning/20 text-fg-main",
-            error: "bg-error/5 border-error/20 text-fg-main",
+            accent: "bg-secondary border-ui-border [&_h4]:text-accent [&_p]:text-fg-muted",
+            success:
+                "bg-secondary border-success/30 [&_h4]:text-success [&_p]:text-fg-muted",
+            warning:
+                "bg-secondary border-warning/30 [&_h4]:text-warning [&_p]:text-fg-muted",
+            error: "bg-secondary border-error/30 [&_h4]:text-error [&_p]:text-fg-muted",
         },
     },
     defaultVariants: {
-        variant: "info",
+        variant: "accent",
     },
 });
 
@@ -44,7 +51,7 @@ const progressBarStyles = tv({
     base: "absolute bottom-0 left-0 right-0 h-1 bg-fg-main/5",
     variants: {
         variant: {
-            info: "",
+            accent: "",
             success: "",
             warning: "",
             error: "",
@@ -56,7 +63,7 @@ const progressFillStyles = tv({
     base: "h-full transition-all duration-100 ease-linear",
     variants: {
         variant: {
-            info: "bg-accent",
+            accent: "bg-accent",
             success: "bg-success",
             warning: "bg-warning",
             error: "bg-error",
@@ -65,14 +72,39 @@ const progressFillStyles = tv({
 });
 
 export function Notification(props: NotificationProps) {
+    const id = createUniqueId();
+    // eslint-disable-next-line solid/reactivity
+    const notificationId = props.data?.id || id;
     const [progress, setProgress] = createSignal(100);
-    // Track the last valid stack index for smooth exit animations
+    const [isPaused, setIsPaused] = createSignal(false);
     const [lastStackIndex, setLastStackIndex] = createSignal(0);
+    let el: HTMLDivElement | undefined;
 
     createEffect(() => {
         if (props.stackIndex !== -1) {
-            setLastStackIndex(props.stackIndex);
+            setLastStackIndex(props.stackIndex!);
         }
+    });
+
+    createEffect(() => {
+        if (typeof window === "undefined") return;
+        const domEl = el;
+        if (!domEl || !props.onHeight) return;
+
+        if (typeof ResizeObserver !== "undefined") {
+            const observer = new ResizeObserver((entries) => {
+                for (let entry of entries) {
+                    props.onHeight?.(
+                        entry.target.getBoundingClientRect().height
+                    );
+                }
+            });
+
+            observer.observe(domEl);
+            onCleanup(() => observer.disconnect());
+        }
+
+        props.onHeight(domEl.getBoundingClientRect().height);
     });
 
     const isTop = () => props.stackIndex === 0;
@@ -80,7 +112,7 @@ export function Notification(props: NotificationProps) {
     const handleClick = (e: MouseEvent) => {
         e.stopPropagation();
         if (isTop() && !props.isExpanded) {
-            props.onExpand();
+            props.onExpand?.();
         }
     };
 
@@ -88,12 +120,11 @@ export function Notification(props: NotificationProps) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             if (isTop() && !props.isExpanded) {
-                props.onExpand();
+                props.onExpand?.();
             }
         }
     };
 
-    // Auto-dismiss logic with SSR guard
     createEffect(() => {
         if (typeof window === "undefined") return;
         if (
@@ -103,22 +134,31 @@ export function Notification(props: NotificationProps) {
         )
             return;
 
+        let intervalId: number;
+        let lastTick = Date.now();
+        let remaining = props.data.duration;
         const duration = props.data.duration;
-        const startTime = Date.now();
-        const interval = 50; // Update every 50ms
 
-        const intervalId = window.setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const remaining = Math.max(0, duration - elapsed);
-            const progressPercent = (remaining / duration) * 100;
+        const tick = () => {
+            if (isPaused()) {
+                lastTick = Date.now(); // Keep updating lastTick so remaining doesn't drop
+                return;
+            }
 
+            const now = Date.now();
+            remaining -= now - lastTick;
+            lastTick = now;
+
+            const progressPercent = Math.max(0, (remaining / duration) * 100);
             setProgress(progressPercent);
 
             if (remaining <= 0) {
                 window.clearInterval(intervalId);
-                props.onDismiss();
+                props.onDismiss?.();
             }
-        }, interval);
+        };
+
+        intervalId = window.setInterval(tick, 50);
 
         onCleanup(() => {
             if (typeof window !== "undefined") {
@@ -127,65 +167,67 @@ export function Notification(props: NotificationProps) {
         });
     });
 
-    // Dynamic styles for stack animation
     const getStyle = () => {
-        // Expanded state: no transforms, just normal flow
-        if (props.isExpanded && !props.data.isExiting) {
+        const isExiting = props.data.isExiting;
+        const index = isExiting
+            ? lastStackIndex()
+            : Math.max(0, props.stackIndex!);
+
+        if (props.isExpanded && !isExiting) {
+            const yOffset = props.offset;
             return {
-                transform: "none",
+                transform: `translate3d(0, -${yOffset}px, 0)`,
                 opacity: 1,
                 "pointer-events": "auto",
+                "z-index": 100 - index,
             };
         }
 
-        const isExiting = props.data.isExiting;
-        // Use current index if valid, otherwise use last known index
-        const index = isExiting ? lastStackIndex() : props.stackIndex;
+        const MAX_STACK = 3;
+        const isAboveMax = index >= MAX_STACK;
 
-        // Stack visual parameters
-        const yOffset = isExiting ? index * 12 : index * 12; // 12px gap
-        const scale = 1 - index * 0.05;
-        const opacity = Math.max(0, 1 - index * 0.2);
+        const offsetPerItem = 14;
+        const scalePerItem = 0.05;
 
-        // CSS transforms
-        let transform = `translateY(-${yOffset}px) scale(${scale})`;
+        let visualIndex = isAboveMax ? MAX_STACK : index;
+        const yOffset = visualIndex * offsetPerItem;
+        const scale = 1 - visualIndex * scalePerItem;
+        const opacity = isAboveMax ? 0 : 1;
 
-        // Exit animation override
+        let transform = `translate3d(0, -${yOffset}px, 0) scale(${scale})`;
+
         if (isExiting) {
-            transform = `translateY(-${yOffset}px) translateX(20px) scale(${scale * 0.9})`;
+            transform = `translate3d(100%, -${yOffset}px, 0) scale(${scale * 0.9})`;
             return {
                 transform,
                 opacity: 0,
                 "pointer-events": "none",
-            };
-        }
-
-        // Hidden items deep in stack
-        if (index > 2) {
-            return {
-                transform: `translateY(-${3 * 12}px) scale(${1 - 3 * 0.05})`,
-                opacity: 0,
-                "pointer-events": "none",
+                "z-index": 100 - index,
             };
         }
 
         return {
             transform,
             opacity,
+            "z-index": 100 - index,
+            "pointer-events": isTop() ? "auto" : "none", // Only top item is interactable when stacked
         };
     };
 
     return (
         <div
+            ref={el}
             class={notificationStyles({ variant: props.data.variant })}
             style={getStyle() as JSX.CSSProperties}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
             role="alert"
             aria-live="polite"
             aria-atomic="true"
             aria-label={props.data.title || "Notification"}
-            data-notification-id={props.data.id}
+            data-notification-id={notificationId}
             tabIndex={0}
         >
             <div class="flex items-start gap-3 p-4">
@@ -195,15 +237,15 @@ export function Notification(props: NotificationProps) {
                     <Show when={props.data.title}>
                         <h4
                             class="text-sm font-semibold mb-1 leading-none"
-                            id={`notification-title-${props.data.id}`}
+                            id={`notification-title-${notificationId}`}
                         >
                             {props.data.title}
                         </h4>
                     </Show>
                     <Show when={props.data.description}>
                         <p
-                            class="text-sm opacity-90 leading-relaxed"
-                            id={`notification-desc-${props.data.id}`}
+                            class="text-sm leading-relaxed"
+                            id={`notification-desc-${notificationId}`}
                         >
                             {props.data.description}
                         </p>
@@ -214,32 +256,17 @@ export function Notification(props: NotificationProps) {
                 </div>
 
                 <div
-                    class="shrink-0 -mr-1 -mt-1"
+                    class="shrink-0 ms-auto -mt-1 -me-1" // Use ms-auto and -me-1 for logical margins
                     onClick={(e) => e.stopPropagation()}
                 >
                     <Button
                         variant="text"
                         size="sm"
-                        class="h-6 w-6 p-0 rounded-full hover:bg-fg-main/10"
-                        onClick={() => props.onDismiss()}
+                        class="h-6 w-6 p-0 rounded-full hover:bg-fg-main/10 flex items-center justify-center"
+                        onClick={() => props.onDismiss?.()}
                         aria-label={`Close ${props.data.title || "notification"}`}
                     >
-                        {props.closeIcon || (
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                            </svg>
-                        )}
+                        {props.closeIcon || <XMark />}
                     </Button>
                 </div>
             </div>

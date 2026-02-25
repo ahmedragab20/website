@@ -1,7 +1,21 @@
 import type { Meta, StoryObj } from "storybook-solidjs-vite";
-import { LegacyDropdown } from "./LegacyDropdown";
+import { LegacyDropdown, LegacyDropdownItem } from "./LegacyDropdown";
 import { Button } from "../Button";
 
+/**
+ * LegacyDropdown component using a custom positioning engine.
+ *
+ * Provides a menu that appears on click. Supports keyboard navigation.
+ *
+ * @example
+ * ```tsx
+ * <LegacyDropdown trigger={<Button>Open Menu</Button>}>
+ *   <LegacyDropdownItem>Profile</LegacyDropdownItem>
+ *   <LegacyDropdownItem>Settings</LegacyDropdownItem>
+ *   <LegacyDropdownItem variant="danger">Logout</LegacyDropdownItem>
+ * </LegacyDropdown>
+ * ```
+ */
 const meta = {
     title: "Atoms/LegacyDropdown",
     component: LegacyDropdown,
@@ -18,10 +32,6 @@ const meta = {
                 defaultValue: { summary: "bottom-start" },
             },
         },
-        closeOnOutsideClick: {
-            control: "boolean",
-            description: "Close when clicking outside",
-        },
     },
 } satisfies Meta<typeof LegacyDropdown>;
 
@@ -29,25 +39,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const MenuContent = () => (
-    <div class="flex flex-col p-1">
-        <button class="text-left w-full px-2 py-1.5 text-sm hover:bg-ui-active rounded">
-            Profile
-        </button>
-        <button class="text-left w-full px-2 py-1.5 text-sm hover:bg-ui-active rounded">
-            Settings
-        </button>
+    <>
+        <LegacyDropdownItem>Profile</LegacyDropdownItem>
+        <LegacyDropdownItem>Settings</LegacyDropdownItem>
         <div class="h-px bg-ui-border my-1" />
-        <button class="text-left w-full px-2 py-1.5 text-sm text-error hover:bg-ui-active rounded">
-            Logout
-        </button>
-    </div>
+        <LegacyDropdownItem variant="danger">Logout</LegacyDropdownItem>
+    </>
 );
 
 export const Default: Story = {
-    args: {
-        trigger: <Button>Open Menu</Button>,
-        children: <MenuContent />,
-    },
+    render: (args: Story["args"]) => (
+        <LegacyDropdown trigger={<Button>Open Menu</Button>} {...args}>
+            <MenuContent />
+        </LegacyDropdown>
+    ),
 };
 
 export const Placements: Story = {
@@ -67,25 +72,4 @@ export const Placements: Story = {
             </LegacyDropdown>
         </div>
     ),
-};
-
-export const Controlled: Story = {
-    render: (args: any) => {
-        // Pseudo-controlled for storybook (args usually passed down)
-        return (
-            <LegacyDropdown
-                trigger={<Button>Controlled</Button>}
-                placement="bottom-start"
-                {...args}
-            >
-                <div>
-                    <div class="p-2">Content</div>
-                </div>
-            </LegacyDropdown>
-        );
-    },
-    args: {
-        open: true,
-        closeOnOutsideClick: false,
-    },
 };
