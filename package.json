@@ -50,7 +50,7 @@
         "playwright": "^1.57.0",
         "prettier": "^3.7.4",
         "prettier-plugin-astro": "^0.14.1",
-        "storybook": "^10.1.11",
+        "storybook": "^10.2.10",
         "storybook-solidjs-vite": "^10.0.9",
         "tailwind-merge": "^3.4.0",
         "tailwind-variants": "^3.2.2",
